@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Typography */
+body {
+  @apply bg-background text-foreground font-sans antialiased;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-serif font-bold tracking-tight;
+}
+
+h1 {
+  @apply text-5xl leading-tight;
+}
+
+h2 {
+  @apply text-4xl leading-tight;
+}
+
+h3 {
+  @apply text-3xl leading-snug;
+}
+
+p {
+  @apply leading-relaxed text-secondary;
+}
+
+/* Buttons */
+.btn {
+  @apply px-6 py-3 rounded-lg font-medium transition-all duration-200 inline-block;
+}
+
+.btn-primary {
+  @apply btn bg-primary text-primary-foreground hover:bg-opacity-90;
+}
+
+.btn-secondary {
+  @apply btn border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground;
+}
+
+.btn-sm {
+  @apply px-4 py-2 text-sm;
+}
+
+/* Cards */
+.card {
+  @apply bg-white rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-shadow;
+}
+
+/* Links */
+a {
+  @apply text-primary hover:underline transition-colors;
+}
+
+/* Inputs */
+input, textarea, select {
+  @apply w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all;
+}
+
+input::placeholder, textarea::placeholder {
+  @apply text-muted-foreground;
+}
+
+/* Utility Classes */
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section {
+  @apply py-16 sm:py-24;
+}
+
+.section-header {
+  @apply mb-12 text-center;
+}
+
+.section-header h2 {
+  @apply mb-4;
+}
+
+.section-header p {
+  @apply text-lg text-secondary max-w-2xl mx-auto;
+}
+
+.grid-cols-auto {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  h1 {
+    @apply text-3xl;
+  }
+  
+  h2 {
+    @apply text-2xl;
+  }
+  
+  .section {
+    @apply py-8;
+  }
+}
