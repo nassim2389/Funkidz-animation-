@@ -38,7 +38,7 @@ type Action =
     }
   | {
       type: ActionType['UPDATE_TOAST']
-      toast: Partial<ToasterToast>
+      toast: Partial<ToasterToast> & { id: ToasterToast['id'] }
     }
   | {
       type: ActionType['DISMISS_TOAST']
@@ -114,10 +114,18 @@ export const reducer = (state: State, action: Action): State => {
     }
     case 'REMOVE_TOAST':
       if (action.toastId === undefined) {
+        // Clear all timeouts when removing all toasts
+        toastTimeouts.forEach((timeout) => clearTimeout(timeout))
+        toastTimeouts.clear()
         return {
           ...state,
           toasts: [],
         }
+      }
+      // Clear timeout for specific toast
+      if (toastTimeouts.has(action.toastId)) {
+        clearTimeout(toastTimeouts.get(action.toastId)!)
+        toastTimeouts.delete(action.toastId)
       }
       return {
         ...state,
@@ -179,7 +187,7 @@ function useToast() {
         listeners.splice(index, 1)
       }
     }
-  }, [state])
+  }, [])
 
   return {
     ...state,

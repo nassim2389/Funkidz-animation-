@@ -105,58 +105,85 @@ export default function Booking() {
   const estimatedPrice = currentService ? (currentService.base_price * formData.duration_minutes / 60) : 0
 
   return (
-    <div className="pt-20 min-h-screen bg-gray-50">
+    <div className="pt-20 min-h-screen bg-gradient-to-b from-blue-50 to-purple-50">
+      <section className="py-12 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600">
+        <div className="container max-w-4xl mx-auto px-4">
+          <h1 className="text-5xl font-serif font-bold mb-4 text-center text-white drop-shadow-lg animate-scale-in">
+            🎯 Réservation
+          </h1>
+          <p className="text-xl text-white font-bold text-center drop-shadow-md">
+            Créons ensemble un événement inoubliable pour les enfants! 🎉
+          </p>
+        </div>
+      </section>
+
       <section className="py-16">
         <div className="container max-w-4xl mx-auto px-4">
-          <h1 className="text-4xl font-serif font-bold mb-8 text-center text-gray-900">Réservation</h1>
-
-          {/* Progress Indicator */}
+          {/* Progress Indicator - Colorful */}
           <div className="flex justify-between mb-12">
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center flex-1">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                  s <= step ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transform transition-all ${
+                  s <= step 
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg scale-110' 
+                    : 'bg-gray-300 text-gray-600'
                 }`}>
-                  {s}
+                  {s <= step ? '✅' : s}
                 </div>
-                {s < 3 && <div className={`flex-grow h-1 mx-2 ${s < step ? 'bg-blue-600' : 'bg-gray-300'}`} />}
+                {s < 3 && <div className={`flex-grow h-3 mx-2 rounded-full transition-all ${s < step ? 'bg-gradient-to-r from-purple-600 to-pink-600' : 'bg-gray-300'}`} />}
               </div>
             ))}
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-              {error}
+            <div className="mb-6 p-4 bg-red-100 border-3 border-red-400 text-red-700 rounded-lg font-bold">
+              ⚠️ {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-8">
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 border-4 border-purple-200">
             {/* Step 1: Service Selection */}
             {step === 1 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold mb-4">Choisir un service</h2>
+                  <h2 className="text-3xl font-serif font-bold mb-6 text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">
+                    🎪 Choisir un service
+                  </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {services.map((service) => (
-                      <label key={service.id} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        formData.service_id === service.id.toString()
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-300 hover:border-blue-600'
-                      }`}>
-                        <input
-                          type="radio"
-                          name="service_id"
-                          value={service.id}
-                          onChange={handleChange}
-                          className="mr-2"
-                        />
-                        <div>
-                          <p className="font-medium text-gray-900">{service.title}</p>
-                          <p className="text-sm text-gray-600">{service.description}</p>
-                          <p className="text-lg font-bold text-blue-600 mt-2">{service.base_price}€/heure</p>
-                        </div>
-                      </label>
-                    ))}
+                    {services.map((service, idx) => {
+                      const colors = [
+                        'border-purple-400 bg-gradient-to-br from-purple-50 to-transparent',
+                        'border-pink-400 bg-gradient-to-br from-pink-50 to-transparent',
+                        'border-blue-400 bg-gradient-to-br from-blue-50 to-transparent',
+                        'border-green-400 bg-gradient-to-br from-green-50 to-transparent',
+                      ]
+                      const emojis = ['✨', '🤡', '👥', '🎵']
+                      return (
+                        <label key={service.id} className={`p-6 border-3 rounded-lg cursor-pointer transition-all hover-lift ${
+                          formData.service_id === service.id.toString()
+                            ? 'border-purple-600 bg-purple-100 ring-2 ring-purple-400 shadow-lg'
+                            : colors[idx % colors.length]
+                        }`}>
+                          <input
+                            type="radio"
+                            name="service_id"
+                            value={service.id}
+                            onChange={handleChange}
+                            className="mr-2"
+                          />
+                          <div className="flex items-start gap-3">
+                            <span className="text-3xl">{emojis[idx % emojis.length]}</span>
+                            <div>
+                              <p className="font-bold text-lg text-gray-900">{service.title}</p>
+                              <p className="text-sm text-gray-600 my-1">{service.description}</p>
+                              <p className="text-lg font-black text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">
+                                {service.base_price}€/heure
+                              </p>
+                            </div>
+                          </div>
+                        </label>
+                      )
+                    })}
                   </div>
                 </div>
 

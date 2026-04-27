@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import mockDataService from '@/src/services/mockDataService.js';
 import mockAuthService from '@/src/services/mockAuthService.js';
-import { BarChart3, Users, Calendar, DollarSign, LogOut } from 'lucide-react';
+import { BarChart3, Users, Calendar, DollarSign, LogOut, Settings, Plus } from 'lucide-react';
 
 interface AdminStats {
   total_reservations: number;
@@ -64,15 +64,15 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white dark:bg-slate-950">
       {/* Header */}
-      <div className="bg-card border-b border-border">
+      <div className="bg-gradient-to-b from-blue-50 to-white dark:from-slate-900 dark:to-slate-950 border-b border-slate-200 dark:border-slate-800">
         <div className="container mx-auto px-4 py-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Gestion de Funkidz Animation</p>
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-white">Tableau de Bord Admin</h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">Gestion Funkidz</p>
           </div>
-          <Button variant="destructive" onClick={handleLogout} className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/20">
             <LogOut size={18} />
             Déconnexion
           </Button>
@@ -82,52 +82,55 @@ export default function AdminDashboard() {
       {/* Content */}
       <div className="container mx-auto px-4 py-12">
         {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground">Chargement des données...</div>
+          <div className="text-center py-12">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+            <p className="text-slate-600 dark:text-slate-400 mt-3">Chargement des données...</p>
+          </div>
         ) : (
           <div className="space-y-8">
             {/* Stats Grid */}
             <div className="grid md:grid-cols-4 gap-6">
-              <Card>
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                 <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-sm font-medium">Réservations Totales</CardTitle>
-                  <Calendar className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Réservations Totales</CardTitle>
+                  <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.total_reservations}</div>
-                  <p className="text-xs text-muted-foreground">Tous les temps</p>
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white">{stats.total_reservations}</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Tous les temps</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                 <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-sm font-medium">En Attente</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-orange-600" />
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">En Attente</CardTitle>
+                  <BarChart3 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.pending_reservations}</div>
-                  <p className="text-xs text-muted-foreground">À traiter</p>
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white">{stats.pending_reservations}</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">À traiter</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                 <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-sm font-medium">Revenu</CardTitle>
-                  <DollarSign className="h-4 w-4 text-green-600" />
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Revenu</CardTitle>
+                  <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.total_revenue}€</div>
-                  <p className="text-xs text-muted-foreground">Total généré</p>
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white">{stats.total_revenue}€</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Total généré</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                 <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-sm font-medium">Services</CardTitle>
-                  <Users className="h-4 w-4 text-secondary" />
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Services</CardTitle>
+                  <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.total_services}</div>
-                  <p className="text-xs text-muted-foreground">Actifs</p>
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white">{stats.total_services}</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Actifs</p>
                 </CardContent>
               </Card>
             </div>
@@ -135,20 +138,20 @@ export default function AdminDashboard() {
             {/* Management Sections */}
             <div className="grid md:grid-cols-2 gap-6">
               {/* Reservations Management */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Gestion des Réservations</CardTitle>
-                  <CardDescription>Approuver, rejeter ou modifier les réservations</CardDescription>
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <CardHeader className="border-b border-slate-200 dark:border-slate-800">
+                  <CardTitle className="text-slate-900 dark:text-white">Gestion des Réservations</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-400">Approuver ou modifier les réservations</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <div className="space-y-3">
                     <Link href="/admin/reservations">
-                      <Button className="w-full justify-start bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:opacity-90">
+                      <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold">
                         <Calendar className="mr-2" size={18} />
                         Voir Toutes les Réservations
                       </Button>
                     </Link>
-                    <div className="text-sm text-muted-foreground p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="text-sm text-amber-700 dark:text-amber-400 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg">
                       {stats.pending_reservations} réservation{stats.pending_reservations !== 1 ? 's' : ''} en attente d'approbation
                     </div>
                   </div>
@@ -156,20 +159,20 @@ export default function AdminDashboard() {
               </Card>
 
               {/* Services Management */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Gestion des Services</CardTitle>
-                  <CardDescription>Créer, modifier ou supprimer les services</CardDescription>
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <CardHeader className="border-b border-slate-200 dark:border-slate-800">
+                  <CardTitle className="text-slate-900 dark:text-white">Gestion des Services</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-400">Créer, modifier ou supprimer les services</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <div className="space-y-3">
                     <Link href="/admin/services">
-                      <Button className="w-full justify-start bg-gradient-to-r from-secondary to-accent text-secondary-foreground hover:opacity-90">
+                      <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold">
                         <Users className="mr-2" size={18} />
                         Gérer les Services
                       </Button>
                     </Link>
-                    <div className="text-sm text-muted-foreground p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="text-sm text-blue-700 dark:text-blue-400 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-lg">
                       {stats.total_services} service{stats.total_services !== 1 ? 's' : ''} disponible{stats.total_services !== 1 ? 's' : ''}
                     </div>
                   </div>
@@ -177,14 +180,14 @@ export default function AdminDashboard() {
               </Card>
 
               {/* Analytics */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Analytics & Rapports</CardTitle>
-                  <CardDescription>Visualiser les statistiques et tendances</CardDescription>
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <CardHeader className="border-b border-slate-200 dark:border-slate-800">
+                  <CardTitle className="text-slate-900 dark:text-white">Analytics & Rapports</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-400">Visualiser les statistiques et tendances</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <Link href="/admin/analytics">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="w-full justify-start bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 font-semibold">
                       <BarChart3 className="mr-2" size={18} />
                       Voir les Analytics
                     </Button>
@@ -193,14 +196,15 @@ export default function AdminDashboard() {
               </Card>
 
               {/* Settings */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Paramètres</CardTitle>
-                  <CardDescription>Configuration du système et options</CardDescription>
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <CardHeader className="border-b border-slate-200 dark:border-slate-800">
+                  <CardTitle className="text-slate-900 dark:text-white">Paramètres</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-400">Configuration du système et options</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <Link href="/admin/settings">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="w-full justify-start bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 font-semibold">
+                      <Settings className="mr-2" size={18} />
                       Gérer les Paramètres
                     </Button>
                   </Link>
@@ -209,29 +213,30 @@ export default function AdminDashboard() {
             </div>
 
             {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Actions Rapides</CardTitle>
+            <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <CardHeader className="border-b border-slate-200 dark:border-slate-800">
+                <CardTitle className="text-slate-900 dark:text-white">Actions Rapides</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div className="grid md:grid-cols-4 gap-3">
                   <Link href="/admin/reservations">
-                    <Button variant="outline" className="w-full">
-                      Réservations Récentes
+                    <Button variant="outline" className="w-full border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800">
+                      Réservations
                     </Button>
                   </Link>
                   <Link href="/admin/services">
-                    <Button variant="outline" className="w-full">
-                      Ajouter un Service
+                    <Button variant="outline" className="w-full border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
+                      <Plus size={16} />
+                      Service
                     </Button>
                   </Link>
                   <Link href="/admin/settings">
-                    <Button variant="outline" className="w-full">
-                      Options de Paiment
+                    <Button variant="outline" className="w-full border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800">
+                      Paiement
                     </Button>
                   </Link>
                   <Link href="/">
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800">
                       Retour au Site
                     </Button>
                   </Link>

@@ -1,0 +1,43 @@
+'use client';
+
+import { ContactForm } from '@/components/forms/contact-form';
+
+export const metadata = {
+  title: 'Nous Contacter - Funkidz Animation',
+  description: 'Contactez Funkidz Animation pour vos questions et demandes',
+};
+
+export default function ContactPage() {
+  return (
+    <div className="min-h-screen py-20 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Nous Contacter</h1>
+          <p className="text-xl text-muted-foreground">
+            Vous avez une question ? Remplissez le formulaire ci-dessous et nous vous répondrons dans les 24 heures.
+          </p>
+        </div>
+
+        <ContactForm />
+
+        <div className="mt-16 grid md:grid-cols-3 gap-8 pt-16 border-t">
+          <div className="text-center">
+            <div className="text-4xl font-bold text-primary mb-2">📞</div>
+            <h3 className="font-semibold mb-2">Téléphone</h3>
+            <p className="text-muted-foreground">+33 6 12 34 56 78</p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-primary mb-2">📧</div>
+            <h3 className="font-semibold mb-2">Email</h3>
+            <p className="text-muted-foreground">contact@funkidz.fr</p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-primary mb-2">📍</div>
+            <h3 className="font-semibold mb-2">Localisation</h3>
+            <p className="text-muted-foreground">Paris, Île-de-France</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

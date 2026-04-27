@@ -63,13 +63,13 @@ export default function ContactPage() {
       <Navbar />
 
       {/* Header */}
-      <div className="bg-card border-b border-border py-12">
+      <div className="bg-gradient-to-b from-blue-50 to-white dark:from-slate-900 dark:to-slate-950 border-b border-slate-200 dark:border-slate-800 py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold">
+            <h1 className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white">
               Nous Contacter
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-slate-600 dark:text-slate-300">
               Une question ? Une demande spéciale ? Contactez-nous pour discuter de votre événement.
             </p>
           </div>
@@ -83,16 +83,16 @@ export default function ContactPage() {
             {/* Contact Info */}
             <Card>
               <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 p-2.5 mb-4">
-                  <Phone className="w-full h-full text-primary" />
+                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 p-2.5 mb-4">
+                  <Phone className="w-full h-full text-blue-600" />
                 </div>
                 <CardTitle>Téléphone</CardTitle>
               </CardHeader>
               <CardContent>
-                <a href="tel:+33123456789" className="text-primary hover:underline text-lg font-semibold">
-                  +33 (0)1 23 45 67 89
+                <a href="tel:+33142685300" className="text-blue-600 hover:underline text-lg font-semibold">
+                  +33 1 42 68 53 00
                 </a>
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
                   Disponible du lundi au vendredi, 9h-18h
                 </p>
               </CardContent>
@@ -100,16 +100,16 @@ export default function ContactPage() {
 
             <Card>
               <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 p-2.5 mb-4">
-                  <Mail className="w-full h-full text-primary" />
+                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 p-2.5 mb-4">
+                  <Mail className="w-full h-full text-blue-600" />
                 </div>
                 <CardTitle>Email</CardTitle>
               </CardHeader>
               <CardContent>
-                <a href="mailto:info@funkidz.fr" className="text-primary hover:underline text-lg font-semibold">
-                  info@funkidz.fr
+                <a href="mailto:contact@funkidz.fr" className="text-blue-600 hover:underline text-lg font-semibold">
+                  contact@funkidz.fr
                 </a>
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
                   Réponse sous 24h en jours ouvrables
                 </p>
               </CardContent>
@@ -117,15 +117,15 @@ export default function ContactPage() {
 
             <Card>
               <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 p-2.5 mb-4">
-                  <MapPin className="w-full h-full text-primary" />
+                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 p-2.5 mb-4">
+                  <MapPin className="w-full h-full text-blue-600" />
                 </div>
                 <CardTitle>Adresse</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-lg font-semibold">Paris, France</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Nous servons toute la région Île-de-France
+                <p className="text-lg font-semibold text-slate-900 dark:text-white">75002 Paris, France</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                  Nous servons toute la région Île-de-France et la France entière
                 </p>
               </CardContent>
             </Card>
@@ -135,7 +135,7 @@ export default function ContactPage() {
           <div className="max-w-2xl mx-auto">
             <Card>
               <CardHeader>
-                <CardTitle>Envoyez-nous un Message</CardTitle>
+                <CardTitle className="text-2xl">Envoyez-nous un Message</CardTitle>
                 <CardDescription>
                   Remplissez ce formulaire et nous vous répondrons rapidement
                 </CardDescription>
@@ -143,7 +143,7 @@ export default function ContactPage() {
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {status === 'success' && (
-                    <div className="flex gap-3 p-4 rounded-lg bg-green-50 text-green-700 border border-green-200">
+                    <div className="flex gap-3 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800">
                       <CheckCircle size={20} className="flex-shrink-0 mt-0.5" />
                       <p>Votre message a été envoyé avec succès. Nous vous répondrons bientôt.</p>
                     </div>

@@ -22,12 +22,12 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="fixed top-0 w-full bg-white border-b border-gray-200 z-50 shadow-sm">
+    <nav className="fixed top-0 w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 border-b-4 border-yellow-400 z-50 shadow-lg">
       <div className="container max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="text-2xl font-serif font-bold text-blue-600">
-            Funkidz
+          {/* Logo - Ludique */}
+          <Link to="/" className="text-3xl font-serif font-black text-white drop-shadow-lg hover:scale-110 transition-transform">
+            🎉 Funkidz
           </Link>
 
           {/* Desktop Menu */}
@@ -36,7 +36,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 to={link.href}
-                className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                className="text-sm font-bold text-white hover:text-yellow-300 transition-colors drop-shadow-md transform hover:scale-110"
               >
                 {link.label}
               </Link>
@@ -47,13 +47,13 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-4">
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                <Link to="/dashboard" className="flex items-center gap-2 text-sm font-bold text-white hover:text-yellow-300 transition-colors">
                   <User size={18} />
                   {user?.email}
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+                  className="flex items-center gap-2 text-sm font-bold text-red-200 hover:text-red-100 transition-colors"
                 >
                   <LogOut size={18} />
                   Déconnexion
@@ -63,13 +63,13 @@ export default function Navbar() {
               <>
                 <Link
                   to="/auth/login"
-                  className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                  className="text-sm font-bold text-white hover:text-yellow-300 transition-colors"
                 >
                   Connexion
                 </Link>
                 <Link
                   to="/auth/signup"
-                  className="text-sm font-medium px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="text-sm font-bold px-4 py-2 bg-white text-purple-600 rounded-lg hover:bg-yellow-300 transform hover:scale-105 transition-all shadow-md"
                 >
                   Inscription
                 </Link>
@@ -77,24 +77,24 @@ export default function Navbar() {
             )}
             <Link
               to="/booking"
-              className="text-sm font-medium px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+              className="text-sm font-black px-6 py-2 bg-yellow-400 text-purple-900 rounded-lg hover:bg-white transform hover:scale-105 transition-all shadow-lg animate-bounce-custom"
             >
-              Réserver
+              🚀 Réserver
             </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="md:hidden p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
           </button>
         </div>
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden border-t border-gray-200">
+          <div className="md:hidden border-t-4 border-yellow-400 bg-purple-700 bg-opacity-95">
             <div className="px-4 py-4 space-y-4">
               {links.map((link) => (
                 <Link
