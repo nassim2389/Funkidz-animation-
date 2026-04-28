@@ -41,6 +41,12 @@ class PricingView(TemplateView):
 class AboutView(TemplateView):
     template_name = 'about.html'
 
+class PaymentSuccessView(TemplateView):
+    template_name = 'payments/success.html'
+
+class PaymentCancelledView(TemplateView):
+    template_name = 'payments/cancelled.html'
+
 class ContactView(TemplateView):
     template_name = 'contact.html'
     def post(self, request, *args, **kwargs):

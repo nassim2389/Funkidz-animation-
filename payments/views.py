@@ -37,8 +37,8 @@ class CreateStripeSessionView(APIView):
                     },
                 ],
                 mode='payment',
-                success_url=settings.CORS_ALLOWED_ORIGINS[0] + '/payment-success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=settings.CORS_ALLOWED_ORIGINS[0] + '/payment-cancelled',
+                success_url=request.build_absolute_uri('/payment-success/') + '?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=request.build_absolute_uri('/payment-cancelled/'),
                 metadata={
                     'booking_id': booking.id
                 }

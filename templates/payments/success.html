@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Funkidz - Paiement Réussi ! 🎉{% endblock %}
+
+{% block content %}
+<div class="py-24 bg-background min-h-screen flex items-center">
+    <div class="container mx-auto px-4">
+        <div class="max-w-2xl mx-auto bg-white p-12 rounded-5xl border-8 border-candy-mint shadow-2xl text-center space-y-8 animate-bounce-slow">
+            <div class="text-9xl">🥳</div>
+            <h1 class="text-5xl font-fun text-secondary">C'est gagné !</h1>
+            <p class="text-2xl text-slate-600 font-medium">
+                Ton paiement a été reçu avec succès. La fête va pouvoir commencer ! ✨
+            </p>
+            <div class="p-6 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                <p class="text-slate-500">Tu vas recevoir un email de confirmation magique très bientôt.</p>
+            </div>
+            <div class="pt-6">
+                <a href="{% url 'dashboard' %}" class="inline-block px-12 py-5 bg-primary text-white font-fun text-2xl rounded-4xl shadow-lg hover:scale-110 transition">
+                    Voir mes réservations 🚀
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    .animate-bounce-slow {
+        animation: bounce-slow 3s ease-in-out infinite;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Funkidz - Paiement Annulé 🎈{% endblock %}
+
+{% block content %}
+<div class="py-24 bg-background min-h-screen flex items-center">
+    <div class="container mx-auto px-4">
+        <div class="max-w-2xl mx-auto bg-white p-12 rounded-5xl border-8 border-candy-pink shadow-2xl text-center space-y-8">
+            <div class="text-9xl">🎈</div>
+            <h1 class="text-5xl font-fun text-primary">Oh non !</h1>
+            <p class="text-2xl text-slate-600 font-medium">
+                On dirait que le paiement a été annulé. Ne t'inquiète pas, ton gâteau n'est pas encore perdu !
+            </p>
+            <div class="pt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'booking-wizard' %}" class="px-10 py-4 bg-secondary text-white font-bold rounded-full hover:scale-105 transition">Réessayer 🔄</a>
+                <a href="/" class="px-10 py-4 border-4 border-slate-100 text-slate-400 font-bold rounded-full hover:bg-slate-50 transition">Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
