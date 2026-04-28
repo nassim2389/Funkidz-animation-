@@ -1,0 +1,30 @@
+<div class="fixed top-24 right-6 z-[100] flex flex-col gap-4 pointer-events-none">
+    {% if messages %}
+        {% for message in messages %}
+            <div x-data="{ show: false }" 
+                 x-init="setTimeout(() => show = true, 100); setTimeout(() => show = false, 5000)"
+                 x-show="show"
+                 x-transition:enter="transition ease-out duration-500"
+                 x-transition:enter-start="opacity-0 translate-x-20"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-500"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 translate-x-20"
+                 class="pointer-events-auto bg-white rounded-3xl border-4 {% if message.tags == 'success' %}border-accent-green{% elif message.tags == 'error' %}border-primary{% else %}border-secondary{% endif %} shadow-2xl p-6 min-w-[300px] flex items-center gap-4 relative overflow-hidden group">
+                
+                <!-- Background decoration -->
+                <div class="absolute -right-4 -bottom-4 w-16 h-16 {% if message.tags == 'success' %}bg-accent-green{% elif message.tags == 'error' %}bg-primary{% else %}bg-secondary{% endif %} opacity-10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+
+                <div class="text-4xl">
+                    {% if message.tags == 'success' %}🎉{% elif message.tags == 'error' %}🎈{% else %}✨{% endif %}
+                </div>
+                <div class="flex-grow">
+                    <p class="font-bold text-slate-800 text-lg">{{ message }}</p>
+                </div>
+                <button @click="show = false" class="text-slate-400 hover:text-slate-600 transition text-2xl">
+                    ✕
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>

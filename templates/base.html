@@ -54,6 +54,7 @@
                 @apply bg-background text-foreground;
             }
         }
+        [x-cloak] { display: none !important; }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -61,6 +62,7 @@
       @scroll.window="atTop = (window.pageYOffset > 100 ? false : true); scrollPercent = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100">
     
     {% include 'includes/cookie_banner.html' %}
+    {% include 'includes/messages.html' %}
     
     <!-- Scroll Progress Bar -->
     <div class="fixed top-0 left-0 h-2 bg-primary z-[100] transition-all duration-300" :style="'width: ' + scrollPercent + '%'"></div>

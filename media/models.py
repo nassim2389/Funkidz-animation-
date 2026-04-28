@@ -6,7 +6,8 @@ class MediaGallery(models.Model):
         VIDEO = 'VIDEO', 'Vidéo'
 
     service = models.ForeignKey('services.Service', on_delete=models.SET_NULL, null=True, blank=True, related_name='gallery')
-    media_url = models.URLField()
+    media_url = models.URLField(blank=True, help_text="Lien externe (ex: YouTube)")
+    file = models.FileField(upload_to='gallery/', blank=True, null=True, help_text="Importer depuis votre ordinateur")
     media_type = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
     title = models.CharField(max_length=200, blank=True)
     order = models.PositiveIntegerField(default=0)

@@ -14,11 +14,19 @@
             {% for media in gallery %}
             <div class="relative group overflow-hidden rounded-2xl aspect-square bg-slate-100">
                 {% if media.media_type == 'IMAGE' %}
-                <img src="{{ media.media_url }}" alt="{{ media.title }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                    {% if media.file %}
+                        <img src="{{ media.file.url }}" alt="{{ media.title }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                    {% else %}
+                        <img src="{{ media.media_url }}" alt="{{ media.title }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                    {% endif %}
                 {% else %}
-                <div class="w-full h-full flex items-center justify-center bg-slate-900">
-                    <span class="text-white">▶️ Vidéo</span>
-                </div>
+                    <div class="w-full h-full flex items-center justify-center bg-slate-900">
+                        {% if media.file %}
+                            <video src="{{ media.file.url }}" class="w-full h-full object-cover" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>
+                        {% else %}
+                            <span class="text-white">▶️ Vidéo</span>
+                        {% endif %}
+                    </div>
                 {% endif %}
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                     <span class="text-white font-bold">{{ media.title }}</span>
