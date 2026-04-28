@@ -92,25 +92,79 @@
     </div>
 </section>
 
-<!-- Fun Stats -->
-<section class="py-20 bg-primary/10">
+<!-- Testimonials Section -->
+<section class="py-24 bg-white overflow-hidden">
     <div class="container mx-auto px-4">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div class="text-center space-y-2">
-                <div class="text-5xl md:text-6xl font-fun text-primary">5000+</div>
-                <p class="text-lg font-bold text-slate-700">Sourires créés 😄</p>
+        <div class="text-center mb-16 space-y-4">
+            <h2 class="text-5xl md:text-6xl font-fun text-primary">Les Parents sont Ravis ! 😍</h2>
+            <p class="text-xl text-slate-600 font-medium italic">"Leurs sourires sont notre plus belle récompense..."</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="p-8 bg-candy-pink/10 rounded-4xl border-4 border-dashed border-primary/20 space-y-6 relative hover:rotate-1 transition">
+                <div class="text-4xl text-primary">⭐⭐⭐⭐⭐</div>
+                <p class="text-lg text-slate-700 font-medium">"Une fête incroyable ! L'animateur était super avec les enfants. Magie et rires garantis !"</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-primary rounded-full"></div>
+                    <span class="font-bold text-slate-800">Maman de Lucas</span>
+                </div>
             </div>
-            <div class="text-center space-y-2">
-                <div class="text-5xl md:text-6xl font-fun text-secondary">10K+</div>
-                <p class="text-lg font-bold text-slate-700">Ballons éclatés 🎈</p>
+            <div class="p-8 bg-candy-blue/10 rounded-4xl border-4 border-dashed border-secondary/20 space-y-6 relative hover:-rotate-1 transition">
+                <div class="text-4xl text-secondary">⭐⭐⭐⭐⭐</div>
+                <p class="text-lg text-slate-700 font-medium">"La chasse au trésor pirate était dingue ! Les enfants en parlent encore deux semaines après."</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-secondary rounded-full"></div>
+                    <span class="font-bold text-slate-800">Papa de Zoé</span>
+                </div>
             </div>
-            <div class="text-center space-y-2">
-                <div class="text-5xl md:text-6xl font-fun text-accent-green">4.9/5</div>
-                <p class="text-lg font-bold text-slate-700">Parents ravis 👍</p>
+            <div class="p-8 bg-accent-yellow/10 rounded-4xl border-4 border-dashed border-accent-yellow/20 space-y-6 relative hover:rotate-1 transition">
+                <div class="text-4xl text-accent-yellow">⭐⭐⭐⭐⭐</div>
+                <p class="text-lg text-slate-700 font-medium">"Organisation parfaite de A à Z. On n'a rien eu à gérer, quel bonheur !"</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-accent-yellow rounded-full"></div>
+                    <span class="font-bold text-slate-800">Maman de Inès</span>
+                </div>
             </div>
-            <div class="text-center space-y-2">
-                <div class="text-5xl md:text-6xl font-fun text-accent-yellow">100%</div>
-                <p class="text-lg font-bold text-slate-700">Magique ✨</p>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-24 bg-slate-50">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <div class="text-center mb-16">
+            <h2 class="text-5xl font-fun text-secondary">Questions Fréquentes 🤔</h2>
+        </div>
+
+        <div class="space-y-6" x-data="{ active: null }">
+            <div class="bg-white rounded-3xl border-4 border-slate-100 overflow-hidden">
+                <button @click="active = (active === 1 ? null : 1)" class="w-full p-6 text-left flex justify-between items-center group">
+                    <span class="text-xl font-bold text-slate-800 group-hover:text-primary transition">Comment réserver une animation ?</span>
+                    <span class="text-2xl transition-transform" :class="active === 1 ? 'rotate-45' : ''">➕</span>
+                </button>
+                <div x-show="active === 1" x-collapse class="px-6 pb-6 text-slate-600 font-medium border-t border-slate-50 pt-4">
+                    C'est très simple ! Clique sur le bouton "Réservation", choisis ton service, ta date et laisse-toi guider par la magie.
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border-4 border-slate-100 overflow-hidden">
+                <button @click="active = (active === 2 ? null : 2)" class="w-full p-6 text-left flex justify-between items-center group">
+                    <span class="text-xl font-bold text-slate-800 group-hover:text-secondary transition">Quel est l'âge minimum des enfants ?</span>
+                    <span class="text-2xl transition-transform" :class="active === 2 ? 'rotate-45' : ''">➕</span>
+                </button>
+                <div x-show="active === 2" x-collapse class="px-6 pb-6 text-slate-600 font-medium border-t border-slate-50 pt-4">
+                    Nos animations sont conçues pour les enfants de 3 à 12 ans, avec des activités adaptées à chaque tranche d'âge.
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border-4 border-slate-100 overflow-hidden">
+                <button @click="active = (active === 3 ? null : 3)" class="w-full p-6 text-left flex justify-between items-center group">
+                    <span class="text-xl font-bold text-slate-800 group-hover:text-accent-green transition">Le matériel est-il fourni ?</span>
+                    <span class="text-2xl transition-transform" :class="active === 3 ? 'rotate-45' : ''">➕</span>
+                </button>
+                <div x-show="active === 3" x-collapse class="px-6 pb-6 text-slate-600 font-medium border-t border-slate-50 pt-4">
+                    Oui ! Nos animateurs arrivent avec tout le nécessaire (maquillage, sono, accessoires, etc.) pour que vous n'ayez rien à préparer.
+                </div>
             </div>
         </div>
     </div>
