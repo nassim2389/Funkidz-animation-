@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Funkidz - Oh oh ! Page Perdue 🔍{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center bg-background py-24">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center space-y-12">
+            <div class="relative inline-block">
+                <span class="text-[150px] md:text-[200px] leading-none select-none opacity-20">404</span>
+                <span class="absolute inset-0 flex items-center justify-center text-9xl animate-bounce">🕵️‍♂️</span>
+            </div>
+            
+            <div class="space-y-6">
+                <h1 class="text-5xl md:text-7xl font-fun text-primary">Oups ! C'est le labyrinthe !</h1>
+                <p class="text-2xl text-slate-600 font-medium max-w-xl mx-auto">
+                    On dirait que cette page est partie jouer à cache-cache et on ne la trouve plus... 🎈
+                </p>
+            </div>
+
+            <div class="pt-8">
+                <a href="/" class="px-12 py-6 bg-secondary text-white font-fun text-3xl rounded-full shadow-lg hover:scale-110 transition active:scale-95 inline-block">
+                    Retourner au Château ! 🏰
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
