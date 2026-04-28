@@ -20,7 +20,7 @@ def signup_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         if email and password:
-            user = User.objects.create_user(email=email, password=password, email_verified=True)
+            user = User.objects.create_user(email=email, password=password, is_verified=True)
             login(request, user)
             return redirect('/')
     return render(request, 'auth/signup.html')
