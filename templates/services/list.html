@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Funkidz - Nos Surprises Magiques ! 🎁{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="bg-gradient-to-b from-candy-blue via-white to-background border-b-8 border-secondary/20 py-24 relative overflow-hidden">
+    <!-- Decorative bubbles -->
+    <div class="absolute top-10 left-10 w-20 h-20 bg-primary/20 rounded-full animate-bounce"></div>
+    <div class="absolute bottom-10 right-20 w-16 h-16 bg-accent-yellow/30 rounded-full animate-pulse"></div>
+
+    <div class="container mx-auto px-4 relative">
+        <div class="max-w-3xl mx-auto text-center space-y-8">
+            <div class="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white shadow-lg border-2 border-secondary animate-pulse">
+                <span class="text-2xl">✨</span>
+                <span class="text-lg font-bold text-secondary">Aventures Garanties !</span>
+                <span class="text-2xl">✨</span>
+            </div>
+            <h1 class="text-6xl md:text-8xl font-fun text-primary drop-shadow-md">
+                Nos Surprises !
+            </h1>
+            <p class="text-2xl text-foreground font-semibold">
+                Choisis ton aventure préférée pour une fête que tu n'oublieras jamais ! 🎉
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Services Grid -->
+<div class="py-24 bg-background">
+    <div class="container mx-auto px-4">
+        {% if services %}
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+            {% for service in services %}
+            <div class="bg-white rounded-5xl border-4 border-slate-200 overflow-hidden hover:border-primary hover:-translate-y-4 transition-all duration-500 shadow-2xl group flex flex-col">
+                <!-- Color bar based on index -->
+                <div class="h-6 {% if forloop.counter|divisibleby:3 %}bg-accent-yellow{% elif forloop.counter|divisibleby:2 %}bg-secondary{% else %}bg-primary{% endif %}"></div>
+                
+                <div class="p-10 flex-grow space-y-8 text-center">
+                    <div class="w-32 h-32 mx-auto bg-slate-50 rounded-full flex items-center justify-center text-6xl group-hover:rotate-12 group-hover:scale-110 transition-all duration-300 shadow-inner">
+                        {% if forloop.counter|divisibleby:3 %}🎨{% elif forloop.counter|divisibleby:2 %}🎈{% else %}🎭{% endif %}
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <h3 class="text-4xl font-fun text-secondary group-hover:text-primary transition-colors">{{ service.name }}</h3>
+                        <p class="text-lg text-slate-600 font-medium leading-relaxed">
+                            {{ service.description }}
+                        </p>
+                    </div>
+
+                    <div class="p-6 bg-slate-50 rounded-4xl border-4 border-dashed border-slate-200">
+                        <div class="flex flex-col items-center gap-1">
+                            <span class="text-slate-500 font-bold uppercase tracking-widest text-sm">Prix Magique</span>
+                            <span class="text-5xl font-fun text-primary">Dès {{ service.base_price }}€</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-10 pt-0">
+                    <a href="/booking/?service={{ service.id }}" class="block w-full py-6 bg-primary hover:bg-primary-hover text-white font-fun text-3xl rounded-4xl text-center shadow-[0_8px_0_0_#CC4B4B] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#CC4B4B] transition-all transform active:scale-95">
+                        Je veux ça ! 🚀
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-24 space-y-8 bg-white rounded-5xl border-4 border-dashed border-slate-200">
+            <span class="text-9xl block animate-bounce">🤔</span>
+            <p class="text-3xl text-slate-500 font-fun">Oh oh ! Le coffre à jouets est vide pour le moment...</p>
+            <a href="/" class="inline-block px-10 py-5 bg-secondary text-white font-bold rounded-full shadow-lg">Retour à l'accueil</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="py-24 bg-gradient-to-r from-primary to-candy-pink relative overflow-hidden">
+    <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle, white 2px, transparent 2px); background-size: 30px 30px;"></div>
+    <div class="container mx-auto px-4 relative text-center space-y-10">
+        <h2 class="text-5xl md:text-7xl font-fun text-white">Prêt pour l'aventure ?</h2>
+        <p class="text-2xl text-white font-bold max-w-2xl mx-auto">
+            Tes animateurs préférés n'attendent plus que toi pour faire la fête ! 🥳
+        </p>
+        <a href="/booking/" class="inline-block px-16 py-8 bg-white text-primary font-fun text-4xl rounded-full shadow-2xl hover:scale-110 transition active:scale-95">
+            C'est parti ! 🎈
+        </a>
+    </div>
+</div>
+{% endblock %}

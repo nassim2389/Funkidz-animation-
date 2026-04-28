@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Funkidz - À Propos{% endblock %}
+
+{% block content %}
+<div class="py-20 bg-white">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <h1 class="text-6xl font-black mb-12 text-center text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">Notre Histoire ✨</h1>
+        <div class="prose prose-lg max-w-none text-slate-700 space-y-6">
+            <p class="text-xl font-medium leading-relaxed">
+                Funkidz est née d'une idée simple : chaque enfant mérite une fête magique, et chaque parent mérite une organisation sans stress.
+            </p>
+            <p>
+                Depuis 2018, nous sélectionnons les meilleurs animateurs professionnels pour transformer vos événements en souvenirs impérissables. Que ce soit pour un anniversaire, un mariage ou une fête d'école, notre équipe met tout son savoir-faire au service du sourire des enfants.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8 py-12">
+                <div class="p-8 bg-purple-50 rounded-2xl border-2 border-purple-100">
+                    <h3 class="text-2xl font-bold text-purple-900 mb-4">Notre Mission</h3>
+                    <p>Apporter de la joie et de la magie à chaque événement enfantin grâce à des animations de haute qualité.</p>
+                </div>
+                <div class="p-8 bg-pink-50 rounded-2xl border-2 border-pink-100">
+                    <h3 class="text-2xl font-bold text-pink-900 mb-4">Nos Valeurs</h3>
+                    <p>Sécurité, créativité et professionnalisme sont les piliers de notre engagement envers vous.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

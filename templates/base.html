@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Funkidz - Le monde magique des enfants !{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#FFF9F2',
+                        foreground: '#2D2424',
+                        primary: {
+                            DEFAULT: '#FF6B6B',
+                            hover: '#FF5252',
+                            foreground: '#ffffff',
+                        },
+                        secondary: {
+                            DEFAULT: '#4D96FF',
+                            hover: '#3D86EF',
+                            foreground: '#ffffff',
+                        },
+                        accent: {
+                            yellow: '#FFD93D',
+                            green: '#6BCB77',
+                            purple: '#9B72AA',
+                        },
+                        candy: {
+                            pink: '#FF87B2',
+                            blue: '#B5DEFF',
+                            mint: '#D1FAE5',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Fredoka', 'sans-serif'],
+                        fun: ['Bubblegum Sans', 'cursive'],
+                    },
+                    borderRadius: {
+                        '4xl': '2rem',
+                        '5xl': '3rem',
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-background text-foreground;
+            }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-screen">
+    {% include 'includes/navbar.html' %}
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'includes/footer.html' %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

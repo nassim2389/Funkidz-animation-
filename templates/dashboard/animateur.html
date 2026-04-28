@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Funkidz - Espace Animateur{% endblock %}
+
+{% block content %}
+<div class="py-12 bg-slate-50 min-h-screen">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Sidebar -->
+            <div class="w-full md:w-64 space-y-4">
+                <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
+                            {{ user.email|first|upper }}
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-900 truncate w-32">{{ user.email }}</p>
+                            <p class="text-xs text-slate-500 capitalize">Animateur</p>
+                        </div>
+                    </div>
+                    <nav class="space-y-2">
+                        <a href="{% url 'dashboard' %}" class="block px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-bold">Mon Planning</a>
+                        <a href="#" class="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition">Mes Disponibilités</a>
+                        <a href="#" class="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition">Missions Disponibles</a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 space-y-8">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-black text-slate-900">Mon Planning 📅</h1>
+                </div>
+
+                <!-- Assigned Missions -->
+                <div class="space-y-4">
+                    <h2 class="text-xl font-bold text-slate-700">Missions Assignées</h2>
+                    {% if assignments %}
+                        <div class="grid gap-4">
+                            {% for assignment in assignments %}
+                            <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
+                                <div class="flex items-center gap-6">
+                                    <div class="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center text-2xl">
+                                        🎈
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-xl text-slate-900">{{ assignment.booking.service.name }}</h3>
+                                        <p class="text-slate-500 font-medium">{{ assignment.booking.booking_date }} à {{ assignment.booking.booking_time }}</p>
+                                        <p class="text-xs text-slate-400">{{ assignment.booking.location_city }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    {% if assignment.status == 'PENDING' %}
+                                        <a href="{% url 'accept-assignment' assignment.id %}" class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition">Accepter</a>
+                                        <a href="{% url 'refuse-assignment' assignment.id %}" class="px-4 py-2 bg-red-50 text-red-600 font-bold border-2 border-red-100 rounded-lg hover:bg-red-100 transition">Refuser</a>
+                                    {% else %}
+                                        <span class="px-4 py-2 rounded-lg font-bold text-sm
+                                            {% if assignment.status == 'ACCEPTED' %}bg-emerald-100 text-emerald-700
+                                            {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                            {{ assignment.get_status_display }}
+                                        </span>
+                                        {% if assignment.status == 'ACCEPTED' and assignment.booking.status != 'DONE' %}
+                                        <a href="{% url 'complete-mission' assignment.booking.id %}" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg text-xs">Terminer</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-slate-500 italic">Aucune mission assignée pour le moment.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Availability Section (Simplified for now) -->
+                <div class="bg-white p-8 rounded-2xl border-2 border-slate-200 space-y-6">
+                    <h2 class="text-xl font-bold text-slate-900">Gérer mes indisponibilités</h2>
+                    <form class="flex gap-4 items-end">
+                        <div class="flex-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Date</label>
+                            <input type="date" class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none">
+                        </div>
+                        <button type="submit" class="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition">
+                            Bloquer ce jour
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

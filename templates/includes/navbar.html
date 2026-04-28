@@ -1,0 +1,66 @@
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b-4 border-candy-blue shadow-sm" x-data="{ isOpen: false }">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center h-20">
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2 group">
+                <div class="text-4xl font-fun text-primary group-hover:rotate-6 transition-transform">
+                    Fun<span class="text-secondary">kidz</span>
+                </div>
+                <span class="text-3xl animate-bounce">🎈</span>
+            </a>
+
+            <!-- Desktop Menu -->
+            <div class="hidden lg:flex items-center gap-6">
+                <a href="{% url 'home' %}" class="px-4 py-2 text-foreground hover:text-primary font-bold text-lg transition rounded-full hover:bg-candy-pink/20">Accueil</a>
+                <a href="{% url 'services-web' %}" class="px-4 py-2 text-foreground hover:text-secondary font-bold text-lg transition rounded-full hover:bg-candy-blue/20">Services</a>
+                <a href="{% url 'pricing' %}" class="px-4 py-2 text-foreground hover:text-accent-yellow font-bold text-lg transition rounded-full hover:bg-accent-yellow/20">Tarifs</a>
+                <a href="{% url 'gallery' %}" class="px-4 py-2 text-foreground hover:text-accent-green font-bold text-lg transition rounded-full hover:bg-accent-green/20">Galerie</a>
+                <a href="{% url 'contact' %}" class="px-4 py-2 text-foreground hover:text-primary font-bold text-lg transition rounded-full hover:bg-primary/10">Contact</a>
+                <a href="{% url 'booking-wizard' %}" class="px-8 py-3 bg-primary text-white font-fun text-xl rounded-full hover:scale-110 transition shadow-lg animate-pulse">Réservation 🚀</a>
+            </div>
+
+            <!-- Auth Buttons Desktop -->
+            <div class="hidden lg:flex items-center gap-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="px-6 py-3 bg-candy-mint text-emerald-800 font-bold rounded-full hover:bg-emerald-200 transition shadow-sm">Mon Espace</a>
+                    <form action="{% url 'logout' %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="px-6 py-3 text-slate-500 font-bold hover:text-red-500 transition">Bye bye 👋</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="px-6 py-3 text-secondary font-bold hover:bg-candy-blue/20 rounded-full transition">Coucou ! (Login)</a>
+                    <a href="{% url 'booking-wizard' %}" class="px-8 py-3 bg-primary text-white font-fun text-xl rounded-full hover:scale-110 transition shadow-lg animate-pulse">
+                        Je m'inscris ! 🚀
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="lg:hidden p-3 bg-slate-100 rounded-2xl hover:bg-slate-200 transition" @click="isOpen = !isOpen">
+                <svg x-show="!isOpen" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <svg x-show="isOpen" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="lg:hidden pb-8 space-y-3" x-show="isOpen" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+            <a href="{% url 'home' %}" class="block px-6 py-4 bg-slate-50 rounded-2xl font-bold text-lg hover:bg-candy-pink/20 transition">Accueil</a>
+            <a href="{% url 'services-web' %}" class="block px-6 py-4 bg-slate-50 rounded-2xl font-bold text-lg hover:bg-candy-blue/20 transition">Services</a>
+            <a href="{% url 'pricing' %}" class="block px-6 py-4 bg-slate-50 rounded-2xl font-bold text-lg">Tarifs</a>
+            <a href="{% url 'gallery' %}" class="block px-6 py-4 bg-slate-50 rounded-2xl font-bold text-lg">Galerie</a>
+            <a href="{% url 'contact' %}" class="block px-6 py-4 bg-slate-50 rounded-2xl font-bold text-lg">Contact</a>
+            <div class="pt-6 space-y-4 px-2">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="block w-full text-center px-6 py-4 bg-candy-mint text-emerald-800 rounded-2xl font-bold">Mon Espace</a>
+                    <form action="{% url 'logout' %}" method="post" class="w-full">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-center px-6 py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold">Déconnexion</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="block w-full text-center px-6 py-4 border-4 border-secondary text-secondary rounded-2xl font-bold">Connexion</a>
+                    <a href="{% url 'booking-wizard' %}" class="block w-full text-center px-6 py-4 bg-primary text-white rounded-2xl font-fun text-2xl shadow-lg">Réserver ! 🎈</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

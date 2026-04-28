@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Funkidz - Galerie{% endblock %}
+
+{% block content %}
+<div class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16 space-y-4">
+            <h1 class="text-5xl font-black text-slate-900">Notre Galerie Magique 📸</h1>
+            <p class="text-slate-600 max-w-2xl mx-auto">Découvrez les moments inoubliables que nous créons pour vos enfants.</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {% for media in gallery %}
+            <div class="relative group overflow-hidden rounded-2xl aspect-square bg-slate-100">
+                {% if media.media_type == 'IMAGE' %}
+                <img src="{{ media.media_url }}" alt="{{ media.title }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-slate-900">
+                    <span class="text-white">▶️ Vidéo</span>
+                </div>
+                {% endif %}
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                    <span class="text-white font-bold">{{ media.title }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

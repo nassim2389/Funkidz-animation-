@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Funkidz - Nos Tarifs Magiques 💎{% endblock %}
+
+{% block content %}
+<div class="py-24 bg-background">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16 space-y-6">
+            <h1 class="text-6xl font-fun text-secondary drop-shadow-sm">Nos Tarifs Magiques</h1>
+            <p class="text-2xl text-slate-600 max-w-2xl mx-auto font-medium">Choisissez la formule parfaite pour une fête étincelante ! ✨</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-10">
+            {% for service in services %}
+            <div class="bg-white p-10 rounded-5xl border-4 border-candy-blue space-y-8 flex flex-col hover:scale-105 transition-all shadow-2xl relative overflow-hidden">
+                {% if forloop.counter == 2 %}
+                <div class="absolute -right-12 top-8 bg-primary text-white px-12 py-2 rotate-45 font-bold text-sm shadow-md">TOP !</div>
+                {% endif %}
+                
+                <div class="space-y-4">
+                    <h3 class="text-3xl font-fun text-secondary">{{ service.name }}</h3>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-6xl font-fun text-primary">{{ service.base_price }}€</span>
+                        <span class="text-xl text-slate-400 font-bold">/heure</span>
+                    </div>
+                </div>
+
+                <div class="flex-grow">
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3">
+                            <span class="text-2xl">✅</span>
+                            <span class="font-medium text-slate-700">Jusqu'à {{ service.max_children }} enfants</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-2xl">✅</span>
+                            <span class="font-medium text-slate-700">Durée : {{ service.duration_minutes }} min</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-2xl">✨</span>
+                            <span class="font-medium text-slate-700">Animateur qualifié</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-2xl">🎁</span>
+                            <span class="font-medium text-slate-700">Matériel inclus</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="pt-8">
+                    <a href="/booking/?service={{ service.id }}" class="block w-full py-5 text-center bg-primary hover:bg-primary-hover text-white font-fun text-2xl rounded-4xl shadow-[0_8px_0_0_#CC4B4B] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#CC4B4B] transition-all transform active:scale-95">
+                        Je choisis ça ! 🎈
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Custom Options Section -->
+        <div class="mt-24 p-12 bg-white rounded-5xl border-4 border-dashed border-secondary/30 text-center space-y-6">
+            <h2 class="text-4xl font-fun text-secondary">Besoin d'un devis sur-mesure ?</h2>
+            <p class="text-xl text-slate-600 font-medium max-w-2xl mx-auto">Pour les grands groupes ou les événements spéciaux, contactez notre équipe magique !</p>
+            <a href="/contact" class="inline-block px-12 py-4 bg-secondary text-white font-bold rounded-full hover:scale-110 transition shadow-lg">Nous contacter 💌</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+<footer class="bg-white border-t-8 border-candy-blue/20 pt-20 pb-10">
+    <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-4 gap-12 mb-16">
+            <!-- Brand -->
+            <div class="space-y-6">
+                <div class="text-4xl font-fun text-primary">
+                    Fun<span class="text-secondary">kidz</span> 🎈
+                </div>
+                <p class="text-slate-500 font-medium">
+                    Créateurs de souvenirs magiques et de fêtes inoubliables pour les enfants ! ✨
+                </p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-12 h-12 bg-candy-pink/20 rounded-full flex items-center justify-center text-primary hover:scale-110 transition">📸</a>
+                    <a href="#" class="w-12 h-12 bg-candy-blue/20 rounded-full flex items-center justify-center text-secondary hover:scale-110 transition">📘</a>
+                    <a href="#" class="w-12 h-12 bg-accent-yellow/20 rounded-full flex items-center justify-center text-accent-yellow hover:scale-110 transition">⭐</a>
+                </div>
+            </div>
+
+            <!-- Links -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-slate-800">L'Aventure</h3>
+                <ul class="space-y-4">
+                    <li><a href="{% url 'home' %}" class="text-slate-500 hover:text-primary font-medium transition">Accueil</a></li>
+                    <li><a href="{% url 'service-list' %}" class="text-slate-500 hover:text-secondary font-medium transition">Nos Surprises</a></li>
+                    <li><a href="{% url 'pricing' %}" class="text-slate-500 hover:text-accent-yellow font-medium transition">Prix Magiques</a></li>
+                    <li><a href="{% url 'gallery' %}" class="text-slate-500 hover:text-accent-green font-medium transition">Galerie Photos</a></li>
+                </ul>
+            </div>
+
+            <!-- More Links -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-slate-800">Infos Utiles</h3>
+                <ul class="space-y-4">
+                    <li><a href="{% url 'about' %}" class="text-slate-500 hover:text-accent-purple font-medium transition">Qui sommes-nous ?</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-slate-500 hover:text-primary font-medium transition">Contact 💌</a></li>
+                    <li><a href="{% url 'terms' %}" class="text-slate-500 hover:text-slate-800 font-medium transition">Termes et Conditions</a></li>
+                    <li><a href="{% url 'privacy' %}" class="text-slate-500 hover:text-slate-800 font-medium transition">Confidentialité 🔒</a></li>
+                </ul>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-slate-800">Lettre Magique</h3>
+                <p class="text-slate-500 font-medium">Reçois nos meilleures idées de fêtes !</p>
+                <div class="relative">
+                    <input type="email" placeholder="Ton email..." class="w-full px-6 py-4 bg-slate-50 border-4 border-slate-100 rounded-3xl focus:border-primary focus:ring-0 font-medium">
+                    <button class="absolute right-2 top-2 bottom-2 px-6 bg-primary text-white rounded-2xl font-bold hover:scale-105 transition">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center pt-10 border-t border-slate-100">
+            <p class="text-slate-400 font-bold text-sm uppercase tracking-widest">
+                © 2026 Funkidz Animation Ltd - Fait avec ✨ et 🍭
+            </p>
+        </div>
+    </div>
+</footer>
