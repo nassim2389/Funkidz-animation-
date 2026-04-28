@@ -1,0 +1,35 @@
+<div x-data="{ 
+    showBanner: !localStorage.getItem('cookieConsent'),
+    accept() {
+        localStorage.setItem('cookieConsent', 'true');
+        this.showBanner = false;
+    }
+}" 
+     x-show="showBanner"
+     x-transition:enter="transition ease-out duration-500"
+     x-transition:enter-start="opacity-0 translate-y-20"
+     x-transition:enter-end="opacity-100 translate-y-0"
+     class="fixed bottom-6 left-6 right-6 md:left-auto md:max-w-md z-[100]">
+    
+    <div class="bg-white rounded-4xl border-4 border-secondary shadow-2xl p-8 relative overflow-hidden group">
+        <!-- Decorative sprinkles -->
+        <div class="absolute -top-4 -left-4 w-12 h-12 bg-accent-yellow rounded-full opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
+        <div class="absolute -bottom-4 -right-4 w-16 h-16 bg-primary rounded-full opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
+
+        <div class="relative flex flex-col gap-6 text-center">
+            <div class="text-6xl animate-bounce">🍪</div>
+            <h3 class="text-3xl font-fun text-secondary">On grignote un petit biscuit ?</h3>
+            <p class="text-slate-600 font-medium">
+                Nous utilisons des petits cookies magiques pour que ton aventure sur Funkidz soit la plus belle possible ! ✨
+            </p>
+            <div class="flex gap-4">
+                <button @click="accept()" class="flex-grow py-4 bg-primary text-white font-fun text-2xl rounded-full shadow-lg hover:scale-105 active:scale-95 transition">
+                    Miam ! J'accepte 😋
+                </button>
+                <a href="/privacy/" class="px-6 py-4 border-2 border-slate-100 text-slate-400 font-bold rounded-full hover:bg-slate-50 transition flex items-center">
+                    ?
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
