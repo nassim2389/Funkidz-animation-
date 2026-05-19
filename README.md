@@ -39,6 +39,104 @@ L'interface d'administration (via Jazzmin) entièrement traduite en français. E
 
 ---
 
+## 📊 Diagramme de Cas d'Utilisation
+
+Ce diagramme de cas d'utilisation modélise les différentes interactions entre les acteurs (internes et externes) et le système de réservation.
+
+```mermaid
+graph TD
+    %% Styling
+    classDef internal fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef external fill:#efebe9,stroke:#5d4037,stroke-width:2px;
+    classDef system fill:#fff,stroke:#333,stroke-width:2px;
+    classDef usecase fill:#fff9c4,stroke:#fbc02d,stroke-width:1px,stroke-dasharray: 5 5;
+
+    %% Acteurs Internes
+    subgraph Acteurs_Internes ["👤 Acteurs Internes"]
+        V["Visiteur 👤"]:::internal
+        C["Client 💼"]:::internal
+        A["Animateur 🎯"]:::internal
+        AD["Admin 🛠️"]:::internal
+    end
+
+    %% Acteurs Externes
+    subgraph Acteurs_Externes ["🔌 Acteurs Externes"]
+        ST["Stripe 💳"]:::external
+        EM["Email Service ✉️"]:::external
+    end
+
+    %% Système Principal
+    subgraph Système ["⚙️ Système de réservation Funkidz"]
+        subgraph UC_Visiteur ["👤 Cas d'utilisation - Visiteur"]
+            V1["Voir les détails du service"]
+            V2["Contacter via le formulaire"]
+            V3["Consulter les tarifs"]
+        end
+
+        subgraph UC_Client ["💼 Cas d'utilisation - Client"]
+            C1["Créer une réservation"]
+            C2["Modifier une réservation"]
+            C3["Recevoir confirmation"]
+            C4["Télécharger facture"]
+        end
+
+        subgraph UC_Animateur ["🎯 Cas d'utilisation - Animateur"]
+            AN1["Marquer la réservation comme terminée"]
+            AN2["Consulter historique des missions"]
+        end
+
+        subgraph UC_Admin ["🛠️ Cas d'utilisation - Admin"]
+            AD1["Confirmer ou refuser une réservation"]
+            AD2["Créer un compte animateur"]
+            AD3["Générer rapports de performance"]
+            AD4["Gérer les paiements en attente"]
+        end
+
+        subgraph UC_Externes ["🔗 Services externes"]
+            SE1["Traiter le paiement"]
+            SE2["Envoyer une notification par email"]
+            SE3["Synchroniser statut de paiement"]
+        end
+    end
+
+    %% Légende des Acteurs
+    subgraph Legende ["🔑 Légende des Acteurs"]
+        style Legende fill:#f9f9f9,stroke:#999,stroke-width:1px
+        L1["👤 Acteur Interne"]:::internal
+        L2["🔌 Acteur Externe"]:::external
+    end
+
+    %% Relations Acteurs -> Cas d'Utilisation
+    V --> V1
+    V --> V2
+    V --> V3
+
+    C --> C1
+    C --> C2
+    C --> C3
+    C --> C4
+
+    A --> AN1
+    A --> AN2
+
+    AD --> AD1
+    AD --> AD2
+    AD --> AD3
+    AD --> AD4
+
+    %% Relations Cas d'Utilisation -> Services Externes
+    SE1 --> ST
+    SE2 --> EM
+    SE3 --> ST
+
+    C1 -.-> SE1
+    C3 -.-> SE2
+    C4 -.-> ST
+    AD4 -.-> SE3
+```
+
+---
+
 ## 🚀 Technologies Utilisées
 - **Backend** : Django 6.0 (Python)
 - **Frontend** : Django Templates, Tailwind CSS (Design sur mesure), Alpine.js

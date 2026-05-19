@@ -6,8 +6,8 @@
 <div class="py-20 bg-white">
     <div class="container mx-auto px-4">
         <div class="text-center mb-16 space-y-4">
-            <h1 class="text-5xl font-black text-slate-900">Notre Galerie Magique 📸</h1>
-            <p class="text-slate-600 max-w-2xl mx-auto">Découvrez les moments inoubliables que nous créons pour vos enfants.</p>
+            <h1 class="text-5xl font-black text-slate-900">Galerie photos</h1>
+            <p class="text-slate-600 max-w-2xl mx-auto">Découvrez en images nos animations et événements pour enfants.</p>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -24,7 +24,7 @@
                         {% if media.file %}
                             <video src="{{ media.file.url }}" class="w-full h-full object-cover" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>
                         {% else %}
-                            <span class="text-white">▶️ Vidéo</span>
+                            <span class="text-white">Vidéo</span>
                         {% endif %}
                     </div>
                 {% endif %}

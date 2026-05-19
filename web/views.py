@@ -56,9 +56,9 @@ class ContactView(TemplateView):
         message = request.POST.get('message')
         if name and email and message:
             ContactMessage.objects.create(name=name, email=email, phone=phone, message=message)
-            messages.success(request, "Merci ! Ton message magique a bien été envoyé. 🎩✨")
+            messages.success(request, "Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.")
             return redirect('contact')
-        messages.error(request, "Oups ! Il manque quelques informations pour envoyer ton message. 🎈")
+        messages.error(request, "Veuillez remplir tous les champs obligatoires du formulaire.")
         return self.get(request, *args, **kwargs)
 
 class DashboardView(LoginRequiredMixin, TemplateView):

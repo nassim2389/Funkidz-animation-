@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Funkidz - Bienvenue au Pays des Rêves ! 🌈{% endblock %}
+{% block title %}Funkidz - Animations pour enfants{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -12,40 +12,37 @@
 
     <div class="container mx-auto px-4 relative">
         <div class="max-w-4xl mx-auto space-y-10 text-center">
-            <div class="inline-block px-6 py-2 bg-white rounded-full shadow-lg border-2 border-primary animate-bounce">
-                <span class="text-primary font-bold text-lg">✨ La magie commence ici ! ✨</span>
+            <div class="inline-block px-6 py-2 bg-white rounded-full shadow-lg border-2 border-primary">
+                <span class="text-primary font-bold text-lg">Des animations d'anniversaires inoubliables</span>
             </div>
             
             <div class="space-y-6">
                 <h1 class="text-6xl md:text-8xl font-fun text-primary drop-shadow-lg">
-                    Le monde magique de Funkidz !
+                    L'univers Funkidz
                 </h1>
                 <p class="text-2xl md:text-3xl text-foreground font-semibold max-w-3xl mx-auto leading-relaxed">
-                    Des aventures extraordinaires, des rires à n'en plus finir et des souvenirs qui pétillent ! 🎉
+                    Nous organisons des fêtes d'anniversaires et des animations sur mesure pour vos enfants.
                 </p>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-6 justify-center pt-8">
                 <a href="/booking/" class="px-12 py-6 bg-primary hover:bg-primary-hover text-white font-fun text-3xl rounded-5xl shadow-[0_10px_0_0_#CC4B4B] hover:translate-y-[4px] hover:shadow-[0_6px_0_0_#CC4B4B] transition-all transform active:scale-95">
-                    Je réserve ma fête ! 🎈
+                    Réserver une animation
                 </a>
                     <a href="{% url 'services-web' %}" class="px-10 py-5 bg-white border-4 border-secondary text-secondary font-fun text-2xl rounded-4xl hover:bg-secondary hover:text-white transition-all transform hover:-rotate-2 shadow-lg">
-                        Découvrir toutes les aventures ➡️
+                        Découvrir nos services
                     </a>
             </div>
 
             <div class="flex flex-wrap justify-center gap-8 pt-16">
                 <div class="flex items-center gap-3 bg-white/80 backdrop-blur px-6 py-4 rounded-4xl border-2 border-accent-green shadow-lg hover:scale-110 transition cursor-default">
-                    <span class="text-4xl">⭐</span>
-                    <span class="font-bold text-lg">Super Animateurs</span>
+                    <span class="font-bold text-lg">Animateurs qualifiés</span>
                 </div>
                 <div class="flex items-center gap-3 bg-white/80 backdrop-blur px-6 py-4 rounded-4xl border-2 border-secondary shadow-lg hover:scale-110 transition cursor-default">
-                    <span class="text-4xl">🔒</span>
-                    <span class="font-bold text-lg">100% Sécurisé</span>
+                    <span class="font-bold text-lg">Paiement 100% sécurisé</span>
                 </div>
                 <div class="flex items-center gap-3 bg-white/80 backdrop-blur px-6 py-4 rounded-4xl border-2 border-candy-pink shadow-lg hover:scale-110 transition cursor-default">
-                    <span class="text-4xl">🥳</span>
-                    <span class="font-bold text-lg">Fêtes Inoubliables</span>
+                    <span class="font-bold text-lg">Organisation clé en main</span>
                 </div>
             </div>
         </div>
@@ -59,8 +56,8 @@
 
     <div class="container mx-auto px-4 relative">
         <div class="text-center mb-16 space-y-4">
-            <h2 class="text-5xl md:text-6xl font-fun text-secondary">Nos Super Services 🚀</h2>
-            <p class="text-xl text-slate-600 font-medium">Tout ce qu'il faut pour une journée de rêve !</p>
+            <h2 class="text-5xl md:text-6xl font-fun text-secondary">Nos formules d'animation</h2>
+            <p class="text-xl text-slate-600 font-medium">Découvrez nos prestations adaptées à tous les âges.</p>
         </div>
         
         <div class="grid md:grid-cols-3 gap-10">
@@ -77,7 +74,7 @@
                         <span class="inline-block px-6 py-2 bg-accent-yellow rounded-full font-black text-xl shadow-sm mb-4">
                             Dès {{ service.base_price }}€
                         </span>
-                        <a href="/booking/?service={{ service.id }}" class="block w-full py-3 bg-secondary text-white font-fun text-2xl rounded-3xl shadow-lg hover:scale-105 transition">Réserver !</a>
+                        <a href="/booking/?service={{ service.id }}" class="block w-full py-3 bg-secondary text-white font-fun text-2xl rounded-3xl shadow-lg hover:scale-105 transition">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -86,7 +83,7 @@
         
         <div class="text-center mt-16">
             <a href="{% url 'services-web' %}" class="inline-flex items-center gap-3 text-secondary font-bold text-2xl hover:gap-6 transition-all">
-                Découvrir toutes les aventures <span class="text-4xl">➡️</span>
+                Découvrir toutes nos animations
             </a>
         </div>
     </div>
@@ -96,14 +93,13 @@
 <section class="py-24 bg-white overflow-hidden">
     <div class="container mx-auto px-4">
         <div class="text-center mb-16 space-y-4">
-            <h2 class="text-5xl md:text-6xl font-fun text-primary">Les Parents sont Ravis ! 😍</h2>
-            <p class="text-xl text-slate-600 font-medium italic">"Leurs sourires sont notre plus belle récompense..."</p>
+            <h2 class="text-5xl md:text-6xl font-fun text-primary">Ce que disent les parents</h2>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
             <div class="p-8 bg-candy-pink/10 rounded-4xl border-4 border-dashed border-primary/20 space-y-6 relative hover:rotate-1 transition">
                 <div class="text-4xl text-primary">⭐⭐⭐⭐⭐</div>
-                <p class="text-lg text-slate-700 font-medium">"Une fête incroyable ! L'animateur était super avec les enfants. Magie et rires garantis !"</p>
+                <p class="text-lg text-slate-700 font-medium">"Excellente organisation. L'animateur a su capter l'attention des enfants du début à la fin."</p>
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-primary rounded-full"></div>
                     <span class="font-bold text-slate-800">Maman de Lucas</span>
@@ -111,7 +107,7 @@
             </div>
             <div class="p-8 bg-candy-blue/10 rounded-4xl border-4 border-dashed border-secondary/20 space-y-6 relative hover:-rotate-1 transition">
                 <div class="text-4xl text-secondary">⭐⭐⭐⭐⭐</div>
-                <p class="text-lg text-slate-700 font-medium">"La chasse au trésor pirate était dingue ! Les enfants en parlent encore deux semaines après."</p>
+                <p class="text-lg text-slate-700 font-medium">"La formule pirate a été un grand succès pour l'anniversaire de notre fille."</p>
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-secondary rounded-full"></div>
                     <span class="font-bold text-slate-800">Papa de Zoé</span>
@@ -119,7 +115,7 @@
             </div>
             <div class="p-8 bg-accent-yellow/10 rounded-4xl border-4 border-dashed border-accent-yellow/20 space-y-6 relative hover:rotate-1 transition">
                 <div class="text-4xl text-accent-yellow">⭐⭐⭐⭐⭐</div>
-                <p class="text-lg text-slate-700 font-medium">"Organisation parfaite de A à Z. On n'a rien eu à gérer, quel bonheur !"</p>
+                <p class="text-lg text-slate-700 font-medium">"Prestation clé en main très pratique, nous n'avions rien à gérer le jour J."</p>
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-accent-yellow rounded-full"></div>
                     <span class="font-bold text-slate-800">Maman de Inès</span>
@@ -133,7 +129,7 @@
 <section class="py-24 bg-slate-50">
     <div class="container mx-auto px-4 max-w-4xl">
         <div class="text-center mb-16">
-            <h2 class="text-5xl font-fun text-secondary">Questions Fréquentes 🤔</h2>
+            <h2 class="text-5xl font-fun text-secondary">Foire aux questions</h2>
         </div>
 
         <div class="space-y-6" x-data="{ active: null }">
@@ -143,7 +139,7 @@
                     <span class="text-2xl transition-transform" :class="active === 1 ? 'rotate-45' : ''">➕</span>
                 </button>
                 <div x-show="active === 1" x-collapse class="px-6 pb-6 text-slate-600 font-medium border-t border-slate-50 pt-4">
-                    C'est très simple ! Clique sur le bouton "Réservation", choisis ton service, ta date et laisse-toi guider par la magie.
+                    Sélectionnez une formule, choisissez la date et l'heure souhaitées, puis remplissez notre formulaire de réservation en ligne.
                 </div>
             </div>
 
@@ -163,7 +159,7 @@
                     <span class="text-2xl transition-transform" :class="active === 3 ? 'rotate-45' : ''">➕</span>
                 </button>
                 <div x-show="active === 3" x-collapse class="px-6 pb-6 text-slate-600 font-medium border-t border-slate-50 pt-4">
-                    Oui ! Nos animateurs arrivent avec tout le nécessaire (maquillage, sono, accessoires, etc.) pour que vous n'ayez rien à préparer.
+                    Oui, l'animateur apporte tout le matériel requis pour les activités choisies (maquillage, sonorisation, accessoires).
                 </div>
             </div>
         </div>

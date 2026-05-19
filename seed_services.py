@@ -7,7 +7,7 @@ def seed_data():
 
     # Service 1
     s1 = Service.objects.create(
-        name="Magie & Sortilèges 🪄",
+        name="Magie et Sortilèges",
         description="Un spectacle de magie époustouflant suivi d'un atelier pour apprendre ses premiers tours !",
         base_price=150.00,
         duration_minutes=90,
@@ -19,7 +19,7 @@ def seed_data():
 
     # Service 2
     s2 = Service.objects.create(
-        name="Aventure Pirate 🏴‍☠️",
+        name="Aventure Pirate",
         description="Une chasse au trésor géante avec costumes, cartes et un vrai coffre à bijoux !",
         base_price=180.00,
         duration_minutes=120,
@@ -31,7 +31,7 @@ def seed_data():
 
     # Service 3
     s3 = Service.objects.create(
-        name="Boum des P'tits Loups 💃",
+        name="Boum des P'tits Loups",
         description="Musique, lumières, confettis et chorégraphies endiablées avec notre DJ animateur !",
         base_price=120.00,
         duration_minutes=60,

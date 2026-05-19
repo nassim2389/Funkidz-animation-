@@ -6,7 +6,6 @@
                 <div class="text-4xl font-fun text-primary group-hover:rotate-6 transition-transform">
                     Fun<span class="text-secondary">kidz</span>
                 </div>
-                <span class="text-3xl animate-bounce">🎈</span>
             </a>
 
             <!-- Desktop Menu -->
@@ -16,7 +15,7 @@
                 <a href="{% url 'pricing' %}" class="px-4 py-2 text-foreground hover:text-accent-yellow font-bold text-lg transition rounded-full hover:bg-accent-yellow/20">Tarifs</a>
                 <a href="{% url 'gallery' %}" class="px-4 py-2 text-foreground hover:text-accent-green font-bold text-lg transition rounded-full hover:bg-accent-green/20">Galerie</a>
                 <a href="{% url 'contact' %}" class="px-4 py-2 text-foreground hover:text-primary font-bold text-lg transition rounded-full hover:bg-primary/10">Contact</a>
-                <a href="{% url 'booking-wizard' %}" class="px-8 py-3 bg-primary text-white font-fun text-xl rounded-full hover:scale-110 transition shadow-lg animate-pulse">Réservation 🚀</a>
+                <a href="{% url 'booking-wizard' %}" class="px-8 py-3 bg-primary text-white font-fun text-xl rounded-full hover:scale-110 transition shadow-lg">Réservation</a>
             </div>
 
             <!-- Auth Buttons Desktop -->
@@ -25,12 +24,12 @@
                     <a href="{% url 'dashboard' %}" class="px-6 py-3 bg-candy-mint text-emerald-800 font-bold rounded-full hover:bg-emerald-200 transition shadow-sm">Mon Espace</a>
                     <form action="{% url 'logout' %}" method="post" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="px-6 py-3 text-slate-500 font-bold hover:text-red-500 transition">Bye bye 👋</button>
+                        <button type="submit" class="px-6 py-3 text-slate-500 font-bold hover:text-red-500 transition">Déconnexion</button>
                     </form>
                 {% else %}
-                    <a href="{% url 'login' %}" class="px-6 py-3 text-secondary font-bold hover:bg-candy-blue/20 rounded-full transition">Coucou ! (Login)</a>
-                    <a href="{% url 'booking-wizard' %}" class="px-8 py-3 bg-primary text-white font-fun text-xl rounded-full hover:scale-110 transition shadow-lg animate-pulse">
-                        Je m'inscris ! 🚀
+                    <a href="{% url 'login' %}" class="px-6 py-3 text-secondary font-bold hover:bg-candy-blue/20 rounded-full transition">Connexion</a>
+                    <a href="{% url 'booking-wizard' %}" class="px-8 py-3 bg-primary text-white font-fun text-xl rounded-full hover:scale-110 transition shadow-lg">
+                        Réserver
                     </a>
                 {% endif %}
             </div>
@@ -58,7 +57,7 @@
                     </form>
                 {% else %}
                     <a href="{% url 'login' %}" class="block w-full text-center px-6 py-4 border-4 border-secondary text-secondary rounded-2xl font-bold">Connexion</a>
-                    <a href="{% url 'booking-wizard' %}" class="block w-full text-center px-6 py-4 bg-primary text-white rounded-2xl font-fun text-2xl shadow-lg">Réserver ! 🎈</a>
+                    <a href="{% url 'booking-wizard' %}" class="block w-full text-center px-6 py-4 bg-primary text-white rounded-2xl font-fun text-2xl shadow-lg">Réserver</a>
                 {% endif %}
             </div>
         </div>

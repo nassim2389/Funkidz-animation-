@@ -20,21 +20,21 @@
                     </div>
                     <nav class="space-y-2">
                         <a href="{% url 'dashboard' %}" class="block px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-bold">Mes Réservations</a>
-                        <a href="/booking/" class="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition">Nouvelle Réservation</a>
+                        <a href="/booking/" class="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition">Créer une réservation</a>
                         <a href="#" class="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition">Profil & Paramètres</a>
                     </nav>
                 </div>
             </div>
-
+ 
             <!-- Main Content -->
             <div class="flex-1 space-y-8">
                 <div class="flex justify-between items-center">
                     <h1 class="text-3xl font-black text-slate-900">Mes Réservations 🗓️</h1>
                     <a href="/booking/" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-md">
-                        Réserver à nouveau
+                        Créer une réservation
                     </a>
                 </div>
-
+ 
                 {% if bookings %}
                 <div class="grid gap-4">
                     {% for booking in bookings %}
@@ -61,8 +61,14 @@
                             <div class="text-right">
                                 <p class="text-xs text-slate-400 uppercase font-bold">Prix</p>
                                 <p class="text-xl font-black text-blue-600">{{ booking.final_price }}€</p>
+                                {% if booking.status == 'CONFIRMED' %}
+                                <a href="#" class="text-xs text-blue-600 hover:underline block mt-1">Télécharger facture (Stripe)</a>
+                                {% endif %}
+                                {% if booking.status == 'PENDING' %}
+                                <a href="/contact/?subject=Modification%20de%20ma%20réservation%20%23{{ booking.id }}" class="text-xs text-amber-600 hover:underline block mt-1">Modifier la réservation</a>
+                                {% endif %}
                                 {% if booking.status != 'DONE' and booking.status != 'CANCELLED' %}
-                                <a href="{% url 'cancel-booking' booking.id %}" class="text-xs text-red-600 hover:underline">Annuler</a>
+                                <a href="{% url 'cancel-booking' booking.id %}" class="text-xs text-red-600 hover:underline block mt-1">Annuler</a>
                                 {% endif %}
                             </div>
                         </div>
@@ -74,7 +80,7 @@
                     <div class="text-5xl">🤷‍♂️</div>
                     <p class="text-slate-600 font-medium">Vous n'avez pas encore de réservation.</p>
                     <a href="/booking/" class="inline-block px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg">
-                        Créer ma première réservation
+                        Créer une réservation
                     </a>
                 </div>
                 {% endif %}
