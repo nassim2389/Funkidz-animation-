@@ -24,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-==8d!h#agw5o+el=tn5pll_wq25iem5^=shylk8xpnb8#7c%j*'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-==8d!h#agw5o+el=tn5pll_wq25iem5^=shylk8xpnb8#7c%j*')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -249,6 +249,19 @@ JAZZMIN_UI_TWEAKS = {
     }
 }
 
-# Email configurations (Console backend in development for easy testing)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@funkidz.fr'
+# ==========================================
+# EMAIL CONFIGURATION (Brevo SMTP / Console)
+# ==========================================
+# Si EMAIL_HOST est défini dans .env → vrai envoi SMTP (production avec Brevo)
+# Sinon → affichage dans la console Django (développement local)
+if os.getenv('EMAIL_HOST'):
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.getenv('EMAIL_HOST')
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Funkidz <noreply@funkidz.fr>')
