@@ -23,4 +23,11 @@ urlpatterns = [
     path('payment-cancelled/', PaymentCancelledView.as_view(), name='payment-cancelled'),
     path('assignment/<int:assignment_id>/accept/', views_animateur.accept_assignment, name='accept-assignment'),
     path('assignment/<int:assignment_id>/refuse/', views_animateur.refuse_assignment, name='refuse-assignment'),
+    path('block-date/', views_animateur.block_date, name='block-date'),
+    path('unblock-slot/<int:slot_id>/', views_animateur.unblock_slot, name='unblock-slot'),
+    path('add-weekly-schedule/', views_animateur.add_weekly_schedule, name='add-weekly-schedule'),
+    path('delete-weekly-schedule/<int:schedule_id>/', views_animateur.delete_weekly_schedule, name='delete-weekly-schedule'),
+    path('declare-leave/', views_animateur.declare_leave, name='declare-leave'),
+    path('cancel-leave/<int:leave_id>/', views_animateur.cancel_leave, name='cancel-leave'),
 ]
+

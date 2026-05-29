@@ -67,6 +67,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         if user.role == 'ADMIN':
             return redirect('/admin/')
         elif user.role == 'ANIMATEUR':
+            # Ensure AnimateurProfile exists
+            from users.models import AnimateurProfile
+            AnimateurProfile.objects.get_or_create(user=user)
             return render(request, 'dashboard/animateur.html', self.get_context_data())
         else:
             return render(request, 'dashboard/client.html', self.get_context_data())
@@ -79,5 +82,15 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             context['bookings'] = Booking.objects.filter(user=user).order_by('-created_at')
         elif user.role == 'ANIMATEUR':
             from bookings.models import BookingAssignment
-            context['assignments'] = BookingAssignment.objects.filter(animateur__user=user).order_by('-created_at')
+            from availability.models import Availability, WeeklySchedule, AnimateurLeave
+            from users.models import AnimateurProfile
+            
+            profile = AnimateurProfile.objects.get(user=user)
+            context['profile'] = profile
+            context['assignments'] = BookingAssignment.objects.filter(animateur=profile).order_by('-created_at')
+            context['blocked_slots'] = Availability.objects.filter(animateur=profile, is_blocked=True).order_by('date')
+            context['weekly_schedules'] = WeeklySchedule.objects.filter(animateur=profile).order_by('weekday', 'start_time')
+            context['leaves'] = AnimateurLeave.objects.filter(animateur=profile).order_by('-start_date')
+            context['weekdays'] = WeeklySchedule.Weekday.choices
         return context
+

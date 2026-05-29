@@ -62,11 +62,34 @@
                         <input type="time" x-model="formData.booking_time" class="w-full px-8 py-5 bg-slate-50 border-4 border-slate-100 rounded-3xl focus:border-secondary focus:ring-0 outline-none font-bold text-xl">
                     </div>
                 </div>
-                <div class="mt-12 p-6 bg-candy-blue/10 rounded-3xl border-2 border-dashed border-secondary/30 flex items-center gap-4">
+
+                <!-- Live Availability Indicator -->
+                <div class="mt-8 p-6 rounded-3xl border-4 transition-all duration-300"
+                     x-show="availabilityChecked"
+                     :class="availabilityLoading ? 'bg-slate-50 border-slate-100 text-slate-500' : (isAvailable ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-red-50 border-red-100 text-red-700')">
+                    <div class="flex items-center gap-4">
+                        <template x-if="availabilityLoading">
+                            <span class="text-3xl animate-spin">⏳</span>
+                        </template>
+                        <template x-if="!availabilityLoading && isAvailable">
+                            <span class="text-3xl">🎉</span>
+                        </template>
+                        <template x-if="!availabilityLoading && !isAvailable">
+                            <span class="text-3xl">😢</span>
+                        </template>
+                        <div>
+                            <p class="font-bold text-xl" x-text="availabilityLoading ? 'Vérification en cours...' : (isAvailable ? 'Créneau disponible !' : 'Complet !')"></p>
+                            <p class="text-base mt-1" x-text="availabilityMessage"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-6 bg-candy-blue/10 rounded-3xl border-2 border-dashed border-secondary/30 flex items-center gap-4">
                     <span class="text-3xl">ℹ️</span>
                     <p class="text-slate-600 font-medium">Les créneaux réservés en ligne sont soumis à validation finale par notre équipe sous 24h.</p>
                 </div>
             </div>
+
 
             <!-- Step 3: Options -->
             <div x-show="currentStep === 3" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0">
@@ -184,9 +207,16 @@
             },
             totalPrice: 0,
             selectedServiceName: '',
+            
+            // Availability Properties
+            availabilityChecked: false,
+            availabilityLoading: false,
+            isAvailable: false,
+            availabilityMessage: '',
 
             async init() {
                 await this.fetchServices();
+                this.init_watch();
                 
                 // Handle pre-selected service from URL
                 const urlParams = new URLSearchParams(window.location.search);
@@ -209,6 +239,7 @@
                 this.formData.service_id = service.id;
                 this.selectedServiceName = service.name;
                 this.calculateTotal();
+                this.checkAvailability();
                 
                 // Fetch options for this service
                 const res = await fetch('/api/options/?service=' + service.id);
@@ -235,17 +266,40 @@
                 this.totalPrice = total;
             },
 
+            async checkAvailability() {
+                if (!this.formData.booking_date || !this.formData.booking_time) {
+                    this.availabilityChecked = false;
+                    return;
+                }
+                this.availabilityLoading = true;
+                this.availabilityChecked = true;
+                try {
+                    const url = `/api/availability/check/?date=${this.formData.booking_date}&time=${this.formData.booking_time}&service=${this.formData.service_id}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    this.isAvailable = data.available;
+                    this.availabilityMessage = data.message;
+                } catch (e) {
+                    this.isAvailable = false;
+                    this.availabilityMessage = "Erreur lors de la vérification de la disponibilité. ⚠️";
+                } finally {
+                    this.availabilityLoading = false;
+                }
+            },
+
             isStepValid() {
                 if (this.currentStep === 1) return this.formData.service_id !== null;
-                if (this.currentStep === 2) return this.formData.booking_date && this.formData.booking_time;
+                if (this.currentStep === 2) return this.formData.booking_date && this.formData.booking_time && this.isAvailable;
                 if (this.currentStep === 4) return this.formData.nb_children && this.formData.location_address && this.formData.location_city;
                 return true;
             },
 
-            // Watch for changes to recalculate total
+            // Watch for changes to recalculate total and check availability
             init_watch() {
                 this.$watch('selectedOptionIds', () => this.calculateTotal());
                 this.$watch('formData.nb_children', () => this.calculateTotal());
+                this.$watch('formData.booking_date', () => this.checkAvailability());
+                this.$watch('formData.booking_time', () => this.checkAvailability());
             },
 
             async submitBooking() {
@@ -280,6 +334,7 @@
         }
     }
 </script>
+
 
 <style>
     [x-cloak] { display: none !important; }

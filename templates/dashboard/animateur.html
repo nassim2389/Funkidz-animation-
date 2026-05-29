@@ -3,88 +3,288 @@
 {% block title %}Funkidz - Espace Animateur{% endblock %}
 
 {% block content %}
-<div class="py-12 bg-slate-50 min-h-screen">
+<div class="py-12 bg-slate-50 min-h-screen" x-data="{ activeTab: 'planning' }">
     <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row gap-8">
-            <!-- Sidebar -->
-            <div class="w-full md:w-64 space-y-4">
-                <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
-                            {{ user.email|first|upper }}
-                        </div>
-                        <div>
-                            <p class="font-bold text-slate-900 truncate w-32">{{ user.email }}</p>
-                            <p class="text-xs text-slate-500 capitalize">Animateur</p>
-                        </div>
+        <!-- Dashboard Header -->
+        <div class="bg-gradient-to-br from-primary to-candy-pink text-white rounded-3xl p-8 mb-8 shadow-xl relative overflow-hidden">
+            <div class="absolute right-0 bottom-0 opacity-10 translate-y-10 translate-x-10 text-9xl">🎈</div>
+            <div class="flex flex-col md:flex-row items-center gap-6 relative z-10">
+                <div class="w-24 h-24 rounded-full bg-white/30 border-4 border-white flex items-center justify-center text-4xl font-bold shadow-lg">
+                    {{ user.email|first|upper }}
+                </div>
+                <div class="text-center md:text-left space-y-2">
+                    <h1 class="text-4xl font-fun font-black">Bonjour, {{ user.first_name|default:"Super Animateur" }} ! 🌟</h1>
+                    <p class="text-white/80 font-medium">Espace Animateur — {{ user.email }}</p>
+                    {% if profile %}
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-2">
+                        <span class="px-3 py-1 bg-white/20 rounded-full text-xs font-bold flex items-center gap-1">
+                            📞 {{ profile.phone|default:"Pas de téléphone" }}
+                        </span>
+                        <span class="px-3 py-1 bg-white/20 rounded-full text-xs font-bold flex items-center gap-1">
+                            ⭐ {{ profile.rating|floatformat:1 }} / 5.0
+                        </span>
                     </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="w-full lg:w-64 shrink-0">
+                <div class="bg-white p-6 rounded-3xl border-4 border-slate-100 shadow-xl space-y-4">
+                    <h3 class="font-fun text-2xl text-slate-800 px-2">Menu</h3>
                     <nav class="space-y-2">
-                        <a href="{% url 'dashboard' %}" class="block px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-bold">Mon Planning</a>
-                        <a href="#" class="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition">Mes Disponibilités</a>
-                        <a href="#" class="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition">Missions Disponibles</a>
+                        <button @click="activeTab = 'planning'" 
+                                class="w-full text-left px-4 py-3 rounded-2xl font-bold transition flex items-center gap-3"
+                                :class="activeTab === 'planning' ? 'bg-secondary text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'">
+                            📅 Mon Planning
+                        </button>
+                        <button @click="activeTab = 'indispo'" 
+                                class="w-full text-left px-4 py-3 rounded-2xl font-bold transition flex items-center gap-3"
+                                :class="activeTab === 'indispo' ? 'bg-secondary text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'">
+                            🚫 Indisponibilités
+                        </button>
+                        <button @click="activeTab = 'weekly'" 
+                                class="w-full text-left px-4 py-3 rounded-2xl font-bold transition flex items-center gap-3"
+                                :class="activeTab === 'weekly' ? 'bg-secondary text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'">
+                            🔁 Horaires Récurrents
+                        </button>
+                        <button @click="activeTab = 'leaves'" 
+                                class="w-full text-left px-4 py-3 rounded-2xl font-bold transition flex items-center gap-3"
+                                :class="activeTab === 'leaves' ? 'bg-secondary text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'">
+                            ✈️ Mes Congés
+                        </button>
                     </nav>
                 </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="flex-1 space-y-8">
-                <div class="flex justify-between items-center">
-                    <h1 class="text-3xl font-black text-slate-900">Mon Planning 📅</h1>
-                </div>
-
-                <!-- Assigned Missions -->
-                <div class="space-y-4">
-                    <h2 class="text-xl font-bold text-slate-700">Missions Assignées</h2>
-                    {% if assignments %}
-                        <div class="grid gap-4">
-                            {% for assignment in assignments %}
-                            <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
-                                <div class="flex items-center gap-6">
-                                    <div class="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center text-2xl">
-                                        🎈
+            <!-- Tab Contents -->
+            <div class="flex-1">
+                
+                <!-- TAB 1: Mon Planning & Missions -->
+                <div x-show="activeTab === 'planning'" class="space-y-8" x-transition>
+                    <div class="bg-white p-8 rounded-3xl border-4 border-slate-100 shadow-xl space-y-6">
+                        <h2 class="text-3xl font-fun text-slate-800">Missions Assignées & Planning 📅</h2>
+                        
+                        {% if assignments %}
+                            <div class="grid gap-6">
+                                {% for assignment in assignments %}
+                                <div class="p-6 rounded-2xl border-4 {% if assignment.status == 'PENDING' %}border-amber-200 bg-amber-50/20{% elif assignment.status == 'ACCEPTED' %}border-emerald-200 bg-emerald-50/10{% else %}border-slate-100 bg-slate-50{% endif %} flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm
+                                            {% if assignment.status == 'PENDING' %}bg-amber-100 text-amber-700
+                                            {% elif assignment.status == 'ACCEPTED' %}bg-emerald-100 text-emerald-700
+                                            {% else %}bg-slate-200 text-slate-700{% endif %}">
+                                            🎈
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h3 class="font-bold text-xl text-slate-900">{{ assignment.booking.service.name }}</h3>
+                                                <span class="px-2 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wide
+                                                    {% if assignment.booking.status == 'DONE' %}bg-blue-100 text-blue-700
+                                                    {% elif assignment.booking.status == 'CONFIRMED' %}bg-emerald-100 text-emerald-700
+                                                    {% else %}bg-amber-100 text-amber-700{% endif %}">
+                                                    {{ assignment.booking.get_status_display }}
+                                                </span>
+                                            </div>
+                                            <p class="text-slate-600 font-medium mt-1">🗓️ {{ assignment.booking.booking_date }} à {{ assignment.booking.booking_time }}</p>
+                                            <p class="text-xs text-slate-500 font-medium">📍 {{ assignment.booking.location_address }}, {{ assignment.booking.location_zip }} {{ assignment.booking.location_city }}</p>
+                                            {% if assignment.booking.special_instructions %}
+                                                <p class="text-xs italic text-slate-400 mt-2 bg-white/60 p-2 rounded-lg border border-slate-100">💡 "{{ assignment.booking.special_instructions }}"</p>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 class="font-bold text-xl text-slate-900">{{ assignment.booking.service.name }}</h3>
-                                        <p class="text-slate-500 font-medium">{{ assignment.booking.booking_date }} à {{ assignment.booking.booking_time }}</p>
-                                        <p class="text-xs text-slate-400">{{ assignment.booking.location_city }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    {% if assignment.status == 'PENDING' %}
-                                        <a href="{% url 'accept-assignment' assignment.id %}" class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition">Accepter</a>
-                                        <a href="{% url 'refuse-assignment' assignment.id %}" class="px-4 py-2 bg-red-50 text-red-600 font-bold border-2 border-red-100 rounded-lg hover:bg-red-100 transition">Refuser</a>
-                                    {% else %}
-                                        <span class="px-4 py-2 rounded-lg font-bold text-sm
-                                            {% if assignment.status == 'ACCEPTED' %}bg-emerald-100 text-emerald-700
-                                            {% else %}bg-slate-100 text-slate-700{% endif %}">
-                                            {{ assignment.get_status_display }}
-                                        </span>
-                                        {% if assignment.status == 'ACCEPTED' and assignment.booking.status != 'DONE' %}
-                                        <a href="{% url 'complete-mission' assignment.booking.id %}" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg text-xs">Terminer</a>
+                                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                                        {% if assignment.status == 'PENDING' %}
+                                            <a href="{% url 'accept-assignment' assignment.id %}" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 text-center shadow-md transition transform active:scale-95">Accepter</a>
+                                            <a href="{% url 'refuse-assignment' assignment.id %}" class="w-full sm:w-auto px-6 py-3 bg-red-50 text-red-600 font-bold border-2 border-red-100 rounded-xl hover:bg-red-100 text-center transition">Refuser</a>
+                                        {% else %}
+                                            <span class="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-center text-sm
+                                                {% if assignment.status == 'ACCEPTED' %}bg-emerald-100 text-emerald-700 border border-emerald-200
+                                                {% else %}bg-slate-200 text-slate-600{% endif %}">
+                                                Assignation : {{ assignment.get_status_display }}
+                                            </span>
+                                            {% if assignment.status == 'ACCEPTED' and assignment.booking.status != 'DONE' %}
+                                            <a href="{% url 'complete-mission' assignment.booking.id %}" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-bold rounded-xl text-center hover:bg-blue-700 shadow-md transition transform active:scale-95">Terminer la mission</a>
+                                            {% endif %}
                                         {% endif %}
-                                    {% endif %}
+                                    </div>
                                 </div>
+                                {% endfor %}
                             </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-slate-500 italic">Aucune mission assignée pour le moment.</p>
-                    {% endif %}
+                        {% else %}
+                            <div class="text-center py-12 text-slate-400 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                                <span class="text-5xl">🤷‍♂️</span>
+                                <p class="text-lg font-medium mt-4">Aucune mission assignée pour le moment.</p>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <!-- Availability Section (Simplified for now) -->
-                <div class="bg-white p-8 rounded-2xl border-2 border-slate-200 space-y-6">
-                    <h2 class="text-xl font-bold text-slate-900">Gérer mes indisponibilités</h2>
-                    <form class="flex gap-4 items-end">
-                        <div class="flex-1">
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Date</label>
-                            <input type="date" class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none">
+                <!-- TAB 2: Indisponibilités -->
+                <div x-show="activeTab === 'indispo'" class="space-y-8" x-transition>
+                    <div class="bg-white p-8 rounded-3xl border-4 border-slate-100 shadow-xl space-y-8">
+                        <div>
+                            <h2 class="text-3xl font-fun text-slate-800">Bloquer une date spécifique 🚫</h2>
+                            <p class="text-slate-500 mt-1">Empêchez les clients de réserver cette date spécifique.</p>
                         </div>
-                        <button type="submit" class="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition">
-                            Bloquer ce jour
-                        </button>
-                    </form>
+                        
+                        <form method="POST" action="{% url 'block-date' %}" class="grid sm:grid-cols-3 gap-4 items-end bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            {% csrf_token %}
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Choisir une date</label>
+                                <input type="date" name="date" required class="w-full p-4 bg-white border-2 border-slate-100 rounded-xl outline-none font-bold">
+                            </div>
+                            <button type="submit" class="px-6 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover shadow-md transition transform active:scale-95">
+                                Bloquer ce jour
+                            </button>
+                        </form>
+
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-slate-700 border-b pb-2">Mes dates bloquées</h3>
+                            {% if blocked_slots %}
+                                <div class="grid gap-3">
+                                    {% for slot in blocked_slots %}
+                                    <div class="flex justify-between items-center p-4 bg-red-50/30 border-2 border-red-100 rounded-xl">
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-red-500">🚫</span>
+                                            <span class="font-bold text-slate-800">{{ slot.date }}</span>
+                                            <span class="text-xs text-slate-400">Jour entier</span>
+                                        </div>
+                                        <a href="{% url 'unblock-slot' slot.id %}" class="px-3 py-1.5 bg-white border border-red-200 text-red-600 rounded-lg text-xs font-bold hover:bg-red-50 transition">
+                                            Débloquer
+                                        </a>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-slate-400 italic">Aucune date bloquée.</p>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
+
+                <!-- TAB 3: Horaires Récurrents -->
+                <div x-show="activeTab === 'weekly'" class="space-y-8" x-transition>
+                    <div class="bg-white p-8 rounded-3xl border-4 border-slate-100 shadow-xl space-y-8">
+                        <div>
+                            <h2 class="text-3xl font-fun text-slate-800">Gérer mes horaires hebdomadaires récurrents 🔁</h2>
+                            <p class="text-slate-500 mt-1">Déclarez vos créneaux habituels de disponibilité.</p>
+                        </div>
+                        
+                        <form method="POST" action="{% url 'add-weekly-schedule' %}" class="grid sm:grid-cols-4 gap-4 items-end bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            {% csrf_token %}
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Jour</label>
+                                <select name="weekday" required class="w-full p-4 bg-white border-2 border-slate-100 rounded-xl outline-none font-bold">
+                                    {% for value, name in weekdays %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Début</label>
+                                <input type="time" name="start_time" required class="w-full p-4 bg-white border-2 border-slate-100 rounded-xl outline-none font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Fin</label>
+                                <input type="time" name="end_time" required class="w-full p-4 bg-white border-2 border-slate-100 rounded-xl outline-none font-bold">
+                            </div>
+                            <button type="submit" class="px-6 py-4 bg-secondary text-white font-bold rounded-xl hover:bg-secondary-hover shadow-md transition transform active:scale-95">
+                                Ajouter
+                            </button>
+                        </form>
+
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-slate-700 border-b pb-2">Mes horaires récurrents</h3>
+                            {% if weekly_schedules %}
+                                <div class="grid sm:grid-cols-2 gap-4">
+                                    {% for sched in weekly_schedules %}
+                                    <div class="flex justify-between items-center p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl shadow-sm">
+                                        <div>
+                                            <span class="px-2 py-1 bg-secondary/10 text-secondary rounded-lg font-bold text-xs">
+                                                {{ sched.get_weekday_display }}
+                                            </span>
+                                            <p class="font-bold text-slate-800 mt-2">{{ sched.start_time }} - {{ sched.end_time }}</p>
+                                        </div>
+                                        <a href="{% url 'delete-weekly-schedule' sched.id %}" class="p-2 bg-white border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition">
+                                            🗑️
+                                        </a>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-slate-400 italic text-center py-6">Aucun horaire récurrent défini.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: Congés & Absences -->
+                <div x-show="activeTab === 'leaves'" class="space-y-8" x-transition>
+                    <div class="bg-white p-8 rounded-3xl border-4 border-slate-100 shadow-xl space-y-8">
+                        <div>
+                            <h2 class="text-3xl font-fun text-slate-800">Déclarer un congé ou des vacances ✈️</h2>
+                            <p class="text-slate-500 mt-1">Faites une demande d'absence à valider par l'administrateur.</p>
+                        </div>
+                        
+                        <form method="POST" action="{% url 'declare-leave' %}" class="grid sm:grid-cols-3 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            {% csrf_token %}
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Du</label>
+                                <input type="date" name="start_date" required class="w-full p-4 bg-white border-2 border-slate-100 rounded-xl outline-none font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Au</label>
+                                <input type="date" name="end_date" required class="w-full p-4 bg-white border-2 border-slate-100 rounded-xl outline-none font-bold">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Motif (Optionnel)</label>
+                                <input type="text" name="reason" placeholder="Ex: Vacances d'été, indisponibilité personnelle..." class="w-full p-4 bg-white border-2 border-slate-100 rounded-xl outline-none">
+                            </div>
+                            <div class="sm:col-span-3 flex justify-end">
+                                <button type="submit" class="px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover shadow-md transition transform active:scale-95">
+                                    Soumettre ma demande
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-slate-700 border-b pb-2">Mes demandes de congés</h3>
+                            {% if leaves %}
+                                <div class="grid gap-3">
+                                    {% for leave in leaves %}
+                                    <div class="flex flex-col sm:flex-row justify-between sm:items-center p-5 bg-white border-2 border-slate-100 rounded-2xl shadow-sm gap-4">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-bold text-slate-800">Du {{ leave.start_date }} au {{ leave.end_date }}</span>
+                                                <span class="px-2 py-0.5 rounded-full text-xs font-bold
+                                                    {% if leave.status == 'PENDING' %}bg-amber-100 text-amber-700
+                                                    {% elif leave.status == 'APPROVED' %}bg-emerald-100 text-emerald-700
+                                                    {% else %}bg-red-100 text-red-700{% endif %}">
+                                                    {{ leave.get_status_display }}
+                                                </span>
+                                            </div>
+                                            {% if leave.reason %}
+                                                <p class="text-sm text-slate-500 mt-2">💬 {{ leave.reason }}</p>
+                                            {% endif %}
+                                        </div>
+                                        {% if leave.status == 'PENDING' %}
+                                        <a href="{% url 'cancel-leave' leave.id %}" class="self-end sm:self-auto px-4 py-2 bg-red-50 text-red-600 rounded-xl text-xs font-bold border border-red-100 hover:bg-red-100 text-center transition">
+                                            Annuler la demande
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-slate-400 italic">Aucune demande de congé enregistrée.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
