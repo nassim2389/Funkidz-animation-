@@ -74,8 +74,10 @@ class BookingAdmin(admin.ModelAdmin):
     generate_payment_links.short_description = "Générer & Envoyer lien de paiement Stripe"
 
     def payment_link_display(self, obj):
+        url = f"/payment-success/?booking_id={obj.id}"
         return format_html(
-            "<a class='button' href='/booking/' target='_blank' style='padding: 3px 10px; background: #4D96FF; color: white; border-radius: 4px; font-weight: bold;'>Simuler</a>"
+            '<a class="button" href="{}" target="_blank" style="padding: 4px 12px; background: #4F46E5; color: white; border-radius: 6px; font-weight: bold; text-decoration: none;">Paiement Démo 💳</a>',
+            url
         )
     payment_link_display.short_description = "Paiement"
 

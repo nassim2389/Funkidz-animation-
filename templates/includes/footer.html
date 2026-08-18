@@ -1,62 +1,74 @@
-<footer class="bg-white border-t-8 border-candy-blue/20 pt-20 pb-10">
-    <div class="container mx-auto px-4">
-        <div class="grid md:grid-cols-4 gap-12 mb-16">
-            <!-- Brand -->
+<footer class="bg-slate-900 text-white pt-16 pb-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            
+            <!-- Brand Column -->
             <div class="space-y-6">
-                <div class="text-4xl font-fun text-primary">
-                    Fun<span class="text-secondary">kidz</span>
-                </div>
-                <p class="text-slate-500 font-medium">
-                    Organisation d'animations et d'événements festifs sur mesure pour enfants.
+                <a href="{% url 'home' %}" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white shadow-glow">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <span class="text-2xl font-black font-heading tracking-tight">Funkidz<span class="text-brand-500">.</span></span>
+                </a>
+                <p class="text-slate-400 text-sm leading-relaxed">
+                    Agence spécialisée dans la création et l'organisation d'animations d'exception pour anniversaires et fêtes enfantines. Des souvenirs inoubliables créés par des professionnels passionnés.
                 </p>
-                <div class="flex gap-4">
-                    <a href="#" class="w-12 h-12 bg-candy-pink/20 rounded-full flex items-center justify-center text-primary hover:scale-110 transition" aria-label="Instagram">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                <div class="flex items-center gap-3">
+                    <a href="#" class="w-10 h-10 bg-slate-800 hover:bg-brand-600 rounded-full flex items-center justify-center text-slate-300 hover:text-white transition duration-200" aria-label="Instagram">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                     </a>
-                    <a href="#" class="w-12 h-12 bg-candy-blue/20 rounded-full flex items-center justify-center text-secondary hover:scale-110 transition" aria-label="Facebook">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+                    <a href="#" class="w-10 h-10 bg-slate-800 hover:bg-brand-600 rounded-full flex items-center justify-center text-slate-300 hover:text-white transition duration-200" aria-label="Facebook">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
                     </a>
                 </div>
             </div>
 
-            <!-- Links -->
-            <div class="space-y-6">
-                <h3 class="text-xl font-bold text-slate-800">Navigation</h3>
-                <ul class="space-y-4">
-                    <li><a href="{% url 'home' %}" class="text-slate-500 hover:text-primary font-medium transition">Accueil</a></li>
-                    <li><a href="{% url 'services-web' %}" class="text-slate-500 hover:text-secondary font-medium transition">Services</a></li>
-                    <li><a href="{% url 'pricing' %}" class="text-slate-500 hover:text-accent-yellow font-medium transition">Tarifs</a></li>
-                    <li><a href="{% url 'gallery' %}" class="text-slate-500 hover:text-accent-green font-medium transition">Galerie</a></li>
+            <!-- Navigation Links -->
+            <div>
+                <h3 class="font-heading font-bold text-base text-slate-100 uppercase tracking-wider mb-6">Nos Formules</h3>
+                <ul class="space-y-3.5 text-sm">
+                    <li><a href="{% url 'services-web' %}" class="text-slate-400 hover:text-white transition">Spectacles de Magie</a></li>
+                    <li><a href="{% url 'services-web' %}" class="text-slate-400 hover:text-white transition">Chasses au Trésor Pirates</a></li>
+                    <li><a href="{% url 'services-web' %}" class="text-slate-400 hover:text-white transition">Kermesses & Mini Olympiades</a></li>
+                    <li><a href="{% url 'services-web' %}" class="text-slate-400 hover:text-white transition">Académies des Super-Héros</a></li>
+                    <li><a href="{% url 'services-web' %}" class="text-slate-400 hover:text-white transition">KIDS Disco & Karaoke</a></li>
                 </ul>
             </div>
 
-            <!-- More Links -->
-            <div class="space-y-6">
-                <h3 class="text-xl font-bold text-slate-800">Informations</h3>
-                <ul class="space-y-4">
-                    <li><a href="{% url 'about' %}" class="text-slate-500 hover:text-accent-purple font-medium transition">Qui sommes-nous ?</a></li>
-                    <li><a href="{% url 'contact' %}" class="text-slate-500 hover:text-primary font-medium transition">Contact</a></li>
-                    <li><a href="{% url 'terms' %}" class="text-slate-500 hover:text-slate-800 font-medium transition">Conditions Générales</a></li>
-                    <li><a href="{% url 'privacy' %}" class="text-slate-500 hover:text-slate-800 font-medium transition">Confidentialité</a></li>
+            <!-- Information Links -->
+            <div>
+                <h3 class="font-heading font-bold text-base text-slate-100 uppercase tracking-wider mb-6">Informations</h3>
+                <ul class="space-y-3.5 text-sm">
+                    <li><a href="{% url 'about' %}" class="text-slate-400 hover:text-white transition">À propos de Funkidz</a></li>
+                    <li><a href="{% url 'pricing' %}" class="text-slate-400 hover:text-white transition">Grille Tarifaire</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-slate-400 hover:text-white transition">Nous Contacter</a></li>
+                    <li><a href="{% url 'terms' %}" class="text-slate-400 hover:text-white transition">Conditions Générales de Vente</a></li>
+                    <li><a href="{% url 'privacy' %}" class="text-slate-400 hover:text-white transition">Politique de Confidentialité</a></li>
                 </ul>
             </div>
 
             <!-- Newsletter -->
-            <div class="space-y-6">
-                <h3 class="text-xl font-bold text-slate-800">Newsletter</h3>
-                <p class="text-slate-500 font-medium">Inscrivez-vous pour recevoir nos offres et actualités.</p>
-                <div class="relative">
-                    <input type="email" placeholder="Votre adresse e-mail..." class="w-full px-6 py-4 bg-slate-50 border-4 border-slate-100 rounded-3xl focus:border-primary focus:ring-0 font-medium">
-                    <button class="absolute right-2 top-2 bottom-2 px-6 bg-primary text-white rounded-2xl font-bold hover:scale-105 transition">OK</button>
-                </div>
+            <div>
+                <h3 class="font-heading font-bold text-base text-slate-100 uppercase tracking-wider mb-6">Newsletter</h3>
+                <p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                    Recevez nos idées d'animations et conseils pour organiser un anniversaire parfait.
+                </p>
+                <form class="space-y-2.5" onsubmit="event.preventDefault(); alert('Merci pour votre inscription à notre newsletter !');">
+                    <input type="email" placeholder="Votre adresse e-mail" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-brand-500 transition">
+                    <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-500 font-bold text-sm text-white rounded-xl transition duration-200 shadow-glow">
+                        S'inscrire
+                    </button>
+                </form>
             </div>
         </div>
 
-        <div class="text-center pt-10 border-t border-slate-100">
-            <p class="text-slate-400 font-bold text-sm uppercase tracking-widest">
-                © 2026 Funkidz Animation. Tous droits réservés.
-                | <button onclick="localStorage.removeItem('cookieConsent'); location.reload();" class="text-slate-300 hover:text-primary text-xs transition">Gérer les cookies</button>
-            </p>
+        <div class="pt-8 border-t border-slate-800/80 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+            <p>© 2026 Funkidz Animation. Tous droits réservés.</p>
+            <div class="flex gap-6">
+                <a href="{% url 'terms' %}" class="hover:text-slate-400 transition">Mentions légales</a>
+                <a href="{% url 'privacy' %}" class="hover:text-slate-400 transition">Confidentialité</a>
+                <button onclick="localStorage.removeItem('cookieConsent'); location.reload();" class="hover:text-slate-400 transition">Cookies</button>
+            </div>
         </div>
     </div>
 </footer>

@@ -28,8 +28,17 @@ class CreateStripeSessionView(APIView):
             return Response({'error': 'Réservation introuvable.'}, status=status.HTTP_404_NOT_FOUND)
 
         if not stripe.api_key or 'REMPLACER' in stripe.api_key:
-            logger.error("Clé Stripe manquante ou non configurée dans le fichier .env")
-            return Response({'error': 'Service de paiement non configuré. Contactez l\'administrateur.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            logger.info(f"Clé Stripe non configurée — mode démonstration activé pour la réservation #{booking.id}")
+            payment, _ = Payment.objects.get_or_create(
+                booking=booking,
+                defaults={
+                    'stripe_session_id': f'demo_session_{booking.id}',
+                    'amount': booking.final_price,
+                    'status': Payment.Status.PENDING
+                }
+            )
+            success_url = request.build_absolute_uri('/payment-success/') + f'?booking_id={booking.id}'
+            return Response({'session_id': payment.stripe_session_id, 'url': success_url})
 
         try:
             checkout_session = stripe.checkout.Session.create(
@@ -123,28 +132,34 @@ def stripe_webhook(request):
         error_msg = intent.get('last_payment_error', {}).get('message', 'Erreur inconnue')
         logger.warning(f"❌ Paiement échoué — PaymentIntent: {intent['id']} — Erreur: {error_msg}")
 
-        # Retrouver le Payment associé et notifier le client
         try:
-            payment = Payment.objects.get(stripe_payment_intent=intent['id'])
-            payment.status = Payment.Status.FAILED
-            payment.save()
+            payment = Payment.objects.filter(stripe_payment_intent=intent['id']).first()
+            if not payment:
+                booking_id = intent.get('metadata', {}).get('booking_id')
+                if booking_id:
+                    payment = Payment.objects.filter(booking_id=booking_id).order_by('-created_at').first()
 
-            booking = payment.booking
-            send_mail(
-                subject="Échec de paiement pour votre réservation Funkidz 😟",
-                message=(
-                    f"Bonjour {booking.user.first_name or ''},\n\n"
-                    f"Nous n'avons pas pu traiter le paiement pour votre réservation #{booking.id} ({booking.service.name}).\n\n"
-                    f"Raison : {error_msg}\n\n"
-                    f"Veuillez réessayer en cliquant sur ce lien ou en contactant notre support.\n\n"
-                    f"L'équipe Funkidz"
-                ),
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
-                recipient_list=[booking.user.email],
-                fail_silently=True,
-            )
-        except Payment.DoesNotExist:
-            pass
+            if payment:
+                payment.status = Payment.Status.FAILED
+                payment.stripe_payment_intent = intent['id']
+                payment.save()
+
+                booking = payment.booking
+                send_mail(
+                    subject="Échec de paiement pour votre réservation Funkidz 😟",
+                    message=(
+                        f"Bonjour {booking.user.first_name or ''},\n\n"
+                        f"Nous n'avons pas pu traiter le paiement pour votre réservation #{booking.id} ({booking.service.name}).\n\n"
+                        f"Raison : {error_msg}\n\n"
+                        f"Veuillez réessayer depuis votre espace client ou en contactant notre support.\n\n"
+                        f"L'équipe Funkidz"
+                    ),
+                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
+                    recipient_list=[booking.user.email],
+                    fail_silently=True,
+                )
+        except Exception as e:
+            logger.error(f"Erreur traitement webhook payment_failed: {e}")
 
     return HttpResponse(status=200)
 

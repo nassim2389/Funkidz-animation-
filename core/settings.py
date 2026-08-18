@@ -15,7 +15,7 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -150,6 +150,7 @@ LOGIN_URL = '/auth/login/'
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -196,25 +197,33 @@ SPECTACULAR_SETTINGS = {
 JAZZMIN_SETTINGS = {
     "site_title": "Funkidz Admin",
     "site_header": "Funkidz",
-    "site_brand": "Funkidz Animation",
-    "welcome_sign": "Bienvenue sur l'administration Funkidz",
-    "copyright": "Funkidz Animation Ltd",
-    "search_model": ["users.User", "bookings.Booking"],
+    "site_brand": "Funkidz Admin",
+    "welcome_sign": "Bienvenue sur l'Espace de Gestion Funkidz",
+    "copyright": "Funkidz Animation",
+    "search_model": ["users.User", "bookings.Booking", "services.Service"],
     "topmenu_links": [
-        {"name": "Accueil", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Site Public", "url": "/", "new_window": True},
+        {"name": "Tableau de Bord", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Voir le Site Public 🌐", "url": "/", "new_window": True},
     ],
     "show_sidebar": True,
     "navigation_expanded": True,
     "icons": {
-        "users.User": "fas fa-user",
-        "bookings.Booking": "fas fa-calendar-check",
+        "users.User": "fas fa-users-cog",
+        "users.AnimateurProfile": "fas fa-user-ninja",
         "services.Service": "fas fa-magic",
-        "services.Option": "fas fa-plus-circle",
+        "services.Option": "fas fa-tags",
+        "bookings.Booking": "fas fa-calendar-check",
+        "bookings.BookingAssignment": "fas fa-user-check",
+        "bookings.BookingOption": "fas fa-list-ul",
         "payments.Payment": "fas fa-credit-card",
+        "availability.Availability": "fas fa-calendar-times",
+        "availability.WeeklySchedule": "fas fa-clock",
+        "availability.AnimateurLeave": "fas fa-plane-departure",
+        "contact.ContactMessage": "fas fa-envelope-open-text",
         "media.MediaGallery": "fas fa-images",
+        "reviews.Review": "fas fa-star",
     },
-    "order_with_respect_to": ["users", "services", "bookings", "payments"],
+    "order_with_respect_to": ["users", "services", "bookings", "payments", "availability", "contact"],
 }
 
 JAZZMIN_UI_TWEAKS = {
@@ -222,9 +231,9 @@ JAZZMIN_UI_TWEAKS = {
     "footer_small_text": False,
     "body_small_text": False,
     "brand_small_text": False,
-    "brand_colour": "navbar-primary",
+    "brand_colour": "navbar-white",
     "accent": "accent-primary",
-    "navbar": "navbar-dark",
+    "navbar": "navbar-white navbar-light",
     "no_navbar_border": False,
     "navbar_fixed": True,
     "layout_boxed": False,
@@ -233,11 +242,11 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar": "sidebar-dark-primary",
     "sidebar_nav_small_text": False,
     "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": False,
+    "sidebar_nav_child_indent": True,
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
-    "theme": "flatly",
+    "theme": "default",
     "dark_mode_theme": None,
     "button_classes": {
         "primary": "btn-primary",

@@ -1,0 +1,361 @@
+/* ==========================================================================
+   Funkidz Custom Admin Stylesheet - Flatly & Light Indigo High Contrast
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+/* Force Font & Crisp Subpixel Anti-Aliasing */
+*, *::before, *::after {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-text, .brand-link, .nav-header {
+    font-family: 'Outfit', -apple-system, sans-serif !important;
+}
+
+/* Page Body & Wrapper */
+body, .wrapper, .content-wrapper, .main-footer {
+    background-color: #F8FAFC !important;
+    color: #0F172A !important;
+}
+
+/* ==========================================================================
+   1. TOP NAVBAR (Indigo Gradient)
+   ========================================================================== */
+.main-header.navbar {
+    background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%) !important;
+    border-bottom: none !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.25) !important;
+}
+
+.main-header .nav-link, 
+.main-header .navbar-nav .nav-link,
+.main-header .user-panel .info a,
+.main-header .brand-link {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    opacity: 1 !important;
+}
+
+.main-header .nav-link:hover {
+    color: #E0E7FF !important;
+}
+
+/* User & Action Dropdowns */
+.dropdown-menu {
+    background-color: #FFFFFF !important;
+    border: 2px solid #E2E8F0 !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
+}
+
+.dropdown-item, .dropdown-header {
+    color: #0F172A !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: #EEF2FF !important;
+    color: #4F46E5 !important;
+}
+
+/* ==========================================================================
+   2. LIGHT SIDEBAR (Clean White with Dark Slate Text)
+   ========================================================================== */
+.main-sidebar, .main-sidebar .sidebar {
+    background-color: #FFFFFF !important;
+    border-right: 2px solid #E2E8F0 !important;
+}
+
+.brand-link {
+    background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%) !important;
+    border-bottom: none !important;
+    padding: 1.1rem 1rem !important;
+}
+
+.brand-link .brand-text {
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    font-size: 1.25rem !important;
+}
+
+.nav-sidebar .nav-header {
+    color: #64748B !important;
+    font-weight: 800 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 1.2rem 1rem 0.4rem !important;
+}
+
+.nav-sidebar .nav-link {
+    color: #1E293B !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    border-radius: 10px !important;
+    margin: 3px 8px !important;
+    padding: 9px 12px !important;
+}
+
+.nav-sidebar .nav-link:hover {
+    background-color: #F1F5F9 !important;
+    color: #4F46E5 !important;
+}
+
+.sidebar-light-indigo .nav-sidebar > .nav-item > .nav-link.active,
+.nav-sidebar .nav-link.active {
+    background-color: #4F46E5 !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
+}
+
+.nav-sidebar .nav-icon {
+    color: #4F46E5 !important;
+    font-size: 1.05rem !important;
+}
+
+.nav-sidebar .nav-link.active .nav-icon {
+    color: #FFFFFF !important;
+}
+
+/* ==========================================================================
+   3. CARDS, PANELS & TABLES
+   ========================================================================== */
+.card, .panel {
+    background-color: #FFFFFF !important;
+    border: 2px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.card-header {
+    background-color: #FFFFFF !important;
+    border-bottom: 2px solid #F1F5F9 !important;
+    padding: 1rem 1.25rem !important;
+}
+
+.card-title, .card-header h3 {
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    font-size: 1.15rem !important;
+}
+
+/* Tables (Changelist & Inlines) */
+.table-responsive, .table, #result_list {
+    color: #0F172A !important;
+    background-color: #FFFFFF !important;
+}
+
+/* TABLE HEADERS (thead th) */
+#result_list thead th, 
+.table thead th, 
+#result_list thead th a, 
+.table thead th a,
+th.sortable a, 
+th.sortable .text a,
+th .text a {
+    background-color: #F1F5F9 !important;
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.04em !important;
+    text-decoration: none !important;
+    padding: 12px 14px !important;
+    border-bottom: 3px solid #CBD5E1 !important;
+    display: table-cell !important;
+}
+
+#result_list thead th a:hover, .table thead th a:hover {
+    color: #4F46E5 !important;
+    text-decoration: underline !important;
+}
+
+/* TABLE BODY ROWS (tbody td AND tbody th) */
+#result_list tbody td, 
+#result_list tbody th, 
+.table tbody td, 
+.table tbody th {
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    border-top: 1px solid #E2E8F0 !important;
+    padding: 12px 14px !important;
+    display: table-cell !important;
+}
+
+#result_list tbody tr:nth-of-type(even) td,
+#result_list tbody tr:nth-of-type(even) th {
+    background-color: #F8FAFC !important;
+}
+
+#result_list tbody tr:hover td,
+#result_list tbody tr:hover th {
+    background-color: #EEF2FF !important;
+}
+
+/* Table Body Links */
+#result_list tbody td a, 
+#result_list tbody th a, 
+.table tbody td a, 
+.table tbody th a {
+    color: #4F46E5 !important;
+    font-weight: 800 !important;
+    text-decoration: none !important;
+}
+
+#result_list tbody td a:hover, 
+#result_list tbody th a:hover {
+    color: #312E81 !important;
+    text-decoration: underline !important;
+}
+
+/* Action Button inside Table (e.g., Paiement Démo 💳) */
+#result_list tbody a.button, .table tbody a.button {
+    background-color: #4F46E5 !important;
+    color: #FFFFFF !important;
+    padding: 6px 14px !important;
+    border-radius: 6px !important;
+    display: inline-block !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3) !important;
+}
+
+#result_list tbody a.button:hover, .table tbody a.button:hover {
+    background-color: #4338CA !important;
+    color: #FFFFFF !important;
+}
+
+/* ==========================================================================
+   4. FORMS, INPUTS & SELECT DROPDOWNS
+   ========================================================================== */
+label, form label, .col-form-label, fieldset legend, .field-box label {
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    font-size: 0.88rem !important;
+    margin-bottom: 4px !important;
+}
+
+.help, .help-block, .form-text, .text-muted, p.datetime {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+}
+
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="number"], 
+input[type="date"], 
+input[type="time"], 
+input[type="url"], 
+select, 
+textarea, 
+.form-control {
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+    border: 2px solid #94A3B8 !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    padding: 8px 12px !important;
+}
+
+select option {
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+    font-weight: 700 !important;
+    padding: 8px !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #4F46E5 !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25) !important;
+    outline: none !important;
+}
+
+/* ==========================================================================
+   5. RIGHT SIDEBAR FILTERS
+   ========================================================================== */
+#changelist-filter {
+    background-color: #FFFFFF !important;
+    border-left: 2px solid #E2E8F0 !important;
+    padding: 1.2rem !important;
+}
+
+#changelist-filter h2 {
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    font-size: 0.85rem !important;
+    text-transform: uppercase !important;
+    border-bottom: 2px solid #E2E8F0 !important;
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+#changelist-filter h3 {
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    font-size: 0.82rem !important;
+    margin-top: 1rem !important;
+}
+
+#changelist-filter a {
+    color: #475569 !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+}
+
+#changelist-filter li.selected a {
+    color: #4F46E5 !important;
+    font-weight: 800 !important;
+}
+
+/* ==========================================================================
+   6. BUTTONS & SUBMIT ACTIONS
+   ========================================================================== */
+.btn, .button, input[type="submit"], button[type="submit"] {
+    font-weight: 800 !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+}
+
+.btn-primary, .submit-row input[type="submit"].default, .object-tools a {
+    background-color: #4F46E5 !important;
+    border: 1px solid #4338CA !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3) !important;
+}
+
+.btn-primary:hover, .object-tools a:hover, .submit-row input[type="submit"].default:hover {
+    background-color: #4338CA !important;
+    color: #FFFFFF !important;
+}
+
+.btn-danger, .deletelink, .submit-row a.deletelink {
+    background-color: #DC2626 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #B91C1C !important;
+}
+
+/* Badges */
+.badge {
+    padding: 6px 10px !important;
+    font-weight: 800 !important;
+    font-size: 0.75rem !important;
+    border-radius: 6px !important;
+}
+
+.badge-success { background-color: #059669 !important; color: #FFFFFF !important; }
+.badge-warning { background-color: #D97706 !important; color: #FFFFFF !important; }
+.badge-danger { background-color: #DC2626 !important; color: #FFFFFF !important; }
+.badge-info { background-color: #2563EB !important; color: #FFFFFF !important; }

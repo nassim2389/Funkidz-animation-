@@ -1,0 +1,333 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | Funkidz Admin{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* ============================================================
+   FUNKIDZ ADMIN — Styles ultra-prioritaires après Jazzmin
+   ============================================================ */
+
+    /* ---- SIDEBAR : fond sombre ---- */
+    .main-sidebar,
+    .main-sidebar .sidebar,
+    .main-sidebar .os-content,
+    .main-sidebar .os-padding,
+    .main-sidebar .os-viewport {
+        background-color: #1e293b !important;
+    }
+
+    /* Logo zone */
+    .main-sidebar .brand-link,
+    a.brand-link {
+        background-color: #0f172a !important;
+        border-bottom: 3px solid #4f46e5 !important;
+    }
+
+    /* ============================================================
+   TOUT LE TEXTE DANS LA SIDEBAR = BLANC ABSOLU
+   ============================================================ */
+    .main-sidebar *,
+    .main-sidebar a,
+    .main-sidebar a *,
+    .main-sidebar p,
+    .main-sidebar span,
+    .main-sidebar i,
+    .main-sidebar li,
+    .main-sidebar div,
+    .main-sidebar .nav-link,
+    .main-sidebar .nav-link *,
+    .main-sidebar .nav-header,
+    .main-sidebar .nav-icon,
+    .main-sidebar li.nav-header {
+        color: #ffffff !important;
+    }
+
+    /* Icônes inactives : violet clair */
+    .main-sidebar .nav-sidebar .nav-icon {
+        color: #a5b4fc !important;
+    }
+
+    /* Hover */
+    .main-sidebar .nav-sidebar .nav-link:hover {
+        background-color: #334155 !important;
+    }
+
+    .main-sidebar .nav-sidebar .nav-link:hover * {
+        color: #ffffff !important;
+    }
+
+    /* Lien actif */
+    .main-sidebar .nav-sidebar .nav-link.active {
+        background-color: #4f46e5 !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 3px 10px rgba(79, 70, 229, 0.4) !important;
+    }
+
+    .main-sidebar .nav-sidebar .nav-link.active * {
+        color: #ffffff !important;
+    }
+
+    .main-sidebar .nav-sidebar .nav-link.active .nav-icon {
+        color: #ffffff !important;
+    }
+
+    /* ============================================================
+   BARRE DE RECHERCHE NAVBAR
+   ============================================================ */
+    .main-header input[type="search"],
+    .main-header input[type="text"],
+    .main-header .navbar-search-block .form-control,
+    .main-header .form-inline .form-control,
+    #navbar-search-input {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 2px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        padding: 6px 14px !important;
+        caret-color: #0f172a !important;
+    }
+
+    .main-header input::placeholder,
+    .main-header .form-control::placeholder,
+    #navbar-search-input::placeholder {
+        color: #64748b !important;
+        opacity: 1 !important;
+    }
+
+    .main-header .input-group-append .btn,
+    .main-header .navbar-search .btn,
+    .main-header .form-inline .btn {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
+
+    /* ============================================================
+   MENUS DÉROULANTS (select/option) : texte visible
+   ============================================================ */
+    select {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 2px solid #94a3b8 !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+    }
+
+    select option {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        font-weight: 600 !important;
+    }
+
+    /* ============================================================
+   TABLEAUX
+   ============================================================ */
+    table#result_list thead tr th,
+    .table thead tr th {
+        background-color: #e2e8f0 !important;
+        color: #0f172a !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        font-size: 0.8rem !important;
+        border-bottom: 3px solid #94a3b8 !important;
+        padding: 10px 12px !important;
+    }
+
+    table#result_list thead tr th a,
+    .table thead tr th a {
+        color: #0f172a !important;
+        text-decoration: none !important;
+        font-weight: 800 !important;
+    }
+
+    table#result_list thead tr th a:hover {
+        color: #4f46e5 !important;
+    }
+
+    table#result_list tbody tr td,
+    table#result_list tbody tr th,
+    .table tbody tr td,
+    .table tbody tr th {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        font-weight: 600 !important;
+        border-top: 1px solid #e2e8f0 !important;
+        padding: 12px !important;
+    }
+
+    table#result_list tbody tr:nth-child(even) td,
+    table#result_list tbody tr:nth-child(even) th {
+        background-color: #f8fafc !important;
+    }
+
+    table#result_list tbody tr:hover td,
+    table#result_list tbody tr:hover th {
+        background-color: #eef2ff !important;
+    }
+
+    table#result_list tbody td a,
+    table#result_list tbody th a {
+        color: #4f46e5 !important;
+        font-weight: 700 !important;
+        text-decoration: none !important;
+    }
+
+    table#result_list tbody td a:hover {
+        color: #312e81 !important;
+        text-decoration: underline !important;
+    }
+
+    table#result_list tbody a.button,
+    a.button {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        padding: 4px 12px !important;
+        border-radius: 6px !important;
+        display: inline-block !important;
+    }
+
+    /* ============================================================
+   FORMULAIRES
+   ============================================================ */
+    label,
+    .col-form-label,
+    fieldset legend,
+    .field-box label {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+    }
+
+    input[type=text],
+    input[type=email],
+    input[type=password],
+    input[type=number],
+    input[type=date],
+    input[type=time],
+    input[type=url],
+    textarea,
+    .form-control {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 2px solid #94a3b8 !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+    }
+
+    /* ============================================================
+   FILTRE DROIT (#changelist-filter)
+   ============================================================ */
+    #changelist-filter {
+        background-color: #ffffff !important;
+        border-left: 2px solid #e2e8f0 !important;
+    }
+
+    #changelist-filter * {
+        color: #0f172a !important;
+    }
+
+    #changelist-filter h2 {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        font-weight: 800 !important;
+        padding: 10px 14px !important;
+        border-bottom: 2px solid #e2e8f0 !important;
+    }
+
+    #changelist-filter h3 {
+        color: #0f172a !important;
+        font-weight: 800 !important;
+    }
+
+    #changelist-filter ul li a {
+        color: #334155 !important;
+        font-weight: 600 !important;
+    }
+
+    #changelist-filter ul li.selected a {
+        color: #4f46e5 !important;
+        font-weight: 800 !important;
+    }
+
+    #changelist-filter select {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 2px solid #94a3b8 !important;
+    }
+
+    #changelist-filter select option {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+    }
+
+    /* ============================================================
+   CARDS & BOUTONS
+   ============================================================ */
+    .card {
+        background-color: #ffffff !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+    }
+
+    .card-header {
+        background-color: #f8fafc !important;
+        border-bottom: 2px solid #e2e8f0 !important;
+    }
+
+    .card-header *,
+    .card-body * {
+        color: #0f172a !important;
+    }
+
+    .btn-primary,
+    .object-tools>li>a,
+    .submit-row input[type=submit].default {
+        background-color: #4f46e5 !important;
+        border-color: #4338ca !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+
+    .btn-danger,
+    a.deletelink {
+        background-color: #dc2626 !important;
+        border-color: #b91c1c !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+
+    /* ============================================================
+   SELECT2
+   ============================================================ */
+    .select2-container--default .select2-selection--single,
+    .select2-container--default .select2-selection--multiple {
+        background-color: #ffffff !important;
+        border: 2px solid #94a3b8 !important;
+        border-radius: 8px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #0f172a !important;
+        font-weight: 600 !important;
+    }
+
+    .select2-dropdown {
+        background-color: #ffffff !important;
+        border: 2px solid #94a3b8 !important;
+    }
+
+    .select2-results__option {
+        color: #0f172a !important;
+        font-weight: 600 !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+    }
+</style>
+{% endblock %}

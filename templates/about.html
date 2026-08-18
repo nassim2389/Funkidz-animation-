@@ -1,29 +1,47 @@
 {% extends 'base.html' %}
 
-{% block title %}Funkidz - À Propos{% endblock %}
+{% block title %}Funkidz - À Propos de Notre Agence{% endblock %}
 
 {% block content %}
-<div class="py-20 bg-white">
-    <div class="container mx-auto px-4 max-w-4xl">
-        <h1 class="text-6xl font-black mb-12 text-center text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">Notre Histoire</h1>
-        <div class="prose prose-lg max-w-none text-slate-700 space-y-6">
-            <p class="text-xl font-medium leading-relaxed">
-                Funkidz est née d'une idée simple : chaque enfant mérite une fête magique, et chaque parent mérite une organisation sans stress.
+<section class="py-16 sm:py-24 bg-slate-50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <div class="text-center space-y-4">
+            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Notre Histoire & Valeurs</span>
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 font-heading">Faire briller les yeux des enfants</h1>
+            <p class="text-slate-600 text-lg font-medium leading-relaxed">
+                Créée avec passion, Funkidz Animation est l'agence de référence pour l'organisation d'événements festifs enfants sur mesure.
             </p>
+        </div>
+
+        <div class="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200/80 shadow-sm space-y-8 text-slate-700 leading-relaxed text-base">
             <p>
-                Depuis 2018, nous sélectionnons les meilleurs animateurs professionnels pour transformer vos événements en souvenirs impérissables. Que ce soit pour un anniversaire, un mariage ou une fête d'école, notre équipe met tout son savoir-faire au service du sourire des enfants.
+                Chez <strong>Funkidz</strong>, nous croyons fermement que l'anniversaire d'un enfant est l'un des moments les plus précieux de son année. Notre mission est d'offrir une expérience féerique, divertissante et parfaitement sécurisée.
             </p>
-            <div class="grid md:grid-cols-2 gap-8 py-12">
-                <div class="p-8 bg-purple-50 rounded-2xl border-2 border-purple-100">
-                    <h3 class="text-2xl font-bold text-purple-900 mb-4">Notre Mission</h3>
-                    <p>Apporter de la joie et de la magie à chaque événement enfantin grâce à des animations de haute qualité.</p>
+
+            <div class="grid md:grid-cols-2 gap-6 pt-4">
+                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-lg">🛡️</div>
+                    <h3 class="font-heading font-bold text-lg text-slate-900">Sécurité & Bienveillance</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Tous nos animateurs sont recrutés rigoureusement et formés à la sécurité des groupes d'enfants.</p>
                 </div>
-                <div class="p-8 bg-pink-50 rounded-2xl border-2 border-pink-100">
-                    <h3 class="text-2xl font-bold text-pink-900 mb-4">Nos Valeurs</h3>
-                    <p>Sécurité, créativité et professionnalisme sont les piliers de notre engagement envers vous.</p>
+
+                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-pink-50 text-accent-pink flex items-center justify-center font-bold text-lg">🎉</div>
+                    <h3 class="font-heading font-bold text-lg text-slate-900">Créativité Sans Limite</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Des scénarios captivants, des décors soignés et des déguisements de haute qualité pour une immersion totale.</p>
                 </div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <div class="font-heading font-bold text-lg text-slate-900">Nassim & L'Équipe Funkidz</div>
+                    <div class="text-xs text-slate-500">Fondateurs & Directeurs de Création</div>
+                </div>
+                <a href="{% url 'booking-wizard' %}" class="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-glow transition">
+                    Réserver une animation
+                </a>
             </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}

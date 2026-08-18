@@ -44,6 +44,43 @@ class AboutView(TemplateView):
 class PaymentSuccessView(TemplateView):
     template_name = 'payments/success.html'
 
+    def get(self, request, *args, **kwargs):
+        from payments.models import Payment
+        from bookings.models import Booking
+
+        session_id = request.GET.get('session_id')
+        booking_id = request.GET.get('booking_id')
+
+        if session_id:
+            try:
+                payment = Payment.objects.get(stripe_session_id=session_id)
+                if payment.status != Payment.Status.SUCCEEDED:
+                    payment.status = Payment.Status.SUCCEEDED
+                    payment.save()
+                booking = payment.booking
+                if booking.status != Booking.Status.CONFIRMED:
+                    booking.status = Booking.Status.CONFIRMED
+                    booking.save()  # Déclenche le signal d'envoi d'e-mail de confirmation
+            except Payment.DoesNotExist:
+                pass
+        elif booking_id:
+            try:
+                booking = Booking.objects.get(id=booking_id)
+                if booking.status != Booking.Status.CONFIRMED:
+                    booking.status = Booking.Status.CONFIRMED
+                    booking.save()  # Déclenche le signal d'envoi d'e-mail de confirmation
+                payment, created = Payment.objects.get_or_create(
+                    booking=booking,
+                    defaults={'stripe_session_id': f'demo_{booking.id}', 'amount': booking.final_price, 'status': Payment.Status.SUCCEEDED}
+                )
+                if not created and payment.status != Payment.Status.SUCCEEDED:
+                    payment.status = Payment.Status.SUCCEEDED
+                    payment.save()
+            except Booking.DoesNotExist:
+                pass
+
+        return super().get(request, *args, **kwargs)
+
 class PaymentCancelledView(TemplateView):
     template_name = 'payments/cancelled.html'
 

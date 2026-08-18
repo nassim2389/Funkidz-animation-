@@ -1,39 +1,53 @@
 {% extends 'base.html' %}
 
-{% block title %}Funkidz - Galerie{% endblock %}
+{% block title %}Funkidz - Galerie Photo & Souvenirs{% endblock %}
 
 {% block content %}
-<div class="py-20 bg-white">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-16 space-y-4">
-            <h1 class="text-5xl font-black text-slate-900">Galerie photos</h1>
-            <p class="text-slate-600 max-w-2xl mx-auto">Découvrez en images nos animations et événements pour enfants.</p>
+<section class="py-16 sm:py-24 bg-slate-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <div class="text-center space-y-4 max-w-2xl mx-auto">
+            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Souvenirs d'Événements</span>
+            <h1 class="text-4xl font-extrabold text-slate-900 font-heading">Galerie de nos Animations</h1>
+            <p class="text-slate-600 text-base font-medium">Découvrez en images l'ambiance et la joie de nos fêtes d'anniversaires.</p>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {% if gallery %}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {% for media in gallery %}
-            <div class="relative group overflow-hidden rounded-2xl aspect-square bg-slate-100">
+            <div class="group relative aspect-square rounded-3xl overflow-hidden bg-slate-200 border border-slate-200 shadow-sm hover:shadow-card-hover transition-all duration-300">
                 {% if media.media_type == 'IMAGE' %}
                     {% if media.file %}
-                        <img src="{{ media.file.url }}" alt="{{ media.title }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                        <img src="{{ media.file.url }}" alt="{{ media.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                     {% else %}
-                        <img src="{{ media.media_url }}" alt="{{ media.title }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                        <img src="{{ media.media_url }}" alt="{{ media.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                     {% endif %}
                 {% else %}
-                    <div class="w-full h-full flex items-center justify-center bg-slate-900">
-                        {% if media.file %}
-                            <video src="{{ media.file.url }}" class="w-full h-full object-cover" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>
-                        {% else %}
-                            <span class="text-white">Vidéo</span>
-                        {% endif %}
+                    <div class="w-full h-full flex items-center justify-center bg-slate-900 text-white">
+                        <svg class="w-12 h-12 text-brand-500" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                 {% endif %}
-                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                    <span class="text-white font-bold">{{ media.title }}</span>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 p-4 flex items-end">
+                    <span class="text-white font-bold text-xs font-heading">{{ media.title }}</span>
                 </div>
             </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="aspect-square rounded-3xl bg-gradient-to-br from-brand-100 to-pink-100 p-6 flex flex-col justify-end text-slate-800 font-bold text-sm shadow-sm border border-slate-200/60">
+                🎭 Spectacle de Magie
+            </div>
+            <div class="aspect-square rounded-3xl bg-gradient-to-br from-amber-100 to-amber-200 p-6 flex flex-col justify-end text-slate-800 font-bold text-sm shadow-sm border border-slate-200/60">
+                🏴‍☠️ Chasse au Trésor
+            </div>
+            <div class="aspect-square rounded-3xl bg-gradient-to-br from-emerald-100 to-teal-100 p-6 flex flex-col justify-end text-slate-800 font-bold text-sm shadow-sm border border-slate-200/60">
+                🏆 Mini Olympiades
+            </div>
+            <div class="aspect-square rounded-3xl bg-gradient-to-br from-indigo-100 to-purple-100 p-6 flex flex-col justify-end text-slate-800 font-bold text-sm shadow-sm border border-slate-200/60">
+                🎧 KIDS Disco VIP
+            </div>
+        </div>
+        {% endif %}
     </div>
-</div>
+</section>
 {% endblock %}

@@ -1,197 +1,244 @@
 {% extends 'base.html' %}
 
-{% block title %}Funkidz - Réservation{% endblock %}
+{% block title %}Funkidz - Réservation d'Animation{% endblock %}
 
 {% block content %}
-<div class="min-h-screen py-24 px-4 bg-background" x-data="bookingWizard()">
-    <div class="max-w-4xl mx-auto">
+<section class="py-12 sm:py-20 bg-slate-50 min-h-screen" x-data="bookingWizard()">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
         <!-- Header -->
-        <div class="mb-16 text-center space-y-4">
-            <h1 class="text-6xl font-fun text-primary drop-shadow-sm">Réserver une animation</h1>
-            <p class="text-2xl text-slate-600 font-medium">Organisez un événement inoubliable en quelques étapes simples.</p>
+        <div class="text-center space-y-3">
+            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Réservation en 5 étapes</span>
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading">Organiser votre événement</h1>
+            <p class="text-slate-600 text-sm sm:text-base font-medium">Sélectionnez vos préférences et personnalisez votre fête d'anniversaire.</p>
         </div>
 
-        <!-- Stepper -->
-        <div class="mb-16">
-            <div class="flex items-center justify-between relative px-4">
-                <template x-for="(step, index) in steps" :key="index">
+        <!-- Stepper Bar -->
+        <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between relative px-2">
+                <template x-for="(stepName, index) in steps" :key="index">
                     <div class="flex flex-col items-center relative z-10">
-                        <div class="w-16 h-16 rounded-full flex items-center justify-center font-fun text-2xl transition-all duration-300 shadow-lg border-4"
-                             :class="currentStep >= index + 1 ? 'bg-primary text-white border-primary scale-110' : 'bg-white text-slate-300 border-slate-100'">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-sm sm:text-base transition-all duration-300 shadow-sm border"
+                             :class="currentStep >= index + 1 ? 'bg-brand-600 text-white border-brand-600 shadow-glow' : 'bg-slate-50 text-slate-400 border-slate-200'">
                             <span x-text="index + 1"></span>
                         </div>
-                        <span class="text-sm mt-4 font-black uppercase tracking-wider" :class="currentStep >= index + 1 ? 'text-primary' : 'text-slate-300'" x-text="step"></span>
+                        <span class="text-[11px] font-bold uppercase tracking-wider mt-2.5 hidden sm:block" 
+                              :class="currentStep >= index + 1 ? 'text-brand-600' : 'text-slate-400'" 
+                              x-text="stepName"></span>
                     </div>
                 </template>
-                <!-- Line -->
-                <div class="absolute top-8 left-0 w-full h-2 bg-slate-100 -z-0 rounded-full"></div>
-                <div class="absolute top-8 left-0 h-2 bg-primary transition-all duration-500 rounded-full shadow-sm" :style="'width: ' + ((currentStep - 1) / (steps.length - 1) * 100) + '%'"></div>
+                <!-- Line Behind Steps -->
+                <div class="absolute top-5 sm:top-6 left-8 right-8 h-1 bg-slate-100 -z-0 rounded-full"></div>
+                <div class="absolute top-5 sm:top-6 left-8 h-1 bg-brand-600 transition-all duration-500 rounded-full" :style="'width: ' + ((currentStep - 1) / (steps.length - 1) * 85) + '%'"></div>
             </div>
         </div>
 
-        <!-- Content Box -->
-        <div class="bg-white rounded-5xl border-8 border-candy-blue/20 p-12 min-h-[500px] shadow-2xl relative overflow-hidden">
-            <!-- Step 1: Service -->
-            <div x-show="currentStep === 1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0">
-                <h2 class="text-4xl font-fun text-secondary mb-8">Sélectionnez une formule d'animation</h2>
-                <div class="grid md:grid-cols-2 gap-6">
+        <!-- Main Step Content Box -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-sm relative min-h-[420px]">
+            
+            <!-- STEP 1: Choisir une formule -->
+            <div x-show="currentStep === 1" x-transition>
+                <div class="mb-8 space-y-1">
+                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">1. Choisissez votre Formule d'Animation</h2>
+                    <p class="text-xs text-slate-500 font-medium">Sélectionnez la prestation adaptée à votre thème et vos envies.</p>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-4">
                     <template x-for="service in services" :key="service.id">
-                        <div class="p-8 border-4 rounded-4xl cursor-pointer transition-all duration-300 group hover:scale-105"
-                             :class="formData.service_id == service.id ? 'border-primary bg-candy-pink/10 shadow-lg' : 'border-slate-100 bg-slate-50'"
+                        <div class="p-6 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex flex-col justify-between"
+                             :class="formData.service_id == service.id ? 'border-brand-600 bg-brand-50/50 shadow-sm' : 'border-slate-100 bg-slate-50/50 hover:border-slate-300'"
                              @click="selectService(service)">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-2xl font-fun text-secondary group-hover:text-primary transition-colors" x-text="service.name"></h3>
-                                <span class="text-3xl" x-show="formData.service_id == service.id">✅</span>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-heading font-bold text-lg text-slate-900" x-text="service.name"></h3>
+                                    <span class="text-xs font-bold px-2.5 py-1 bg-white rounded-full border border-slate-200 text-slate-700 shadow-sm" x-text="service.duration_minutes + ' min'"></span>
+                                </div>
+                                <p class="text-xs text-slate-600 leading-relaxed line-clamp-3" x-text="service.description"></p>
                             </div>
-                            <p class="text-lg text-slate-500 font-bold" x-text="service.base_price + '€'"></p>
+
+                            <div class="pt-4 mt-4 border-t border-slate-200/50 flex justify-between items-center">
+                                <span class="text-xs font-semibold text-slate-500">Tarif de base</span>
+                                <span class="font-heading font-black text-lg text-brand-600" x-text="service.base_price + ' €'"></span>
+                            </div>
                         </div>
                     </template>
                 </div>
             </div>
 
-            <!-- Step 2: DateTime -->
-            <div x-show="currentStep === 2" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0">
-                <h2 class="text-4xl font-fun text-secondary mb-8">Choisissez la date et l'heure</h2>
-                <div class="grid md:grid-cols-2 gap-10">
-                    <div class="space-y-4">
-                        <label class="block text-lg font-black text-slate-700 uppercase ml-2">Date de l'événement</label>
-                        <input type="date" x-model="formData.booking_date" class="w-full px-8 py-5 bg-slate-50 border-4 border-slate-100 rounded-3xl focus:border-primary focus:ring-0 outline-none font-bold text-xl">
+            <!-- STEP 2: Date & Heure (Live Availability) -->
+            <div x-show="currentStep === 2" x-transition>
+                <div class="mb-8 space-y-1">
+                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">2. Date & Heure de l'Événement</h2>
+                    <p class="text-xs text-slate-500 font-medium">Vérifiez la disponibilité de nos animateurs en direct.</p>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Date de l'anniversaire *</label>
+                        <input type="date" x-model="formData.booking_date" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
                     </div>
-                    <div class="space-y-4">
-                        <label class="block text-lg font-black text-slate-700 uppercase ml-2">Heure de début</label>
-                        <input type="time" x-model="formData.booking_time" class="w-full px-8 py-5 bg-slate-50 border-4 border-slate-100 rounded-3xl focus:border-secondary focus:ring-0 outline-none font-bold text-xl">
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Heure de début *</label>
+                        <input type="time" x-model="formData.booking_time" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
                     </div>
                 </div>
 
-                <!-- Live Availability Indicator -->
-                <div class="mt-8 p-6 rounded-3xl border-4 transition-all duration-300"
+                <!-- Live Availability Feedback Badge -->
+                <div class="mt-8 p-5 rounded-2xl border transition-all duration-200"
                      x-show="availabilityChecked"
-                     :class="availabilityLoading ? 'bg-slate-50 border-slate-100 text-slate-500' : (isAvailable ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-red-50 border-red-100 text-red-700')">
-                    <div class="flex items-center gap-4">
+                     :class="availabilityLoading ? 'bg-slate-50 border-slate-200 text-slate-600' : (isAvailable ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800')">
+                    <div class="flex items-center gap-3">
                         <template x-if="availabilityLoading">
-                            <span class="text-3xl animate-spin">⏳</span>
+                            <span class="animate-spin text-lg">⏳</span>
                         </template>
                         <template x-if="!availabilityLoading && isAvailable">
-                            <span class="text-3xl">🎉</span>
+                            <span class="text-lg">✅</span>
                         </template>
                         <template x-if="!availabilityLoading && !isAvailable">
-                            <span class="text-3xl">😢</span>
+                            <span class="text-lg">❌</span>
                         </template>
                         <div>
-                            <p class="font-bold text-xl" x-text="availabilityLoading ? 'Vérification en cours...' : (isAvailable ? 'Créneau disponible !' : 'Complet !')"></p>
-                            <p class="text-base mt-1" x-text="availabilityMessage"></p>
+                            <div class="font-bold text-sm" x-text="availabilityLoading ? 'Vérification de la disponibilité...' : (isAvailable ? 'Créneau Disponible !' : 'Indisponible')"></div>
+                            <div class="text-xs mt-0.5" x-text="availabilityMessage"></div>
                         </div>
                     </div>
                 </div>
-
-                <div class="mt-8 p-6 bg-candy-blue/10 rounded-3xl border-2 border-dashed border-secondary/30 flex items-center gap-4">
-                    <span class="text-3xl">ℹ️</span>
-                    <p class="text-slate-600 font-medium">Les créneaux réservés en ligne sont soumis à validation finale par notre équipe sous 24h.</p>
-                </div>
             </div>
 
+            <!-- STEP 3: Options complémentaires -->
+            <div x-show="currentStep === 3" x-transition>
+                <div class="mb-8 space-y-1">
+                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">3. Options & Personnalisation</h2>
+                    <p class="text-xs text-slate-500 font-medium">Ajoutez des activités et accessoires pour enrichir votre fête.</p>
+                </div>
 
-            <!-- Step 3: Options -->
-            <div x-show="currentStep === 3" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0">
-                <h2 class="text-4xl font-fun text-secondary mb-8">Sélectionnez des options complémentaires</h2>
-                <div class="space-y-6">
+                <div class="space-y-3">
                     <template x-for="option in availableOptions" :key="option.id">
-                        <label class="flex items-center justify-between p-8 border-4 rounded-4xl cursor-pointer transition-all"
-                               :class="selectedOptionIds.includes(option.id) ? 'border-accent-green bg-candy-mint/30' : 'border-slate-50 bg-white hover:border-slate-200'">
-                            <div class="flex items-center gap-6">
-                                <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-2xl">➕</div>
+                        <label class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200"
+                               :class="selectedOptionIds.includes(option.id) ? 'border-brand-600 bg-brand-50/40' : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'">
+                            <div class="flex items-center gap-4">
+                                <input type="checkbox" :value="option.id" x-model="selectedOptionIds" class="w-5 h-5 rounded text-brand-600 focus:ring-0">
                                 <div>
-                                    <h3 class="text-2xl font-fun text-slate-800" x-text="option.name"></h3>
-                                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest" x-text="option.pricing_type == 'PER_CHILD' ? 'Par enfant' : 'Prix fixe'"></p>
+                                    <h4 class="font-heading font-bold text-sm text-slate-900" x-text="option.name"></h4>
+                                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider" 
+                                          x-text="option.pricing_type == 'PER_CHILD' ? 'Par enfant' : (option.pricing_type == 'PER_HOUR' ? 'Par heure' : 'Tarif fixe')"></span>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-6">
-                                <span class="text-3xl font-fun text-accent-green" x-text="option.price + '€'"></span>
-                                <input type="checkbox" :value="option.id" x-model="selectedOptionIds" class="w-8 h-8 rounded-xl border-4 border-slate-200 text-accent-green focus:ring-0">
-                            </div>
+                            <span class="font-heading font-extrabold text-sm text-brand-600" x-text="option.price + ' €'"></span>
                         </label>
                     </template>
-                    <div x-show="availableOptions.length === 0" class="text-center py-12 text-slate-400 font-fun text-2xl">
-                        Pas d'options disponibles pour ce service...
+
+                    <div x-show="availableOptions.length === 0" class="text-center py-12 text-slate-400 font-medium text-sm">
+                        Aucune option spécifique n'est associée à cette formule. Vous pouvez passer à l'étape suivante.
                     </div>
                 </div>
             </div>
 
-            <!-- Step 4: Details -->
-            <div x-show="currentStep === 4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0">
-                <h2 class="text-4xl font-fun text-secondary mb-8">Lieu de l'événement</h2>
-                <div class="space-y-8">
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-black text-slate-700 uppercase ml-2">Nombre d'enfants prévu</label>
-                            <input type="number" x-model="formData.nb_children" class="w-full px-8 py-4 bg-slate-50 border-4 border-slate-100 rounded-3xl focus:border-primary outline-none font-bold text-xl">
+            <!-- STEP 4: Adresse & Nombre d'enfants -->
+            <div x-show="currentStep === 4" x-transition>
+                <div class="mb-8 space-y-1">
+                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">4. Informations sur l'Événement</h2>
+                    <p class="text-xs text-slate-500 font-medium">Renseignez le lieu exact de l'intervention de l'animateur.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Nombre d'enfants attendus *</label>
+                            <input type="number" min="1" max="50" x-model="formData.nb_children" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Adresse complète *</label>
+                            <input type="text" x-model="formData.location_address" placeholder="Ex: 15 Rue des Lilas" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
                         </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="block text-sm font-black text-slate-700 uppercase ml-2">Adresse de l'événement</label>
-                        <input type="text" x-model="formData.location_address" class="w-full px-8 py-4 bg-slate-50 border-4 border-slate-100 rounded-3xl focus:border-primary outline-none font-bold text-xl" placeholder="Ex: 12 Rue de la Paix">
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Ville *</label>
+                            <input type="text" x-model="formData.location_city" placeholder="Paris" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Code Postal *</label>
+                            <input type="text" x-model="formData.location_zip" placeholder="75001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                        </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-8">
-                        <input type="text" placeholder="Ville" x-model="formData.location_city" class="w-full px-8 py-4 bg-slate-50 border-4 border-slate-100 rounded-3xl focus:border-primary outline-none font-bold text-xl">
-                        <input type="text" placeholder="Code Postal" x-model="formData.location_zip" class="w-full px-8 py-4 bg-slate-50 border-4 border-slate-100 rounded-3xl focus:border-primary outline-none font-bold text-xl">
+
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Instructions particulières (Optionnel)</label>
+                        <textarea x-model="formData.special_instructions" rows="2" placeholder="Digicode, étage, préférences particulières..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition"></textarea>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 5: Confirmation -->
-            <div x-show="currentStep === 5" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0">
-                <h2 class="text-4xl font-fun text-secondary mb-8">Vérification de la réservation</h2>
-                <div class="bg-gradient-to-br from-candy-blue/10 to-candy-pink/10 p-10 rounded-5xl border-4 border-dashed border-slate-200 space-y-6">
-                    <div class="flex justify-between items-center text-2xl">
-                        <span class="font-bold text-slate-500">Formule sélectionnée :</span>
-                        <span class="font-fun text-primary" x-text="selectedServiceName"></span>
+            <!-- STEP 5: Récapitulatif et Confirmation -->
+            <div x-show="currentStep === 5" x-transition>
+                <div class="mb-8 space-y-1">
+                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">5. Récapitulatif de la Commande</h2>
+                    <p class="text-xs text-slate-500 font-medium">Vérifiez l'ensemble de vos choix avant d'accéder au paiement sécurisé.</p>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200/80 space-y-4">
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
+                        <span class="text-slate-500 font-semibold">Formule choisie :</span>
+                        <span class="font-heading font-bold text-slate-900" x-text="selectedServiceName"></span>
                     </div>
-                    <div class="flex justify-between items-center text-2xl">
-                        <span class="font-bold text-slate-500">Date :</span>
-                        <span class="font-bold text-slate-800" x-text="formData.booking_date"></span>
+
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
+                        <span class="text-slate-500 font-semibold">Date & Heure :</span>
+                        <span class="font-bold text-slate-900" x-text="formData.booking_date + ' à ' + formData.booking_time"></span>
                     </div>
-                    <div class="flex justify-between items-center text-2xl">
-                        <span class="font-bold text-slate-500">Heure :</span>
-                        <span class="font-bold text-slate-800" x-text="formData.booking_time"></span>
+
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
+                        <span class="text-slate-500 font-semibold">Lieu d'intervention :</span>
+                        <span class="font-bold text-slate-900" x-text="formData.location_address + ', ' + formData.location_zip + ' ' + formData.location_city"></span>
                     </div>
-                    
-                    <div class="border-t-4 border-slate-100 pt-6 mt-6 flex justify-between items-center">
-                        <span class="text-3xl font-fun text-secondary">Total à payer :</span>
-                        <span class="text-6xl font-fun text-primary" x-text="totalPrice + '€'"></span>
+
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
+                        <span class="text-slate-500 font-semibold">Nombre d'enfants :</span>
+                        <span class="font-bold text-slate-900" x-text="formData.nb_children + ' enfants'"></span>
+                    </div>
+
+                    <div class="pt-4 flex justify-between items-center">
+                        <span class="font-heading font-extrabold text-lg text-slate-900">Montant Total :</span>
+                        <span class="font-heading font-black text-3xl text-brand-600" x-text="totalPrice.toFixed(2) + ' €'"></span>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Navigation Buttons -->
-        <div class="mt-12 flex justify-between gap-6">
-            <button class="px-10 py-5 bg-white border-4 border-slate-200 text-slate-400 font-bold rounded-4xl hover:border-slate-300 hover:text-slate-600 transition disabled:opacity-30 disabled:pointer-events-none"
+        <div class="flex justify-between items-center pt-4">
+            <button class="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-100 transition disabled:opacity-30 disabled:pointer-events-none"
                     @click="currentStep--" :disabled="currentStep === 1">
-                Retour
+                Précédent
             </button>
-            
-            <div class="flex-grow flex justify-end">
+
+            <div>
                 <button x-show="currentStep < 5" 
-                        class="px-16 py-5 bg-secondary text-white font-fun text-3xl rounded-4xl shadow-[0_8px_0_0_#3D86EF] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#3D86EF] transition-all disabled:opacity-50"
+                        class="px-8 py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-glow transition disabled:opacity-50"
                         @click="currentStep++" :disabled="!isStepValid()">
-                    Suivant
+                    Étape suivante
                 </button>
-                
+
                 <button x-show="currentStep === 5" 
-                        class="px-16 py-5 bg-primary text-white font-fun text-3xl rounded-4xl shadow-[0_8px_0_0_#CC4B4B] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#CC4B4B] transition-all transform active:scale-95"
+                        class="px-8 py-3.5 bg-gradient-to-r from-brand-600 to-accent-pink text-white font-extrabold text-xs rounded-xl shadow-glow hover:scale-105 transition"
                         @click="submitBooking()">
-                    Confirmer et payer
+                    Confirmer & Régler sur Stripe 💳
                 </button>
             </div>
         </div>
+
     </div>
-</div>
+</section>
 
 <script>
     function bookingWizard() {
         return {
             currentStep: 1,
-            steps: ['Aventure', 'Date', 'Bonus', 'Lieu', 'Prêt !'],
+            steps: ['Formule', 'Date & Heure', 'Options', 'Lieu', 'Récapitulatif'],
             services: [],
             availableOptions: [],
             selectedOptionIds: [],
@@ -203,12 +250,12 @@
                 location_address: '',
                 location_city: '',
                 location_zip: '',
+                special_instructions: '',
                 selected_options: []
             },
             totalPrice: 0,
             selectedServiceName: '',
-            
-            // Availability Properties
+
             availabilityChecked: false,
             availabilityLoading: false,
             isAvailable: false,
@@ -218,7 +265,6 @@
                 await this.fetchServices();
                 this.init_watch();
                 
-                // Handle pre-selected service from URL
                 const urlParams = new URLSearchParams(window.location.search);
                 const serviceId = urlParams.get('service');
                 if (serviceId) {
@@ -231,8 +277,12 @@
             },
 
             async fetchServices() {
-                const res = await fetch('/api/services/');
-                this.services = await res.json();
+                try {
+                    const res = await fetch('/api/services/');
+                    this.services = await res.json();
+                } catch(e) {
+                    console.error("Erreur chargement des services:", e);
+                }
             },
 
             async selectService(service) {
@@ -241,22 +291,25 @@
                 this.calculateTotal();
                 this.checkAvailability();
                 
-                // Fetch options for this service
-                const res = await fetch('/api/options/?service=' + service.id);
-                this.availableOptions = await res.json();
+                try {
+                    const res = await fetch('/api/options/?service=' + service.id);
+                    this.availableOptions = await res.json();
+                } catch(e) {
+                    this.availableOptions = [];
+                }
             },
 
             calculateTotal() {
                 if (!this.formData.service_id) return;
                 const service = this.services.find(s => s.id == this.formData.service_id);
+                if (!service) return;
                 let total = parseFloat(service.base_price);
                 
-                // Add selected options prices (simplistic logic for now)
                 this.selectedOptionIds.forEach(id => {
                     const option = this.availableOptions.find(o => o.id == id);
                     if (option) {
                         if (option.pricing_type === 'PER_CHILD') {
-                            total += parseFloat(option.price) * parseInt(this.formData.nb_children);
+                            total += parseFloat(option.price) * parseInt(this.formData.nb_children || 1);
                         } else {
                             total += parseFloat(option.price);
                         }
@@ -274,14 +327,14 @@
                 this.availabilityLoading = true;
                 this.availabilityChecked = true;
                 try {
-                    const url = `/api/availability/check/?date=${this.formData.booking_date}&time=${this.formData.booking_time}&service=${this.formData.service_id}`;
+                    const url = `/api/availability/check/?date=${this.formData.booking_date}&time=${this.formData.booking_time}&service=${this.formData.service_id || ''}`;
                     const res = await fetch(url);
                     const data = await res.json();
                     this.isAvailable = data.available;
                     this.availabilityMessage = data.message;
                 } catch (e) {
                     this.isAvailable = false;
-                    this.availabilityMessage = "Erreur lors de la vérification de la disponibilité. ⚠️";
+                    this.availabilityMessage = "Erreur lors de la vérification de la disponibilité.";
                 } finally {
                     this.availabilityLoading = false;
                 }
@@ -290,11 +343,10 @@
             isStepValid() {
                 if (this.currentStep === 1) return this.formData.service_id !== null;
                 if (this.currentStep === 2) return this.formData.booking_date && this.formData.booking_time && this.isAvailable;
-                if (this.currentStep === 4) return this.formData.nb_children && this.formData.location_address && this.formData.location_city;
+                if (this.currentStep === 4) return this.formData.nb_children && this.formData.location_address && this.formData.location_city && this.formData.location_zip;
                 return true;
             },
 
-            // Watch for changes to recalculate total and check availability
             init_watch() {
                 this.$watch('selectedOptionIds', () => this.calculateTotal());
                 this.$watch('formData.nb_children', () => this.calculateTotal());
@@ -303,40 +355,46 @@
             },
 
             async submitBooking() {
+                this.formData.service = this.formData.service_id;
                 this.formData.selected_options = this.selectedOptionIds.map(id => ({ option: id, quantity: 1 }));
                 
-                const res = await fetch('/api/bookings/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify(this.formData)
-                });
-
-                if (res.ok) {
-                    const booking = await res.json();
-                    const payRes = await fetch('/api/payments/create-session/', {
+                try {
+                    const res = await fetch('/api/bookings/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRFToken': '{{ csrf_token }}'
                         },
-                        body: JSON.stringify({ booking_id: booking.id })
+                        body: JSON.stringify(this.formData)
                     });
-                    const session = await payRes.json();
-                    window.location.href = session.url;
-                } else {
-                    const error = await res.json();
-                    alert('Erreur: ' + (error.detail || 'Une erreur est survenue'));
+
+                    if (res.ok) {
+                        const booking = await res.json();
+                        const payRes = await fetch('/api/payments/create-session/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            },
+                            body: JSON.stringify({ booking_id: booking.id })
+                        });
+                        
+                        const sessionData = await payRes.json();
+                        if (payRes.ok && sessionData.url) {
+                            window.location.href = sessionData.url;
+                        } else {
+                            alert('Session de paiement Stripe : ' + (sessionData.error || 'Clé Stripe non renseignée dans le serveur. La réservation est néanmoins enregistrée !'));
+                            window.location.href = '/dashboard/';
+                        }
+                    } else {
+                        const error = await res.json();
+                        alert('Erreur de création : ' + JSON.stringify(error));
+                    }
+                } catch(e) {
+                    alert('Erreur réseau lors de la réservation.');
                 }
             }
         }
     }
 </script>
-
-
-<style>
-    [x-cloak] { display: none !important; }
-</style>
 {% endblock %}
