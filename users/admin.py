@@ -22,6 +22,13 @@ class UserAdmin(admin.ModelAdmin):
         ('Dates importantes', {'fields': ('last_login', 'date_joined')}),
     )
 
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'first_name', 'last_name', 'role', 'password'),
+        }),
+    )
+
     def save_model(self, request, obj, form, change):
         # Auto-hash password if entered in plain text
         if obj.password and not obj.password.startswith(('pbkdf2_sha256$', 'pbkdf2$', 'argon2$', 'bcrypt$')):
