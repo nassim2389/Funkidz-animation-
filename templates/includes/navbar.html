@@ -1,77 +1,105 @@
-<nav class="sticky top-0 z-50 transition-all duration-300"
-     :class="atTop ? 'bg-white/80 backdrop-blur-md border-b border-slate-100 py-4' : 'glass-panel shadow-glass py-3 border-b border-slate-200/80'"
+<nav class="sticky top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-sm"
      x-data="{ isOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center h-20">
             
-            <!-- Logo -->
-            <a href="{% url 'home' %}" class="flex items-center gap-3 group">
-                <div class="w-11 h-11 rounded-2xl gradient-bg flex items-center justify-center text-white shadow-glow group-hover:rotate-6 transition-transform duration-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <!-- Brand Logo -->
+            <a href="{% url 'home' %}" class="flex items-center gap-3.5 group">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 via-accent-pink to-accent-amber p-0.5 shadow-glow group-hover:scale-105 group-hover:rotate-3 transition duration-300">
+                    <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-white">
+                        <svg class="w-6 h-6 text-brand-400 group-hover:text-accent-pink transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-2xl font-black font-heading tracking-tight text-slate-900 leading-none">
-                        Funkidz<span class="text-brand-500">.</span>
+                    <span class="text-2xl sm:text-3xl font-black font-heading tracking-tight text-slate-900 leading-none">
+                        Funkidz<span class="text-brand-600">.</span>
                     </span>
-                    <span class="text-[10px] font-bold text-slate-400 tracking-wider uppercase leading-tight mt-0.5">Animations d'exception</span>
+                    <span class="text-[11px] font-extrabold text-brand-600 tracking-wider uppercase leading-tight mt-1 flex items-center gap-1">
+                        <span>Animations d'exception</span>
+                        <span class="text-xs">🎈</span>
+                    </span>
                 </div>
             </a>
 
-            <!-- Desktop Navigation -->
-            <div class="hidden md:flex items-center gap-1 bg-slate-100/70 p-1.5 rounded-full border border-slate-200/50">
-                <a href="{% url 'home' %}" class="px-5 py-2 text-base font-semibold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white">Accueil</a>
-                <a href="{% url 'services-web' %}" class="px-5 py-2 text-base font-semibold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white">Nos Formules</a>
-                <a href="{% url 'pricing' %}" class="px-5 py-2 text-base font-semibold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white">Tarifs & Options</a>
-                <a href="{% url 'gallery' %}" class="px-5 py-2 text-base font-semibold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white">Galerie</a>
-                <a href="{% url 'about' %}" class="px-5 py-2 text-base font-semibold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white">À propos</a>
-                <a href="{% url 'contact' %}" class="px-5 py-2 text-base font-semibold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white">Contact</a>
+            <!-- Central Pill Navigation Links -->
+            <div class="hidden lg:flex items-center gap-1.5 bg-slate-100/90 p-1.5 rounded-full border border-slate-200/80 shadow-inner">
+                <a href="{% url 'home' %}" 
+                   class="px-5 py-2.5 text-base font-extrabold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white hover:shadow-sm">
+                    Accueil
+                </a>
+                <a href="{% url 'services-web' %}" 
+                   class="px-5 py-2.5 text-base font-extrabold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white hover:shadow-sm">
+                    Nos Formules
+                </a>
+                <a href="{% url 'pricing' %}" 
+                   class="px-5 py-2.5 text-base font-extrabold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white hover:shadow-sm">
+                    Tarifs & Options
+                </a>
+                <a href="{% url 'gallery' %}" 
+                   class="px-5 py-2.5 text-base font-extrabold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white hover:shadow-sm">
+                    Galerie
+                </a>
+                <a href="{% url 'about' %}" 
+                   class="px-5 py-2.5 text-base font-extrabold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white hover:shadow-sm">
+                    À propos
+                </a>
+                <a href="{% url 'contact' %}" 
+                   class="px-5 py-2.5 text-base font-extrabold rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white hover:shadow-sm">
+                    Contact
+                </a>
             </div>
 
-            <!-- Auth & Reservation Actions -->
-            <div class="hidden lg:flex items-center gap-3">
+            <!-- Action Buttons: Connexion & Réserver une fête -->
+            <div class="hidden xl:flex items-center gap-3">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'dashboard' %}" class="px-5 py-2.5 text-sm font-bold text-slate-700 hover:text-brand-600 bg-slate-100 hover:bg-slate-200/80 rounded-full transition-all duration-200 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                        Mon Espace
+                    <a href="{% url 'dashboard' %}" class="px-5 py-2.5 text-base font-extrabold text-slate-800 hover:text-brand-600 bg-slate-100 hover:bg-slate-200/80 rounded-full transition duration-200 flex items-center gap-2 border border-slate-200">
+                        <div class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold">
+                            {{ user.first_name|default:user.email|slice:":1"|upper }}
+                        </div>
+                        <span>Mon Espace</span>
                     </a>
                     <form action="{% url 'logout' %}" method="post" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="p-2.5 text-slate-400 hover:text-rose-500 rounded-full hover:bg-rose-50 transition duration-200" title="Déconnexion">
+                        <button type="submit" class="p-2.5 text-slate-400 hover:text-rose-600 rounded-full hover:bg-rose-50 transition duration-200" title="Déconnexion">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         </button>
                     </form>
                 {% else %}
-                    <a href="{% url 'login' %}" class="px-5 py-2.5 text-sm font-bold text-slate-700 hover:text-brand-600 rounded-full hover:bg-slate-100 transition duration-200">Connexion</a>
+                    <a href="{% url 'login' %}" class="px-5 py-2.5 text-base font-extrabold text-slate-800 hover:text-brand-600 bg-slate-100/80 hover:bg-slate-200/80 rounded-full transition duration-200 flex items-center gap-2 border border-slate-200/80">
+                        <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        <span>Connexion</span>
+                    </a>
                 {% endif %}
 
-                <a href="{% url 'booking-wizard' %}" class="px-6 py-2.5 bg-gradient-to-r from-brand-600 to-accent-pink text-white font-bold text-sm rounded-full shadow-glow hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2">
+                <a href="{% url 'booking-wizard' %}" class="px-6 py-3 bg-gradient-to-r from-brand-600 via-accent-pink to-accent-amber bg-[length:200%_auto] hover:bg-right text-white font-extrabold text-base rounded-full shadow-glow hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 flex items-center gap-2.5">
                     <span>Réserver une fête</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </a>
             </div>
 
             <!-- Mobile Menu Toggle Button -->
-            <button class="md:hidden p-2.5 text-slate-600 hover:text-brand-600 rounded-xl hover:bg-slate-100 transition" @click="isOpen = !isOpen">
-                <svg x-show="!isOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                <svg x-show="isOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <button class="lg:hidden p-3 text-slate-700 hover:text-brand-600 rounded-2xl bg-slate-100 hover:bg-slate-200 transition" @click="isOpen = !isOpen" aria-label="Menu principal">
+                <svg x-show="!isOpen" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                <svg x-show="isOpen" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
-        <!-- Mobile Menu Overlay -->
-        <div class="md:hidden mt-4 pt-4 pb-6 border-t border-slate-100 space-y-3" x-show="isOpen" x-cloak x-transition>
-            <a href="{% url 'home' %}" class="block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-slate-100">Accueil</a>
-            <a href="{% url 'services-web' %}" class="block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-slate-100">Nos Formules</a>
-            <a href="{% url 'pricing' %}" class="block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-slate-100">Tarifs & Options</a>
-            <a href="{% url 'gallery' %}" class="block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-slate-100">Galerie</a>
-            <a href="{% url 'about' %}" class="block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-slate-100">À propos</a>
-            <a href="{% url 'contact' %}" class="block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-slate-100">Contact</a>
-            <div class="pt-4 space-y-2">
+        <!-- Mobile Navigation Menu Overlay -->
+        <div class="lg:hidden mt-3 pt-4 pb-6 border-t border-slate-200/80 space-y-2 bg-white rounded-3xl p-6 shadow-xl border border-slate-100" x-show="isOpen" x-cloak x-transition>
+            <a href="{% url 'home' %}" class="block px-4 py-3 rounded-2xl font-extrabold text-base text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">Accueil</a>
+            <a href="{% url 'services-web' %}" class="block px-4 py-3 rounded-2xl font-extrabold text-base text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">Nos Formules</a>
+            <a href="{% url 'pricing' %}" class="block px-4 py-3 rounded-2xl font-extrabold text-base text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">Tarifs & Options</a>
+            <a href="{% url 'gallery' %}" class="block px-4 py-3 rounded-2xl font-extrabold text-base text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">Galerie</a>
+            <a href="{% url 'about' %}" class="block px-4 py-3 rounded-2xl font-extrabold text-base text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">À propos</a>
+            <a href="{% url 'contact' %}" class="block px-4 py-3 rounded-2xl font-extrabold text-base text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">Contact</a>
+            
+            <div class="pt-4 border-t border-slate-100 space-y-3">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'dashboard' %}" class="block text-center px-4 py-3 bg-slate-100 font-bold text-slate-800 rounded-xl">Mon Espace</a>
+                    <a href="{% url 'dashboard' %}" class="block text-center px-4 py-3.5 bg-slate-100 font-extrabold text-base text-slate-900 rounded-2xl">Mon Espace Client</a>
                 {% else %}
-                    <a href="{% url 'login' %}" class="block text-center px-4 py-3 border border-slate-200 font-bold text-slate-700 rounded-xl">Connexion</a>
+                    <a href="{% url 'login' %}" class="block text-center px-4 py-3.5 border border-slate-300 font-extrabold text-base text-slate-800 rounded-2xl hover:bg-slate-50 transition">Connexion</a>
                 {% endif %}
-                <a href="{% url 'booking-wizard' %}" class="block text-center px-4 py-3 gradient-bg text-white font-bold rounded-xl shadow-glow">Réserver une fête</a>
+                <a href="{% url 'booking-wizard' %}" class="block text-center px-4 py-3.5 bg-gradient-to-r from-brand-600 to-accent-pink text-white font-extrabold text-base rounded-2xl shadow-glow">Réserver une fête</a>
             </div>
         </div>
     </div>
