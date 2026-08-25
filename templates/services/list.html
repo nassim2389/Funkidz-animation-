@@ -89,7 +89,7 @@
                     </div>
 
                     <div class="p-6 space-y-4">
-                        <p class="text-slate-600 text-sm leading-relaxed font-medium line-clamp-3">{{ service.description }}</p>
+                        <p class="text-slate-700 text-base leading-relaxed font-medium line-clamp-3">{{ service.description }}</p>
                     </div>
                 </div>
 
@@ -100,10 +100,10 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <a href="{% url 'booking-wizard' %}?service={{ service.id }}" class="py-3 text-center bg-gradient-to-r from-brand-600 to-accent-pink text-white font-extrabold text-xs rounded-xl transition duration-200 shadow-glow hover:shadow-xl hover:scale-105 active:scale-95">
+                        <a href="{% url 'booking-wizard' %}?service={{ service.id }}" class="py-3.5 text-center bg-gradient-to-r from-brand-600 to-accent-pink text-white font-extrabold text-sm rounded-xl transition duration-200 shadow-glow hover:shadow-xl hover:scale-105 active:scale-95">
                             Réserver
                         </a>
-                        <a href="{% url 'pricing' %}" class="py-3 text-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl transition duration-200">
+                        <a href="{% url 'pricing' %}" class="py-3.5 text-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm rounded-xl transition duration-200">
                             Voir tarifs & options
                         </a>
                     </div>
