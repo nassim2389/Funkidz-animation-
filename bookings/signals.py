@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Booking
+from .models import Booking, BookingAssignment
 import logging
 
 logger = logging.getLogger(__name__)
@@ -56,4 +56,31 @@ def send_booking_email(sender, instance, created, **kwargs):
             )
         except Exception as e:
             logger.error(f"Erreur d'envoi d'email d'annulation pour la réservation #{instance.id}: {e}")
+
+@receiver(post_save, sender=BookingAssignment)
+def send_animateur_assignment_email(sender, instance, created, **kwargs):
+    if created or instance.status == BookingAssignment.Status.PENDING:
+        subject = f"🎯 Nouvelle mission d'animation attribuée #{instance.booking.id} - Funkidz"
+        message = (
+            f"Bonjour {instance.animateur.user.first_name or instance.animateur.user.email},\n\n"
+            f"Une nouvelle mission d'animation vient de vous être attribuée par l'administrateur !\n\n"
+            f"Détails de la mission :\n"
+            f"- Formule : {instance.booking.service.name}\n"
+            f"- Date : {instance.booking.booking_date}\n"
+            f"- Heure : {instance.booking.booking_time}\n"
+            f"- Nombre d'enfants : {instance.booking.nb_children}\n"
+            f"- Lieu : {instance.booking.location_address}, {instance.booking.location_zip} {instance.booking.location_city}\n\n"
+            f"Veuillez vous connecter à votre espace personnel Animateur (/dashboard/) pour accepter ou refuser la mission.\n\n"
+            f"L'équipe Funkidz Animation"
+        )
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
+                recipient_list=[instance.animateur.user.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            logger.error(f"Erreur d'envoi d'email à l'animateur #{instance.animateur.id}: {e}")
 
