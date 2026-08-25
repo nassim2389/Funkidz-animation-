@@ -124,48 +124,67 @@ graph TD
 
 ## ⚙️ Installation & Lancement en Local
 
-### 1. Prérequis
-- Python 3.12+
-- Git
+### 1. Prérequis sur Windows
+- **Python 3.10 ou supérieur** (Téléchargeable sur [python.org](https://www.python.org/downloads/)). *Pendant l'installation, veillez bien à cocher la case **"Add Python to PATH"**.*
+- **Git** (Téléchargeable sur [git-scm.com](https://git-scm.com/downloads)).
 
-### 2. Cloner le projet et créer l'environnement virtuel
-```bash
+---
+
+### 🪟 Procédure d'installation sous Windows (Invite de commandes / PowerShell)
+
+#### Étape 1 : Ouvrir le terminal Windows (CMD ou PowerShell)
+Appuyez sur `Touche Windows + R`, tapez `cmd` puis appuyez sur `Entrée`.
+
+#### Étape 2 : Cloner le projet GitHub et entrer dans le dossier
+```cmd
 git clone https://github.com/nassim2389/Funkidz-animation-.git
 cd Funkidz-animation-
-
-python -m venv venv
-source venv/bin/activate  # Sur Linux/macOS
-# ou venv\Scripts\activate sous Windows
 ```
 
-### 3. Installer les dépendances
-```bash
+#### Étape 3 : Créer et activer l'environnement virtuel Python
+```cmd
+python -m venv venv
+venv\Scripts\activate
+```
+*(Si vous utilisez PowerShell et qu'un message d'erreur d'exécution apparaît, tapez : `Set-ExecutionPolicy Unrestricted -Scope Process` puis réessayez `venv\Scripts\activate`).*
+
+#### Étape 4 : Installer les dépendances
+```cmd
 pip install -r requirements.txt
 ```
 
-### 4. Configurer les variables d'environnement (`.env`)
-Créez un fichier `.env` à la racine :
+#### Étape 5 : Créer le fichier `.env`
+Créez un fichier texte nommé `.env` à la racine du projet et ajoutez le contenu suivant :
 ```env
 DEBUG=True
-SECRET_KEY=votre_cle_secrete_django
+SECRET_KEY=django-insecure-key-funkidz-test-123456
 DATABASE_URL=sqlite:///db.sqlite3
 
-# Email Brevo SMTP
+# Configuration Email Brevo (Optionnel pour le test local)
 EMAIL_HOST=smtp-relay.brevo.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
-EMAIL_HOST_USER=votre_email_brevo
-EMAIL_HOST_PASSWORD=votre_cle_smtp_brevo
+EMAIL_HOST_USER=votre_email_brevo@exemple.com
+EMAIL_HOST_PASSWORD=xsmtpsib-votre_cle_brevo_ici
 DEFAULT_FROM_EMAIL=Funkidz <contact@funkidz.fr>
 ```
 
-### 5. Appliquer les migrations & Lancer le serveur
-```bash
+#### Étape 6 : Appliquer les migrations de base de données & Créer un superutilisateur Admin (si besoin)
+```cmd
 python manage.py migrate
+python manage.py createsuperuser
+```
+
+#### Étape 7 : Lancer le serveur local
+```cmd
 python manage.py runserver
 ```
 
-L'application sera accessible sur **http://127.0.0.1:8000/** et l'administration sur **http://127.0.0.1:8000/admin/**.
+---
+
+### 🌐 Accès à l'application
+- **Site Public** : Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- **Panneau d'Administration** : Open [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
 ---
 
