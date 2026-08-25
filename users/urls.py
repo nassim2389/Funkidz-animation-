@@ -49,31 +49,14 @@ def google_login_view(request):
     return redirect(google_auth_url)
 
 def google_callback_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        first_name = request.POST.get('first_name') or (email.split('@')[0].capitalize() if email else 'Client')
-        last_name = request.POST.get('last_name') or ''
-        if email:
-            user, created = User.objects.get_or_create(
-                email=email,
-                defaults={
-                    'first_name': first_name,
-                    'last_name': last_name,
-                    'role': User.Role.CLIENT,
-                    'is_verified': True
-                }
-            )
-            login(request, user)
-            return redirect('dashboard')
+    email = request.POST.get('email') or request.GET.get('email') or request.GET.get('login_email')
+    first_name = request.POST.get('first_name') or request.GET.get('first_name')
+    last_name = request.POST.get('last_name') or request.GET.get('last_name')
 
     code = request.GET.get('code')
     client_id = os.getenv('GOOGLE_CLIENT_ID', '1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com')
     client_secret = os.getenv('GOOGLE_CLIENT_SECRET', '')
     redirect_uri = request.build_absolute_uri('/auth/google-callback/')
-
-    user_email = None
-    first_name = "Client"
-    last_name = "Google"
 
     if code and client_secret:
         try:
@@ -96,17 +79,23 @@ def google_callback_view(request):
                 req_info = Request(userinfo_url, headers={'Authorization': f'Bearer {access_token}'})
                 res_info = urlopen(req_info)
                 user_info = json.loads(res_info.read().decode('utf-8'))
-                user_email = user_info.get('email')
+                email = user_info.get('email')
                 first_name = user_info.get('given_name', 'Client')
                 last_name = user_info.get('family_name', 'Google')
         except Exception:
             pass
 
-    if not user_email:
-        user_email = request.GET.get('email') or 'sedraniainaeuphredat@gmail.com'
+    # If no email is provided, display Google Account Chooser UI
+    if not email:
+        return render(request, 'auth/google_login.html')
+
+    if not first_name:
+        first_name = email.split('@')[0].capitalize()
+    if not last_name:
+        last_name = ''
 
     user, created = User.objects.get_or_create(
-        email=user_email,
+        email=email,
         defaults={
             'first_name': first_name,
             'last_name': last_name,
