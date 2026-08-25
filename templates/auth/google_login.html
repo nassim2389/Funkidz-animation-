@@ -26,7 +26,7 @@
         <!-- Account Selector Cards -->
         <div class="space-y-2 pt-2">
             <!-- Account 1 -->
-            <form action="{% url 'google-login' %}" method="POST">
+            <form action="{% url 'google-callback' %}" method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="email" value="sedraniainaeuphredat@gmail.com">
                 <input type="hidden" name="first_name" value="Sedra">
@@ -44,7 +44,7 @@
             </form>
 
             <!-- Account 2 -->
-            <form action="{% url 'google-login' %}" method="POST">
+            <form action="{% url 'google-callback' %}" method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="email" value="euphredat91@gmail.com">
                 <input type="hidden" name="first_name" value="Euphredat">
@@ -70,7 +70,7 @@
                     <span class="text-sm font-medium">Utiliser un autre compte Gmail...</span>
                 </button>
 
-                <form x-show="open" x-cloak class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3" action="{% url 'google-login' %}" method="POST">
+                <form x-show="open" x-cloak class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3" action="{% url 'google-callback' %}" method="POST">
                     {% csrf_token %}
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Adresse E-mail Google (Gmail)</label>
