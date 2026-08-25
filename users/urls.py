@@ -31,22 +31,23 @@ import json
 from urllib.request import Request, urlopen
 
 def google_login_view(request):
-    client_id = os.getenv('GOOGLE_CLIENT_ID', '1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com')
-    redirect_uri = request.build_absolute_uri('/auth/google-callback/')
+    google_client_id = os.getenv('GOOGLE_CLIENT_ID', '')
     
-    # If user selected prompt=web, render web Account Chooser
-    if request.GET.get('prompt') == 'web':
-        return render(request, 'auth/google_login.html')
+    # If a custom Google Client ID is configured in .env, redirect to real Google OAuth endpoint
+    if google_client_id:
+        redirect_uri = request.build_absolute_uri('/auth/google-callback/')
+        google_auth_url = (
+            f"https://accounts.google.com/o/oauth2/v2/auth?"
+            f"client_id={google_client_id}&"
+            f"redirect_uri={urllib.parse.quote(redirect_uri)}&"
+            f"response_type=code&"
+            f"scope=openid%20email%20profile&"
+            f"prompt=select_account"
+        )
+        return redirect(google_auth_url)
         
-    google_auth_url = (
-        f"https://accounts.google.com/o/oauth2/v2/auth?"
-        f"client_id={client_id}&"
-        f"redirect_uri={urllib.parse.quote(redirect_uri)}&"
-        f"response_type=code&"
-        f"scope=openid%20email%20profile&"
-        f"prompt=select_account"
-    )
-    return redirect(google_auth_url)
+    # By default, display the clean Funkidz Animation Google Sign-In interface
+    return render(request, 'auth/google_login.html')
 
 def google_callback_view(request):
     email = request.POST.get('email') or request.GET.get('email') or request.GET.get('login_email')
