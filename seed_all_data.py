@@ -17,7 +17,7 @@ from reviews.models import Review
 User = get_user_model()
 
 def seed_all():
-    print("🚀 Démarrage du remplissage complet de la base de données...")
+    print("🚀 Démarrage du remplissage MASSIF et COMPLET de la base de données...")
 
     # 1. NETTOYAGE
     Review.objects.all().delete()
@@ -32,11 +32,11 @@ def seed_all():
 
     print("✅ Nettoyage terminé.")
 
-    # 2. CRÉATION DES SERVICES & OPTIONS
+    # 2. CRÉATION DE 10 FORMULES & SERVICES
     services_data = [
         {
             "name": "Chasse au Trésor des Pirates",
-            "description": "Une aventure grandeur nature avec déguisements, carte ancienne mystérieuse, énigmes captivantes et ouverture du grand coffre aux trésors.",
+            "description": "Une aventure grandeur nature avec déguisements, carte ancienne mystérieuse, énigmes captivantes et ouverture du grand coffre aux trésors rempli de pièces d'or.",
             "base_price": 190.00,
             "duration_minutes": 120,
             "category": "ANNIVERSAIRE",
@@ -49,7 +49,7 @@ def seed_all():
         },
         {
             "name": "Magie & Illusion Enchantée",
-            "description": "Un spectacle de magie interactif et saisissant avec colombes, apparitions magiques et atelier d'initiation où chaque enfant devient apprenti sorcier.",
+            "description": "Un spectacle de magie interactif et saisissant avec colombes, apparitions mystérieuses et atelier d'initiation où chaque enfant devient apprenti sorcier.",
             "base_price": 160.00,
             "duration_minutes": 90,
             "category": "ANNIVERSAIRE",
@@ -62,7 +62,7 @@ def seed_all():
         },
         {
             "name": "Super-Héros & Académie des Champions",
-            "description": "Entraînement physique et ludique pour devenir de véritables héros : parcours d'obstacles, épreuves de courage et remise de capes officielles.",
+            "description": "Entraînement physique et ludique pour devenir de véritables héros : parcours d'obstacles, épreuves de courage, tests de supers pouvoirs et remise de capes officielles.",
             "base_price": 175.00,
             "duration_minutes": 90,
             "category": "ATELIER",
@@ -74,7 +74,7 @@ def seed_all():
         },
         {
             "name": "Atelier Pâtisserie & Gourmandises VIP",
-            "description": "Atelier créatif culinaire où les enfants préparent et décorent leurs propres cupcakes et sablés sous les conseils de nos chefs animateurs.",
+            "description": "Atelier créatif culinaire où les enfants préparent et décorent leurs propres cupcakes et sablés sous les conseils avisés de nos chefs animateurs.",
             "base_price": 200.00,
             "duration_minutes": 120,
             "category": "ATELIER",
@@ -107,6 +107,54 @@ def seed_all():
                 {"name": "Médailles & Diplômes personnalisés (par enfant)", "price": 3.50, "pricing_type": "PER_CHILD"},
                 {"name": "Machine à Barbe à Papa avec consommables", "price": 45.00, "pricing_type": "FIXED"}
             ]
+        },
+        {
+            "name": "Escape Game & Enquête Mystère",
+            "description": "Un scénario d'évasion palpitant à domicile : fouille, messages secrets à décoder et énigmes scientifiques pour résoudre le mystère avant le temps imparti.",
+            "base_price": 220.00,
+            "duration_minutes": 100,
+            "category": "ATELIER",
+            "max_children": 12,
+            "options": [
+                {"name": "Kit Enquêteur & Loupe d'agent secret (par enfant)", "price": 6.50, "pricing_type": "PER_CHILD"},
+                {"name": "Cadenas cryptex surprise final", "price": 35.00, "pricing_type": "FIXED"}
+            ]
+        },
+        {
+            "name": "Princesse Féerique & Bal Royal",
+            "description": "Un conte de fées vivant avec défilé royal, initiation aux danses de la cour, ateliers couronnes scintillantes et séances photos enchantées.",
+            "base_price": 185.00,
+            "duration_minutes": 90,
+            "category": "ANNIVERSAIRE",
+            "max_children": 15,
+            "options": [
+                {"name": "Couronne & Baguette brillante (par enfant)", "price": 5.50, "pricing_type": "PER_CHILD"},
+                {"name": "Tapis rouge royal & Trône photo", "price": 40.00, "pricing_type": "FIXED"}
+            ]
+        },
+        {
+            "name": "Mascotte Géante & Boum des Tout-Petits",
+            "description": "Spécialement pensé pour les 2 à 5 ans : comptines, mini-jeux sensoriels, ateliers ballons sculptés et câlins avec notre mascotte géante.",
+            "base_price": 150.00,
+            "duration_minutes": 75,
+            "category": "SPECTACLE",
+            "max_children": 10,
+            "options": [
+                {"name": "Sculpture sur ballon personnalisée (par enfant)", "price": 2.50, "pricing_type": "PER_CHILD"},
+                {"name": "Mascotte supplémentaire au choix", "price": 60.00, "pricing_type": "FIXED"}
+            ]
+        },
+        {
+            "name": "Atelier Scientifique & Expériences Étonnantes",
+            "description": "Faites découvrir la science en s'amusant : éruptions de volcans, fabriquer de la pâte slime fluo et réactions chimiques multicolores sécurisées.",
+            "base_price": 195.00,
+            "duration_minutes": 90,
+            "category": "ATELIER",
+            "max_children": 14,
+            "options": [
+                {"name": "Blouse de savant fou & Lunettes (par enfant)", "price": 6.00, "pricing_type": "PER_CHILD"},
+                {"name": "Pot de Slime personnalisé à emporter", "price": 4.00, "pricing_type": "PER_CHILD"}
+            ]
         }
     ]
 
@@ -120,12 +168,14 @@ def seed_all():
 
     print(f"✅ {len(created_services)} Services et leurs options créés.")
 
-    # 3. CRÉATION DES ANIMATEURS
+    # 3. CRÉATION DE 6 ANIMATEURS COMPLETS
     animateurs_data = [
         {"email": "animateur@funkidz.fr", "first_name": "Lucas", "last_name": "Dupont", "phone": "0612345678", "rating": 4.9, "bio": "Spécialiste de la magie et des chasses au trésor depuis 5 ans."},
         {"email": "sophie.anim@funkidz.fr", "first_name": "Sophie", "last_name": "Martin", "phone": "0623456789", "rating": 4.8, "bio": "Comédienne passionnée par les ateliers créatifs et théâtraux."},
         {"email": "thomas.anim@funkidz.fr", "first_name": "Thomas", "last_name": "Bernard", "phone": "0634567890", "rating": 5.0, "bio": "DJ Junior et animateur sportif diplômé BAFA."},
-        {"email": "emma.anim@funkidz.fr", "first_name": "Emma", "last_name": "Petit", "phone": "0645678901", "rating": 4.7, "bio": "Experte en maquillage artistique et aventures féeriques."}
+        {"email": "emma.anim@funkidz.fr", "first_name": "Emma", "last_name": "Petit", "phone": "0645678901", "rating": 4.7, "bio": "Experte en maquillage artistique et aventures féeriques."},
+        {"email": "alexandre.anim@funkidz.fr", "first_name": "Alexandre", "last_name": "Roux", "phone": "0656789012", "rating": 4.9, "bio": "Spécialiste des escape games et ateliers scientifiques passionnants."},
+        {"email": "chloe.anim@funkidz.fr", "first_name": "Chloé", "last_name": "Morel", "phone": "0667890123", "rating": 4.8, "bio": "Animatrice diplômée spécialiste des tout-petits et mascottes."}
     ]
 
     created_animators = []
@@ -150,7 +200,9 @@ def seed_all():
         {"email": "sedraniainaeuphredat@gmail.com", "first_name": "Sedra", "last_name": "Nia"},
         {"email": "euphredat91@gmail.com", "first_name": "Euphredat", "last_name": "Test"},
         {"email": "marie.dubois@gmail.com", "first_name": "Marie", "last_name": "Dubois"},
-        {"email": "pierre.moreau@yahoo.fr", "first_name": "Pierre", "last_name": "Moreau"}
+        {"email": "pierre.moreau@yahoo.fr", "first_name": "Pierre", "last_name": "Moreau"},
+        {"email": "julie.laurent@outlook.com", "first_name": "Julie", "last_name": "Laurent"},
+        {"email": "david.benoit@gmail.com", "first_name": "David", "last_name": "Benoit"}
     ]
 
     created_clients = []
@@ -179,7 +231,7 @@ def seed_all():
             "status": Booking.Status.CONFIRMED,
             "estimated_price": 190.00,
             "final_price": 225.00,
-            "animator": created_animators[0], # Lucas
+            "animator": created_animators[0],
             "payment_status": Payment.Status.SUCCEEDED
         },
         {
@@ -194,7 +246,7 @@ def seed_all():
             "status": Booking.Status.CONFIRMED,
             "estimated_price": 160.00,
             "final_price": 205.00,
-            "animator": created_animators[1], # Sophie
+            "animator": created_animators[1],
             "payment_status": Payment.Status.SUCCEEDED
         },
         {
@@ -224,7 +276,22 @@ def seed_all():
             "status": Booking.Status.DONE,
             "estimated_price": 175.00,
             "final_price": 225.00,
-            "animator": created_animators[2], # Thomas
+            "animator": created_animators[2],
+            "payment_status": Payment.Status.SUCCEEDED
+        },
+        {
+            "user": created_clients[4],
+            "service": created_services[6], # Escape Game
+            "booking_date": date.today() + timedelta(days=15),
+            "booking_time": time(14, 0),
+            "nb_children": 10,
+            "location_address": "25 Rue de la République",
+            "location_city": "Lille",
+            "location_zip": "59000",
+            "status": Booking.Status.CONFIRMED,
+            "estimated_price": 220.00,
+            "final_price": 255.00,
+            "animator": created_animators[4],
             "payment_status": Payment.Status.SUCCEEDED
         }
     ]
@@ -260,14 +327,20 @@ def seed_all():
 
     print("✅ Réservations, Paiements, Assignations et Avis créés.")
 
-    # 6. GALERIE MÉDIA
+    # 6. GALERIE MÉDIA DE 12 PHOTOS HD
     media_items = [
         {"title": "Spectacle de Magie d'Anniversaire", "media_url": "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80"},
-        {"title": "Chasse au Trésor et Déguisements", "media_url": "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80"},
-        {"title": "Animation Super-Héros et Parcours", "media_url": "https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=800&q=80"},
-        {"title": "Mini Boom Disco & Effets Lumineux", "media_url": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80"},
+        {"title": "Chasse au Trésor et Déguisements Pirates", "media_url": "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80"},
+        {"title": "Animation Super-Héros et Parcours d'Obstacles", "media_url": "https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=800&q=80"},
+        {"title": "Mini Boom Disco & Effets Lumineux LED", "media_url": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80"},
         {"title": "Olympiades & Défis Sportifs Enfants", "media_url": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=800&q=80"},
-        {"title": "Atelier Maquillage Féerique", "media_url": "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=800&q=80"}
+        {"title": "Atelier Maquillage Féerique & Paillettes", "media_url": "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=800&q=80"},
+        {"title": "Atelier Pâtisserie & Décoration Cupcakes", "media_url": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80"},
+        {"title": "Escape Game & Enquête d'Agents Secrets", "media_url": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80"},
+        {"title": "Bal Royal des Princesses", "media_url": "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=800&q=80"},
+        {"title": "Mascotte Géante & Sculptures de Ballons", "media_url": "https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=800&q=80"},
+        {"title": "Atelier Scientifique & Expériences Slime", "media_url": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80"},
+        {"title": "Goûter d'Anniversaire & Gâteau Magique", "media_url": "https://images.unsplash.com/photo-1558636508-e0db3814bd1d?auto=format&fit=crop&w=800&q=80"}
     ]
 
     for idx, m_data in enumerate(media_items):
@@ -295,7 +368,7 @@ def seed_all():
     )
 
     print("✅ Messages de contact ajoutés.")
-    print("🎉 SEEDING COMPLET TERMINÉ AVEC SUCCÈS !")
+    print("🎉 SEEDING COMPLET ET MASSIF TERMINÉ AVEC SUCCÈS !")
 
 if __name__ == "__main__":
     seed_all()
