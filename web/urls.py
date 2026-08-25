@@ -2,7 +2,8 @@ from django.urls import path
 from django.views.generic import TemplateView
 from .views import (
     HomeView, ServiceListWebView, BookingWizardView, GalleryView, PricingView, 
-    AboutView, ContactView, DashboardView, PaymentSuccessView, PaymentCancelledView
+    AboutView, ContactView, DashboardView, PaymentSuccessView, PaymentCancelledView,
+    newsletter_signup
 )
 from . import views_animateur, views_client
 
@@ -29,5 +30,6 @@ urlpatterns = [
     path('delete-weekly-schedule/<int:schedule_id>/', views_animateur.delete_weekly_schedule, name='delete-weekly-schedule'),
     path('declare-leave/', views_animateur.declare_leave, name='declare-leave'),
     path('cancel-leave/<int:leave_id>/', views_animateur.cancel_leave, name='cancel-leave'),
+    path('newsletter/signup/', newsletter_signup, name='newsletter-signup'),
 ]
 

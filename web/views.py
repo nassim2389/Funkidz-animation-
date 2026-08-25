@@ -131,3 +131,65 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             context['weekdays'] = WeeklySchedule.Weekday.choices
         return context
 
+def newsletter_signup(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        if email:
+            from contact.models import ContactMessage
+            from django.core.mail import send_mail
+            from django.conf import settings
+            
+            # Record in ContactMessage DB
+            ContactMessage.objects.create(
+                name="Abonné Newsletter",
+                email=email,
+                message="Inscription à la Newsletter Funkidz"
+            )
+            
+            # Send notification email to admin
+            subject = f"📩 Nouvelle inscription Newsletter Funkidz : {email}"
+            email_body = f"""Bonjour,
+
+Un nouvel abonné vient de s'inscrire à la Newsletter Funkidz :
+
+Adresse E-mail : {email}
+
+---
+Cette inscription a été enregistrée dans la base de données.
+"""
+            try:
+                send_mail(
+                    subject=subject,
+                    message=email_body,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=['sedraniainaeuphredat@gmail.com'],
+                    fail_silently=True
+                )
+            except Exception:
+                pass
+            
+            # Send welcome email to subscriber
+            welcome_subject = "Bienvenue dans la communauté Funkidz ! 🎈"
+            welcome_body = f"""Bonjour,
+
+Merci pour votre inscription à la newsletter Funkidz !
+
+Vous recevrez désormais nos meilleures idées d'animations, nos conseils pour organiser des fêtes inoubliables et nos offres exclusives.
+
+À très bientôt sur Funkidz !
+L'équipe Funkidz Animation
+"""
+            try:
+                send_mail(
+                    subject=welcome_subject,
+                    message=welcome_body,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=True
+                )
+            except Exception:
+                pass
+
+            messages.success(request, "Merci pour votre inscription à notre newsletter ! Un e-mail de bienvenue vous a été envoyé.")
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
