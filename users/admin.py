@@ -13,7 +13,6 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('role', 'is_verified', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
-    inlines = (AnimateurProfileInline,)
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
