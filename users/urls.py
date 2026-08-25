@@ -27,25 +27,24 @@ def signup_view(request):
 
 def google_login_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email') or request.POST.get('google_email') or 'client.google@gmail.com'
-        first_name = request.POST.get('first_name', 'Client')
-        last_name = request.POST.get('last_name', 'Google')
-    else:
-        email = request.GET.get('email', 'client.google@gmail.com')
-        first_name = 'Client'
-        last_name = 'Google'
-
-    user, created = User.objects.get_or_create(
-        email=email,
-        defaults={
-            'first_name': first_name,
-            'last_name': last_name,
-            'role': User.Role.CLIENT,
-            'is_verified': True
-        }
-    )
-    login(request, user)
-    return redirect('dashboard')
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name') or email.split('@')[0].capitalize()
+        last_name = request.POST.get('last_name') or ''
+        
+        if email:
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'role': User.Role.CLIENT,
+                    'is_verified': True
+                }
+            )
+            login(request, user)
+            return redirect('dashboard')
+            
+    return render(request, 'auth/google_login.html')
 
 urlpatterns = [
     path('login/', UserLoginView.as_view(), name='login'),
