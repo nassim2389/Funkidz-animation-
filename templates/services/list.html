@@ -68,36 +68,43 @@
             {% for service in services %}
             <div x-show="matches('{{ service.name }}', '{{ service.category }}')"
                  x-transition
-                 class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                 class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between group">
                 
                 <div>
-                    <div class="h-48 bg-gradient-to-br from-brand-50 to-brand-100 p-6 flex flex-col justify-between relative overflow-hidden">
+                    <!-- Card Header with HD Image Background -->
+                    <div class="h-56 relative overflow-hidden p-6 flex flex-col justify-between">
+                        <img src="{% if 'Pirate' in service.name %}https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80{% elif 'Magie' in service.name %}https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80{% elif 'Héros' in service.name %}https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=800&q=80{% elif 'Disco' in service.name %}https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80{% elif 'Pâtisserie' in service.name %}https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80{% elif 'Princesse' in service.name %}https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=800&q=80{% elif 'Escape' in service.name %}https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80{% elif 'Scientifique' in service.name %}https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80{% elif 'Mascotte' in service.name %}https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=800&q=80{% else %}https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=800&q=80{% endif %}" 
+                             alt="{{ service.name }}" 
+                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-black/20"></div>
+
                         <div class="flex justify-between items-center relative z-10">
-                            <span class="px-3 py-1 bg-white/90 backdrop-blur rounded-full text-xs font-bold text-slate-700 shadow-sm">{{ service.duration_minutes }} min</span>
-                            <span class="px-3 py-1 bg-slate-900 text-white rounded-full text-xs font-bold">Max {{ service.max_children }} enfants</span>
+                            <span class="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold text-slate-800 shadow-sm">⏱️ {{ service.duration_minutes }} min</span>
+                            <span class="px-3 py-1 bg-slate-900/90 backdrop-blur-md text-white rounded-full text-xs font-bold border border-white/20">👥 Max {{ service.max_children }} enfants</span>
                         </div>
+
                         <div class="relative z-10">
-                            <h3 class="font-heading font-extrabold text-2xl text-slate-900">{{ service.name }}</h3>
+                            <h3 class="font-heading font-extrabold text-2xl text-white tracking-tight drop-shadow-md">{{ service.name }}</h3>
                         </div>
                     </div>
 
                     <div class="p-6 space-y-4">
-                        <p class="text-slate-600 text-sm leading-relaxed">{{ service.description }}</p>
+                        <p class="text-slate-600 text-sm leading-relaxed font-medium line-clamp-3">{{ service.description }}</p>
                     </div>
                 </div>
 
                 <div class="p-6 pt-0 space-y-4">
                     <div class="flex justify-between items-baseline pt-4 border-t border-slate-100">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">A partir de</span>
-                        <span class="text-3xl font-black font-heading text-brand-600">{{ service.base_price }} €</span>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Formule à partir de</span>
+                        <span class="text-3xl font-black font-heading text-brand-600 tracking-tight">{{ service.base_price }} €</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <a href="{% url 'booking-wizard' %}?service={{ service.id }}" class="py-3 text-center bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl transition duration-200 shadow-glow">
+                        <a href="{% url 'booking-wizard' %}?service={{ service.id }}" class="py-3 text-center bg-gradient-to-r from-brand-600 to-accent-pink text-white font-extrabold text-xs rounded-xl transition duration-200 shadow-glow hover:shadow-xl hover:scale-105 active:scale-95">
                             Réserver
                         </a>
-                        <a href="{% url 'pricing' %}" class="py-3 text-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition duration-200">
-                            Voir options
+                        <a href="{% url 'pricing' %}" class="py-3 text-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl transition duration-200">
+                            Voir tarifs & options
                         </a>
                     </div>
                 </div>
