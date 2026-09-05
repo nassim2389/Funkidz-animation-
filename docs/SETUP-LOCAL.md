@@ -1,5 +1,43 @@
 # Lancer et tester Funkidz en local
 
+## TL;DR — démarrage en 6 commandes
+
+Le `venv/` du dépôt était inutilisable, **il faut le recréer**, ne jamais le réutiliser.
+
+```bash
+python3 -m venv venv                                   # recréer le venv
+./venv/bin/pip install -r requirements.txt             # installer les deps
+./venv/bin/python manage.py migrate                    # créer la base SQLite
+./venv/bin/python manage.py createsuperuser --email admin@funkidz.fr   # login par EMAIL
+./venv/bin/python seed_all_data.py                     # données de démo (PURGE la base)
+./venv/bin/python manage.py runserver 8000             # → http://127.0.0.1:8000/
+```
+
+## Les 3 erreurs qui bloquent au démarrage
+
+| Message d'erreur | Cause | Solution |
+|---|---|---|
+| `venv/bin/python3: No such file or directory` | venv commité avec les chemins d'une autre machine | `rm -rf venv` puis le recréer |
+| `ModuleNotFoundError: No module named 'jazzmin'` | dépendance absente de `requirements.txt` | `pip install django-jazzmin` |
+| `unrecognized arguments: --username` | le modèle User se logue par email | utiliser `--email` |
+
+## Réflexes de débogage
+
+```bash
+./venv/bin/python manage.py check       # erreurs de config, doit dire "no issues"
+./venv/bin/python manage.py showmigrations | grep '\[ \]'   # migrations en attente
+./venv/bin/python manage.py shell       # inspecter les modèles à la main
+```
+
+`DEBUG=True` affiche la stacktrace complète et la requête SQL directement dans le
+navigateur : c'est le premier endroit où regarder en cas de 500. Pour un 404,
+consulter `web/urls.py`, les URLs réelles sont `/nos-surprises/`, `/booking/`,
+`/gallery/`, et non `/services/` ou `/reservation/`.
+
+Repartir d'une base propre : `rm db.sqlite3` puis rejouer `migrate` et le seed.
+
+---
+
 Récapitulatif de la mise en route du projet sur une machine neuve (Linux), avec
 les problèmes rencontrés et leurs corrections.
 
