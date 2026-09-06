@@ -71,10 +71,12 @@ def is_slot_available_for_booking(booking_date, booking_time, service_id=None, e
         if b_start < new_end_dt and b_end > new_start_dt:
             overlapping_count += 1
 
-    if overlapping_count >= len(available_animators):
+    # Si au moins une réservation active existe sur ce créneau horodaté, le créneau devient indisponible
+    if overlapping_count >= 1:
         return False, "Ce créneau est indisponible (déjà réservé sur cette plage horaire)."
 
     return True, "Super ! Ce créneau est disponible et un animateur est libre. 🎉✨"
+
 
 
 class AvailabilityViewSet(viewsets.ModelViewSet):
