@@ -195,7 +195,18 @@ def seed_all():
 
     print(f"✅ {len(created_animators)} Animateurs créés (Mot de passe: animateur123).")
 
-    # 4. CRÉATION DES CLIENTS DE TEST
+    # 4. CRÉATION DES CLIENTS ET DE L'ADMINISTRATEUR DE TEST
+    admin_user, _ = User.objects.get_or_create(
+        email="admin@funkidz.fr",
+        defaults={"first_name": "Administrateur", "last_name": "Funkidz", "role": User.Role.ADMIN, "is_staff": True, "is_superuser": True, "is_verified": True}
+    )
+    admin_user.set_password("admin123")
+    admin_user.role = User.Role.ADMIN
+    admin_user.is_staff = True
+    admin_user.is_superuser = True
+    admin_user.save()
+    print("✅ Compte Administrateur fonctionnel créé (admin@funkidz.fr / admin123).")
+
     clients_data = [
         {"email": "sedraniainaeuphredat@gmail.com", "first_name": "Sedra", "last_name": "Nia"},
         {"email": "euphredat91@gmail.com", "first_name": "Euphredat", "last_name": "Test"},

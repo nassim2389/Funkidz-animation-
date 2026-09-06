@@ -1,79 +1,178 @@
 {% extends 'base.html' %}
 
-{% block title %}Funkidz - Grille Tarifaire & Formules{% endblock %}
+{% block title %}Funkidz - Grille Tarifaire & Options{% endblock %}
 
 {% block content %}
-<section class="py-16 sm:py-24 bg-gradient-to-b from-brand-50 to-slate-50 border-b border-slate-200/60">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+<!-- Hero Section -->
+<section class="py-16 sm:py-24 bg-gradient-to-b from-brand-50 via-white to-slate-50 border-b border-slate-200/60 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
         <div class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-slate-200 shadow-sm">
-            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Tarification transparente</span>
+            <span class="text-xs font-extrabold text-brand-600 uppercase tracking-wider">Tarification 100% Transparente</span>
         </div>
-        <h1 class="text-4xl sm:text-6xl font-extrabold text-slate-900 font-heading">Grille Tarifaire & Options</h1>
-        <p class="text-slate-600 text-lg sm:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-            Des tarifs clairs, sans surprise, avec du matériel et des animateurs professionnels inclus.
+        <h1 class="text-4xl sm:text-6xl font-extrabold text-slate-900 font-heading tracking-tight">Grille Tarifaire & Options VIP</h1>
+        <p class="text-slate-600 text-lg sm:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
+            Découvrez nos formules clé-en-main avec animateurs diplômés, matériel professionnel inclus et options personnalisables.
         </p>
     </div>
 </section>
 
+<!-- Main Pricing Grid -->
 <section class="py-16 bg-slate-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
         
-        <div class="grid md:grid-cols-3 gap-8">
-            {% for service in services %}
-            <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
-                {% if forloop.counter == 1 %}
-                <div class="absolute top-0 right-0 bg-brand-600 text-white text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-bl-2xl">
-                    Populaire
-                </div>
-                {% endif %}
+        <div>
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <h2 class="text-3xl font-extrabold text-slate-900 font-heading">Nos Formules d'Animation Tout-Inclus</h2>
+                <p class="text-sm text-slate-500 font-medium">Chaque formule comprend l'animation, les déguisements, la sonorisation et les cadeaux pour les enfants.</p>
+            </div>
 
-                <div class="space-y-6">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for service in services %}
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group">
                     <div>
-                        <h3 class="font-heading font-extrabold text-2xl text-slate-900 mb-2">{{ service.name }}</h3>
-                        <p class="text-xs text-slate-500 font-medium leading-relaxed">{{ service.description }}</p>
+                        <!-- Card Header Image -->
+                        <div class="h-48 relative overflow-hidden bg-slate-100">
+                            {% if forloop.counter == 1 %}
+                                <img src="https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute top-4 right-4 bg-brand-600 text-white text-[10px] uppercase font-black tracking-widest px-3 py-1 rounded-full shadow-md">
+                                    ★ Top Ventes
+                                </div>
+                            {% elif forloop.counter == 2 %}
+                                <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute top-4 right-4 bg-purple-600 text-white text-[10px] uppercase font-black tracking-widest px-3 py-1 rounded-full shadow-md">
+                                    Coups de Cœur
+                                </div>
+                            {% elif forloop.counter == 3 %}
+                                <img src="https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            {% elif forloop.counter == 4 %}
+                                <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            {% elif forloop.counter == 5 %}
+                                <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            {% elif forloop.counter == 6 %}
+                                <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            {% elif forloop.counter == 7 %}
+                                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            {% elif forloop.counter == 8 %}
+                                <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            {% elif forloop.counter == 9 %}
+                                <img src="https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80" alt="{{ service.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            {% endif %}
+                            <div class="absolute bottom-3 left-4 bg-slate-900/80 backdrop-blur-md text-white text-xs font-extrabold px-3 py-1 rounded-xl">
+                                {{ service.get_category_display }}
+                            </div>
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="p-6 sm:p-8 space-y-6">
+                            <div>
+                                <h3 class="font-heading font-extrabold text-xl text-slate-900 mb-2 leading-snug">{{ service.name }}</h3>
+                                <p class="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3">{{ service.description }}</p>
+                            </div>
+
+                            <div class="flex items-baseline gap-1.5 py-4 border-y border-slate-100">
+                                <span class="text-3xl sm:text-4xl font-black font-heading text-brand-600">{{ service.base_price }} €</span>
+                                <span class="text-xs font-semibold text-slate-400">/ prestation</span>
+                            </div>
+
+                            <ul class="space-y-3 text-xs text-slate-600 font-medium">
+                                <li class="flex items-center gap-3">
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-[10px]">✓</div>
+                                    <span>Durée : {{ service.duration_minutes }} minutes d'activités</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-[10px]">✓</div>
+                                    <span>Jusqu'à {{ service.max_children }} enfants inclus</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-[10px]">✓</div>
+                                    <span>Animateur professionnel déguisé</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-[10px]">✓</div>
+                                    <span>Sonorisation, décors & diplômes inclus</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
-                    <div class="flex items-baseline gap-1 py-4 border-y border-slate-100">
-                        <span class="text-4xl font-black font-heading text-brand-600">{{ service.base_price }} €</span>
-                        <span class="text-xs font-semibold text-slate-500">/ prestation</span>
+                    <div class="p-6 sm:p-8 pt-0">
+                        <a href="{% url 'booking-wizard' %}?service={{ service.id }}" class="block w-full py-3.5 text-center bg-slate-900 hover:bg-brand-600 text-white font-extrabold text-xs rounded-xl transition duration-200 shadow-md">
+                            Réserver cette formule ➔
+                        </a>
                     </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
-                    <ul class="space-y-3.5 text-xs text-slate-600 font-medium">
-                        <li class="flex items-center gap-3">
-                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                            <span>Durée : {{ service.duration_minutes }} minutes d'activités</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                            <span>Jusqu'à {{ service.max_children }} enfants inclus</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                            <span>1 Animateur professionnel déguisé</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                            <span>Matériel, décors & sonorisation inclus</span>
-                        </li>
-                    </ul>
+        <!-- Visual Section: Options & Prestations -->
+        <div class="pt-12 border-t border-slate-200">
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Personnalisation sur-mesure</span>
+                <h2 class="text-3xl font-extrabold text-slate-900 font-heading">Options & Prestations Complémentaires</h2>
+                <p class="text-sm text-slate-500 font-medium">Ajoutez une touche de magie supplémentaire à votre fête avec nos accessoires et animations à la carte.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Option Visual Card 1 -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+                    <img src="https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=600&q=80" alt="Maquillage Paillettes" class="w-full h-36 object-cover">
+                    <div class="p-5 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-heading font-bold text-sm text-slate-900">Maquillage Artistique VIP</h4>
+                            <span class="text-xs font-extrabold text-brand-600">Dès 4.00 €</span>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed">Maquillage professionnel hypoallergénique, paillettes biodégradables et tatouages éphémères.</p>
+                    </div>
                 </div>
 
-                <div class="pt-8">
-                    <a href="{% url 'booking-wizard' %}?service={{ service.id }}" class="block w-full py-3.5 text-center bg-slate-900 hover:bg-brand-600 text-white font-bold text-xs rounded-xl transition duration-200 shadow-sm">
-                        Réserver cette formule
-                    </a>
+                <!-- Option Visual Card 2 -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+                    <img src="https://images.unsplash.com/photo-1558636508-e0db3814bd1d?auto=format&fit=crop&w=600&q=80" alt="Machine Barbe à Papa" class="w-full h-36 object-cover">
+                    <div class="p-5 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-heading font-bold text-sm text-slate-900">Machine à Barbe à Papa</h4>
+                            <span class="text-xs font-extrabold text-brand-600">45.00 €</span>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed">Service à volonté de barbes à papa roses et bleues préparées en direct par l'animateur.</p>
+                    </div>
+                </div>
+
+                <!-- Option Visual Card 3 -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+                    <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80" alt="Photobooth & Souvenirs" class="w-full h-36 object-cover">
+                    <div class="p-5 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-heading font-bold text-sm text-slate-900">Photobooth & Impression</h4>
+                            <span class="text-xs font-extrabold text-brand-600">50.00 €</span>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed">Borne photo avec accessoires déjantés et impressions instantanées pour chaque enfant.</p>
+                    </div>
+                </div>
+
+                <!-- Option Visual Card 4 -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+                    <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80" alt="Machine à Bulles" class="w-full h-36 object-cover">
+                    <div class="p-5 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-heading font-bold text-sm text-slate-900">Effets Bulles & Fumée</h4>
+                            <span class="text-xs font-extrabold text-brand-600">30.00 €</span>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed">Machine géante à bulles et fumée parfumée pour illuminer la piste de danse.</p>
+                    </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
 
         <!-- Custom Request Banner -->
-        <div class="bg-gradient-to-r from-brand-600 to-accent-pink p-8 sm:p-12 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-glow">
+        <div class="bg-gradient-to-r from-brand-600 via-purple-600 to-accent-pink p-8 sm:p-12 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-glow">
             <div class="space-y-2 text-center md:text-left">
                 <h3 class="font-heading font-extrabold text-2xl sm:text-3xl">Besoin d'une formule sur-mesure ?</h3>
                 <p class="text-brand-100 text-sm font-medium">Pour les grands groupes (écoles, mariages, comités d'entreprise), demandez un devis gratuit.</p>
             </div>
-            <a href="{% url 'contact' %}" class="px-8 py-4 bg-white text-slate-900 font-extrabold text-xs rounded-xl hover:bg-slate-100 transition whitespace-nowrap">
+            <a href="{% url 'contact' %}" class="px-8 py-4 bg-white text-slate-900 font-extrabold text-xs rounded-xl hover:bg-slate-100 transition whitespace-nowrap shadow-md">
                 Demander un devis personnalisé
             </a>
         </div>

@@ -9,11 +9,39 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Booking)
 def send_booking_email(sender, instance, created, **kwargs):
+    # Alert Admin on new booking creation
+    if created:
+        admin_subject = f"🔔 Nouvelle réservation reçue sur Funkidz (#{instance.id})"
+        admin_message = (
+            f"Bonjour Administrateur,\n\n"
+            f"Une nouvelle demande de réservation vient d'être enregistrée sur la plateforme !\n\n"
+            f"- Numéro de réservation : #{instance.id}\n"
+            f"- Client : {instance.user.first_name} {instance.user.last_name} ({instance.user.email})\n"
+            f"- Formule : {instance.service.name}\n"
+            f"- Date & Heure : {instance.booking_date} à {instance.booking_time}\n"
+            f"- Nombre d'enfants : {instance.nb_children}\n"
+            f"- Lieu : {instance.location_address}, {instance.location_zip} {instance.location_city}\n"
+            f"- Montant : {instance.final_price}€\n"
+            f"- Statut : {instance.get_status_display()}\n\n"
+            f"Vous pouvez consulter la réservation et désigner un animateur depuis l'interface administration.\n\n"
+            f"Funkidz Admin System"
+        )
+        try:
+            send_mail(
+                subject=admin_subject,
+                message=admin_message,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
+                recipient_list=['sedraniainaeuphredat@gmail.com'],
+                fail_silently=True,
+            )
+        except Exception as e:
+            logger.error(f"Erreur d'envoi d'email admin pour la création de réservation #{instance.id}: {e}")
+
     # Check status and send appropriate emails
     if instance.status == Booking.Status.CONFIRMED:
         subject = f"Confirmation de votre réservation Funkidz #{instance.id} 🎈"
         message = (
-            f"Bonjour,\n\n"
+            f"Bonjour {instance.user.first_name or ''},\n\n"
             f"Nous avons le plaisir de vous confirmer votre réservation pour l'animation suivante :\n"
             f"- Formule : {instance.service.name}\n"
             f"- Date : {instance.booking_date}\n"
@@ -35,6 +63,7 @@ def send_booking_email(sender, instance, created, **kwargs):
             )
         except Exception as e:
             logger.error(f"Erreur d'envoi d'email de confirmation pour la réservation #{instance.id}: {e}")
+
 
     elif instance.status == Booking.Status.CANCELLED:
         subject = f"Annulation de votre réservation Funkidz #{instance.id} ❌"

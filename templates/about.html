@@ -1,47 +1,151 @@
 {% extends 'base.html' %}
 
-{% block title %}Funkidz - À Propos de Notre Agence{% endblock %}
+{% block title %}Funkidz - Notre Histoire & Valeurs{% endblock %}
 
 {% block content %}
-<section class="py-16 sm:py-24 bg-slate-50">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div class="text-center space-y-4">
-            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Notre Histoire & Valeurs</span>
-            <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 font-heading">Faire briller les yeux des enfants</h1>
-            <p class="text-slate-600 text-lg font-medium leading-relaxed">
-                Créée avec passion, Funkidz Animation est l'agence de référence pour l'organisation d'événements festifs enfants sur mesure.
-            </p>
+<!-- Hero Section with Background Image Overlay -->
+<section class="relative py-20 sm:py-28 bg-slate-900 text-white overflow-hidden">
+    <div class="absolute inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1600&q=80" alt="Funkidz Animation" class="w-full h-full object-cover opacity-25">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+    </div>
+    
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+            <span class="text-xs font-extrabold text-brand-300 uppercase tracking-wider">Notre Histoire & Valeurs</span>
         </div>
+        <h1 class="text-4xl sm:text-6xl font-black font-heading tracking-tight leading-tight">
+            Faire briller les yeux des enfants à chaque événement
+        </h1>
+        <p class="text-slate-300 text-lg sm:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
+            Née d'une passion pour le spectacle et le sourire des plus jeunes, Funkidz Animation est l'agence de référence pour des fêtes d'anniversaire féeriques et inoubliables.
+        </p>
 
-        <div class="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200/80 shadow-sm space-y-8 text-slate-700 leading-relaxed text-base">
-            <p>
-                Chez <strong>Funkidz</strong>, nous croyons fermement que l'anniversaire d'un enfant est l'un des moments les plus précieux de son année. Notre mission est d'offrir une expérience féerique, divertissante et parfaitement sécurisée.
-            </p>
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 max-w-4xl mx-auto border-t border-white/10">
+            <div class="p-4 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                <div class="text-3xl font-black text-brand-400 font-heading">500+</div>
+                <div class="text-xs text-slate-300 font-medium mt-1">Fêtes célébrées</div>
+            </div>
+            <div class="p-4 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                <div class="text-3xl font-black text-accent-pink font-heading">100%</div>
+                <div class="text-xs text-slate-300 font-medium mt-1">Animateurs Diplômés</div>
+            </div>
+            <div class="p-4 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                <div class="text-3xl font-black text-amber-400 font-heading">4.9/5</div>
+                <div class="text-xs text-slate-300 font-medium mt-1">Note de Satisfaction</div>
+            </div>
+            <div class="p-4 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                <div class="text-3xl font-black text-emerald-400 font-heading">10+</div>
+                <div class="text-xs text-slate-300 font-medium mt-1">Thèmes Exclusifs</div>
+            </div>
+        </div>
+    </div>
+</section>
 
-            <div class="grid md:grid-cols-2 gap-6 pt-4">
-                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
-                    <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-lg">🛡️</div>
-                    <h3 class="font-heading font-bold text-lg text-slate-900">Sécurité & Bienveillance</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">Tous nos animateurs sont recrutés rigoureusement et formés à la sécurité des groupes d'enfants.</p>
-                </div>
-
-                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
-                    <div class="w-10 h-10 rounded-xl bg-pink-50 text-accent-pink flex items-center justify-center font-bold text-lg">🎉</div>
-                    <h3 class="font-heading font-bold text-lg text-slate-900">Créativité Sans Limite</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">Des scénarios captivants, des décors soignés et des déguisements de haute qualité pour une immersion totale.</p>
+<!-- Story Section with Side-by-Side Visuals -->
+<section class="py-16 sm:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6">
+                <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Comment tout a commencé</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-heading leading-snug">
+                    Une passion transformée en souvenirs gravés à jamais
+                </h2>
+                <p class="text-slate-600 text-base leading-relaxed">
+                    Chez <strong>Funkidz</strong>, nous croyons fermement que l'anniversaire d'un enfant est l'un des moments les plus magiques de son année. Fondée par des professionnels du spectacle et de la petite enfance, notre agence réinvente le concept de l'animation à domicile.
+                </p>
+                <p class="text-slate-600 text-base leading-relaxed">
+                    Nous combinons décors immersifs, scénarios de jeux de rôle captivants (pirates, magiciens, super-héros) et matériel professionnel pour transformer votre salon ou jardin en un véritable parc d'attraction le temps d'un après-midi.
+                </p>
+                
+                <div class="pt-4 flex items-center gap-4">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="Fondateurs Funkidz" class="w-14 h-14 rounded-full object-cover border-2 border-brand-500 shadow-md">
+                    <div>
+                        <div class="font-heading font-extrabold text-slate-900 text-base">Nassim & L'Équipe Créative</div>
+                        <div class="text-xs text-brand-600 font-semibold">Fondateurs & Directeurs artistiques</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div>
-                    <div class="font-heading font-bold text-lg text-slate-900">Nassim & L'Équipe Funkidz</div>
-                    <div class="text-xs text-slate-500">Fondateurs & Directeurs de Création</div>
+            <!-- Image Grid Accent -->
+            <div class="grid grid-cols-2 gap-4 relative">
+                <div class="space-y-4">
+                    <img src="https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80" alt="Chasse au Trésor" class="rounded-3xl object-cover h-64 w-full shadow-lg hover:scale-102 transition duration-300">
+                    <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80" alt="Boom Disco" class="rounded-3xl object-cover h-48 w-full shadow-lg hover:scale-102 transition duration-300">
                 </div>
-                <a href="{% url 'booking-wizard' %}" class="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-glow transition">
-                    Réserver une animation
+                <div class="space-y-4 pt-8">
+                    <img src="https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=600&q=80" alt="Maquillage" class="rounded-3xl object-cover h-48 w-full shadow-lg hover:scale-102 transition duration-300">
+                    <img src="https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=600&q=80" alt="Super Héros" class="rounded-3xl object-cover h-64 w-full shadow-lg hover:scale-102 transition duration-300">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Values Section with HD Cards -->
+<section class="py-16 sm:py-24 bg-slate-50 border-t border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        
+        <div class="text-center max-w-2xl mx-auto space-y-3">
+            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Nos Engagements</span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-heading">Les 3 Piliers de l'Excellence Funkidz</h2>
+            <p class="text-slate-500 text-sm font-medium">Pour assurer la sérénité totale des parents et l'émerveillement des enfants.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Value Card 1 -->
+            <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=800&q=80" alt="Sécurité" class="w-full h-48 object-cover">
+                <div class="p-8 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xl">🛡️</div>
+                    <h3 class="font-heading font-extrabold text-xl text-slate-900">Sécurité & Bienveillance</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                        Chaque animateur de notre réseau est rigoureusement sélectionné, formé aux normes de sécurité et titulaire du BAFA ou équivalent comédien.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Value Card 2 -->
+            <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=800&q=80" alt="Créativité" class="w-full h-48 object-cover">
+                <div class="p-8 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xl">✨</div>
+                    <h3 class="font-heading font-extrabold text-xl text-slate-900">Immersion & Créativité</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                        Des costumes sur-mesure de haute qualité, du son professionnel et des décors travaillés pour embarquer les enfants dans des histoires vivantes.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Value Card 3 -->
+            <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80" alt="Sérénité Parents" class="w-full h-48 object-cover">
+                <div class="p-8 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl">🎉</div>
+                    <h3 class="font-heading font-extrabold text-xl text-slate-900">Sérénité Totale des Parents</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                        De la réservation en ligne avec créneaux sécurisés jusqu'au nettoyage après le banquet, nous prenons tout en charge à 100%.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action Banner -->
+        <div class="bg-gradient-to-r from-brand-600 via-purple-600 to-accent-pink p-8 sm:p-12 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-glow">
+            <div class="space-y-2 text-center md:text-left">
+                <h3 class="font-heading font-extrabold text-2xl sm:text-3xl">Prêt à créer un souvenir inoubliable ?</h3>
+                <p class="text-brand-100 text-sm font-medium">Réservez en quelques clics ou contactez nos conseillers événementiels.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="{% url 'booking-wizard' %}" class="px-8 py-4 bg-white text-slate-900 font-extrabold text-xs rounded-xl hover:bg-slate-100 transition shadow-md">
+                    Réserver une fête
                 </a>
             </div>
         </div>
+
     </div>
 </section>
 {% endblock %}

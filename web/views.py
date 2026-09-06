@@ -34,9 +34,12 @@ class GalleryView(TemplateView):
 class PricingView(TemplateView):
     template_name = 'pricing.html'
     def get_context_data(self, **kwargs):
+        from services.models import Option
         context = super().get_context_data(**kwargs)
         context['services'] = Service.objects.all()
+        context['options'] = Option.objects.all()
         return context
+
 
 class AboutView(TemplateView):
     template_name = 'about.html'

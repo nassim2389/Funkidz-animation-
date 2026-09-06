@@ -16,12 +16,23 @@ class BookingSerializer(serializers.ModelSerializer):
     selected_options = BookingOptionSerializer(many=True, required=False)
     service_details = ServiceSerializer(source='service', read_only=True)
     
-    class Meta:
-        model = Booking
-        fields = '__all__'
-        read_only_fields = ('user', 'estimated_price', 'final_price', 'status')
+    def validate(self, attrs):
+        booking_date = attrs.get('booking_date')
+        booking_time = attrs.get('booking_time')
+        service = attrs.get('service')
+        
+        if booking_date and booking_time:
+            from availability.views import is_slot_available_for_booking
+            service_id = service.id if service else None
+            exclude_id = self.instance.id if self.instance else None
+            available, msg = is_slot_available_for_booking(booking_date, booking_time, service_id=service_id, exclude_booking_id=exclude_id)
+            if not available:
+                raise serializers.ValidationError({'booking_time': msg})
+        
+        return attrs
 
     def create(self, validated_data):
+
         options_data = validated_data.pop('selected_options', [])
         user = self.context['request'].user
         

@@ -8,6 +8,75 @@ from users.models import AnimateurProfile
 from bookings.models import BookingAssignment, Booking
 from services.models import Service
 
+def is_slot_available_for_booking(booking_date, booking_time, service_id=None, exclude_booking_id=None):
+    """
+    Vérifie en temps réel si un créneau horodaté est disponible pour une nouvelle réservation.
+    Prend en compte les congés des animateurs, leurs indisponibilités et les réservations existantes.
+    """
+    duration = 120  # Durée par défaut : 2 heures
+    if service_id:
+        try:
+            service = Service.objects.get(id=service_id)
+            duration = service.duration_minutes
+        except Service.DoesNotExist:
+            pass
+
+    new_start_dt = datetime.combine(booking_date, booking_time)
+    new_end_dt = new_start_dt + timedelta(minutes=duration)
+
+    animators = AnimateurProfile.objects.all()
+    if not animators.exists():
+        return True, "Créneau disponible ! Nos équipes d'animation vous attendent avec impatience ! 🎉"
+
+    # 1. Animateurs disponibles à cette date (hors congés et blocages)
+    available_animators = []
+    for animator in animators:
+        on_leave = AnimateurLeave.objects.filter(
+            animateur=animator,
+            status=AnimateurLeave.Status.APPROVED,
+            start_date__lte=booking_date,
+            end_date__gte=booking_date
+        ).exists()
+        if on_leave:
+            continue
+
+        is_blocked = Availability.objects.filter(
+            animateur=animator,
+            date=booking_date,
+            is_blocked=True
+        ).exists()
+        if is_blocked:
+            continue
+
+        available_animators.append(animator)
+
+    if not available_animators:
+        return False, "Ce créneau est indisponible (aucun animateur disponible à cette date)."
+
+    # 2. Vérification du nombre de réservations actives chevauchant la même plage horaire
+    existing_bookings = Booking.objects.filter(
+        booking_date=booking_date,
+        status__in=[Booking.Status.CONFIRMED, Booking.Status.PENDING]
+    )
+    if exclude_booking_id:
+        existing_bookings = existing_bookings.exclude(id=exclude_booking_id)
+
+    overlapping_count = 0
+    for b in existing_bookings:
+        b_start = datetime.combine(booking_date, b.booking_time)
+        b_dur = b.service.duration_minutes if b.service else 120
+        b_end = b_start + timedelta(minutes=b_dur)
+        
+        # Superposition des créneaux
+        if b_start < new_end_dt and b_end > new_start_dt:
+            overlapping_count += 1
+
+    if overlapping_count >= len(available_animators):
+        return False, "Ce créneau est indisponible (déjà réservé sur cette plage horaire)."
+
+    return True, "Super ! Ce créneau est disponible et un animateur est libre. 🎉✨"
+
+
 class AvailabilityViewSet(viewsets.ModelViewSet):
     queryset = Availability.objects.all()
     serializer_class = AvailabilitySerializer
@@ -27,7 +96,6 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
 
         try:
             booking_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-            # Try parsing time format HH:MM or HH:MM:SS
             try:
                 booking_time = datetime.strptime(time_str, '%H:%M').time()
             except ValueError:
@@ -38,82 +106,11 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Get service duration
-        duration = 120  # Default 2 hours
-        if service_id:
-            try:
-                service = Service.objects.get(id=service_id)
-                duration = service.duration_minutes
-            except Service.DoesNotExist:
-                pass
+        available, message = is_slot_available_for_booking(booking_date, booking_time, service_id)
+        
+        return Response({
+            'available': available,
+            'message': message
+        })
 
-        # Calculate new booking time range
-        new_start_dt = datetime.combine(booking_date, booking_time)
-        new_end_dt = new_start_dt + timedelta(minutes=duration)
-
-        animators = AnimateurProfile.objects.all()
-        if not animators.exists():
-            # If no animators exist in the database, assume true for sandbox or seeding purposes
-            return Response({
-                'available': True,
-                'message': 'Créneau disponible ! Nos équipes d\'animation vous attendent avec impatience ! 🎉'
-            })
-
-        available_animator_found = False
-
-        for animator in animators:
-            # 1. Check approved leaves
-            on_leave = AnimateurLeave.objects.filter(
-                animateur=animator,
-                status=AnimateurLeave.Status.APPROVED,
-                start_date__lte=booking_date,
-                end_date__gte=booking_date
-            ).exists()
-            if on_leave:
-                continue
-
-            # 2. Check blocked days
-            is_blocked = Availability.objects.filter(
-                animateur=animator,
-                date=booking_date,
-                is_blocked=True
-            ).exists()
-            if is_blocked:
-                continue
-
-            # 3. Check overlapping bookings (assigned and accepted)
-            assignments = BookingAssignment.objects.filter(
-                animateur=animator,
-                status=BookingAssignment.Status.ACCEPTED,
-                booking__booking_date=booking_date
-            )
-            
-            overlap_found = False
-            for ass in assignments:
-                exist_start = datetime.combine(booking_date, ass.booking.booking_time)
-                exist_duration = ass.booking.service.duration_minutes
-                exist_end = exist_start + timedelta(minutes=exist_duration)
-                
-                # Check overlap
-                if exist_start < new_end_dt and exist_end > new_start_dt:
-                    overlap_found = True
-                    break
-            
-            if overlap_found:
-                continue
-
-            # If the animator passed all checks, they are available!
-            available_animator_found = True
-            break
-
-        if available_animator_found:
-            return Response({
-                'available': True,
-                'message': 'Super ! Ce créneau est disponible et un animateur est libre. 🎉✨'
-            })
-        else:
-            return Response({
-                'available': False,
-                'message': 'Désolé, tous nos animateurs sont occupés ou indisponibles à ce moment. Essayez un autre créneau ! 💖'
-            })
 
