@@ -161,11 +161,12 @@ Adresse E-mail : {email}
 Cette inscription a été enregistrée dans la base de données.
 """
             try:
+                from core.utils import get_admin_recipient_emails
                 send_mail(
                     subject=subject,
                     message=email_body,
                     from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=['sedraniainaeuphredat@gmail.com'],
+                    recipient_list=get_admin_recipient_emails(),
                     fail_silently=True
                 )
             except Exception:

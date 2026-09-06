@@ -23,11 +23,12 @@ def notify_leave_status_change(sender, instance, created, **kwargs):
             f"Funkidz Admin System"
         )
         try:
+            from core.utils import get_admin_recipient_emails
             send_mail(
                 subject=subject,
                 message=message,
                 from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
-                recipient_list=['sedraniainaeuphredat@gmail.com'],
+                recipient_list=get_admin_recipient_emails(),
                 fail_silently=True
             )
         except Exception as e:

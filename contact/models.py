@@ -19,6 +19,8 @@ class ContactMessage(models.Model):
         verbose_name = "Message de contact"
         verbose_name_plural = "Messages de contact"
 
+from core.utils import get_admin_recipient_emails
+
 @receiver(post_save, sender=ContactMessage)
 def send_contact_notification(sender, instance, created, **kwargs):
     if created:
@@ -42,8 +44,9 @@ Ce message a été enregistré dans le panneau d'administration Funkidz.
                 subject=subject,
                 message=email_body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=['sedraniainaeuphredat@gmail.com'],
+                recipient_list=get_admin_recipient_emails(),
                 fail_silently=True
             )
         except Exception:
             pass
+
