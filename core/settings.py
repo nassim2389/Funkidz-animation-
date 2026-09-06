@@ -274,3 +274,10 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Funkidz <noreply@funkidz.fr>')
+
+# ==========================================
+# STRIPE CONFIGURATION
+# ==========================================
+STRIPE_API_KEY = os.getenv('STRIPE_API_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+

@@ -21,13 +21,17 @@ class CreateStripeSessionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        api_key = getattr(settings, 'STRIPE_API_KEY', os.getenv('STRIPE_API_KEY', ''))
+        stripe.api_key = api_key
+
         booking_id = request.data.get('booking_id')
         try:
             booking = Booking.objects.get(id=booking_id, user=request.user)
         except Booking.DoesNotExist:
             return Response({'error': 'Réservation introuvable.'}, status=status.HTTP_404_NOT_FOUND)
 
-        if not stripe.api_key or 'REMPLACER' in stripe.api_key:
+        if not api_key or 'REMPLACER' in api_key:
+
             logger.info(f"Clé Stripe non configurée — mode démonstration activé pour la réservation #{booking.id}")
             payment, _ = Payment.objects.get_or_create(
                 booking=booking,
