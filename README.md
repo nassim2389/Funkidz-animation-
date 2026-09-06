@@ -16,22 +16,22 @@ Le projet s'appuie sur le framework **Django** pour le backend, **Django REST Fr
 
 ### 1. 🌐 Espace Public & Expérience Client
 - **Accueil Magique** : Page d'accueil moderne avec mise en valeur des formules populaires et appel à l'action immédiat.
-- **Catalogue des Formules & Prestations** : Consultation détaillée des formules d'animation avec filtrage et tarification dynamique.
-- **Tunnel de Réservation en 5 Éapes (Wizard)** :
+- **Catalogue des Formules & Prestations** : Consultation détaillée des formules d'animation avec cartes illustrées en images HD et filtrage.
+- **Tunnel de Réservation en 5 Étapes (Wizard)** :
   1. *Choix de la Formule*
-  2. *Sélection de la Date & Heure* (Vérification des disponibilités en temps réel)
+  2. *Sélection de la Date & Heure* (Vérification des disponibilités en temps réel avec verrouillage des créneaux)
   3. *Options Complémentaires* (Châteaux gonflables, barbe à papa, mascottes, etc.)
   4. *Lieu & Détails de l'Événement*
   5. *Récapitulatif & Paiement*
-- **Paiement Stripe & Mode Démo** : Intégration de Stripe Checkout et mode démo instantané pour tester la réservation sans clé bancaire.
+- **Paiement Stripe & Mode Démo** : Intégration de Stripe Checkout et mode démo instantané pour tester la réservation.
 - **E-mails de Confirmation Automatiques (Brevo)** : Envoi automatique d'un e-mail de confirmation détaillé dès la validation d'une réservation.
-- **Formulaire de Contact** : Envoi de messages enregistrés en base de données avec notification administrateur.
+- **Formulaire de Contact** : Envoi de messages enregistrés en base de données avec notification automatique administrateur.
 
 ### 2. 🛠️ Panneau d'Administration & Gestion (Jazzmin Admin)
 - **Interface Haute Lisibilité** : Thème haute visibilité et fort contraste avec navigation intuitive.
-- **Gestion des Réservations & Paiements** : Consultation, validation, annulation et génération de liens de paiement Stripe.
+- **Gestion des Réservations & Paiements** : Consultation, validation, annulation et suivi des paiements.
 - **Assignation des Animateurs** : Attribution des animateurs disponibles aux réservations confirmées.
-- **Gestion des Congés & Planning** : Demande, validation ou refus des congés des animateurs et plannings récurrents.
+- **Gestion des Congés & Planning** : Demande, validation ou refus des congés des animateurs (avec alertes e-mail automatiques) et plannings récurrents.
 - **Galerie & Contenus** : Administration des formules, des options et de la galerie multimédia.
 
 ---
@@ -40,12 +40,10 @@ Le projet s'appuie sur le framework **Django** pour le backend, **Django REST Fr
 
 ```mermaid
 graph TD
-    %% Styling
     classDef internal fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
     classDef external fill:#efebe9,stroke:#5d4037,stroke-width:2px;
     classDef system fill:#fff,stroke:#333,stroke-width:2px;
 
-    %% Acteurs Internes
     subgraph Acteurs_Internes ["👤 Acteurs Internes"]
         V["Visiteur 👤"]:::internal
         C["Client 💼"]:::internal
@@ -53,13 +51,11 @@ graph TD
         AD["Admin 🛠️"]:::internal
     end
 
-    %% Acteurs Externes
     subgraph Acteurs_Externes ["🔌 Acteurs Externes"]
         ST["Stripe 💳"]:::external
         EM["Brevo Email ✉️"]:::external
     end
 
-    %% Système Principal
     subgraph Système ["⚙️ Système de réservation Funkidz"]
         subgraph UC_Visiteur ["👤 Visiteur"]
             V1["Consulter les services et tarifs"]
@@ -86,24 +82,18 @@ graph TD
         end
     end
 
-    %% Relations Acteurs -> Cas d'Utilisation
     V --> V1
     V --> V2
-
     C --> C1
     C --> C2
     C --> C3
     C --> C4
-
     A --> AN1
     A --> AN2
-
     AD --> AD1
     AD --> AD2
     AD --> AD3
     AD --> AD4
-
-    %% Relations avec Services Externes
     C2 -.-> ST
     C3 -.-> EM
 ```
@@ -122,20 +112,23 @@ graph TD
 
 ---
 
-## ⚙️ Installation & Lancement en Local
+## 🪟 GUIDE D'INSTALLATION SOUS WINDOWS
 
-### 1. Prérequis sur Windows
-- **Python 3.10 ou supérieur** (Téléchargeable sur [python.org](https://www.python.org/downloads/)). *Pendant l'installation, veillez bien à cocher la case **"Add Python to PATH"**.*
+Suivez attentivement les étapes ci-dessous pour installer et exécuter le projet sur un ordinateur Windows.
+
+### 1. Prérequis nécessaires sur Windows
+- **Python 3.10 ou supérieur** (Téléchargeable gratuitement sur [python.org](https://www.python.org/downloads/)).
+  > ⚠️ **IMPORTANT lors de l'installation de Python** : Veillez impérativement à cocher la case **"Add Python to PATH"** au début de l'assistant d'installation.
 - **Git** (Téléchargeable sur [git-scm.com](https://git-scm.com/downloads)).
 
 ---
 
-### 🪟 Procédure d'installation sous Windows (Invite de commandes / PowerShell)
+### 2. Procédure étape par étape (Invite de commandes CMD ou PowerShell)
 
-#### Étape 1 : Ouvrir le terminal Windows (CMD ou PowerShell)
+#### Étape 1 : Ouvrir l'Invite de Commandes Windows
 Appuyez sur `Touche Windows + R`, tapez `cmd` puis appuyez sur `Entrée`.
 
-#### Étape 2 : Cloner le projet GitHub et entrer dans le dossier
+#### Étape 2 : Cloner le dépôt GitHub et entrer dans le répertoire
 ```cmd
 git clone https://github.com/nassim2389/Funkidz-animation-.git
 cd Funkidz-animation-
@@ -146,46 +139,67 @@ cd Funkidz-animation-
 python -m venv venv
 venv\Scripts\activate
 ```
-*(Si vous utilisez PowerShell et qu'un message d'erreur d'exécution apparaît, tapez : `Set-ExecutionPolicy Unrestricted -Scope Process` puis réessayez `venv\Scripts\activate`).*
+*(Si vous utilisez PowerShell et qu'un message d'erreur d'autorisation apparaît, tapez d'abord : `Set-ExecutionPolicy Unrestricted -Scope Process` puis relancez `venv\Scripts\activate`).*
 
-#### Étape 4 : Installer les dépendances
+#### Étape 4 : Installer les dépendances du projet
 ```cmd
 pip install -r requirements.txt
 ```
 
-#### Étape 5 : Créer le fichier `.env`
-Créez un fichier texte nommé `.env` à la racine du projet et ajoutez le contenu suivant :
+#### Étape 5 : Configurer le fichier d'environnement `.env`
+Créez un fichier texte nommé `.env` à la racine du projet (`Funkidz-animation-\.env`) avec le contenu suivant :
+
 ```env
 DEBUG=True
-SECRET_KEY=django-insecure-key-funkidz-test-123456
+SECRET_KEY=django-insecure-key-funkidz-demo-123456
 DATABASE_URL=sqlite:///db.sqlite3
 
-# Configuration Email Brevo (Optionnel pour le test local)
+# Configuration Paiement Stripe (Localhost / Test)
+STRIPE_API_KEY=sk_test_REMPLACER_PAR_VOTRE_CLE_STRIPE
+STRIPE_WEBHOOK_SECRET=whsec_REMPLACER_PAR_VOTRE_WEBHOOK_STRIPE
+
+# Configuration E-mails Brevo SMTP
 EMAIL_HOST=smtp-relay.brevo.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
-EMAIL_HOST_USER=votre_email_brevo@exemple.com
+EMAIL_HOST_USER=votre_utilisateur_brevo@smtp-brevo.com
 EMAIL_HOST_PASSWORD=xsmtpsib-votre_cle_brevo_ici
 DEFAULT_FROM_EMAIL=Funkidz <contact@funkidz.fr>
 ```
 
-#### Étape 6 : Appliquer les migrations de base de données & Créer un superutilisateur Admin (si besoin)
+#### Étape 6 : Appliquer les migrations & Injecter les données de démonstration (Data Seeding)
+Exécutez les deux commandes suivantes dans votre terminal :
 ```cmd
 python manage.py migrate
-python manage.py createsuperuser
+python seed_all_data.py
 ```
+> 🎉 Le script `seed_all_data.py` crée automatiquement l'ensemble des formules, des options, des avis, de la galerie photo ainsi que tous les comptes de test (Admin, Animateurs, Clients).
 
-#### Étape 7 : Lancer le serveur local
+#### Étape 7 : Lancer le serveur local Django
 ```cmd
 python manage.py runserver
 ```
 
 ---
 
-### 🌐 Accès à l'application
-- **Site Public** : Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- **Panneau d'Administration** : Open [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+### 🔑 Comptes de Test Pré-configurés pour la Démonstration
+
+| Rôle | Adresse E-mail | Mot de passe |
+| :--- | :--- | :--- |
+| **Administrateur** | `admin@funkidz.fr` | `admin123` |
+| **Animateur #1** | `animateur@funkidz.fr` | `animateur123` |
+| **Animateur #2** | `sophie.anim@funkidz.fr` | `animateur123` |
+| **Client #1** | `sedraniainaeuphredat@gmail.com` | `password123` |
+| **Client #2** | `marie.dubois@gmail.com` | `password123` |
 
 ---
 
-**Réalisé avec ✨ par NASSIM — 2026**
+### 🌐 Accès aux Interfaces Web
+
+- **Site Public & Réservation** : [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- **Panneau d'Administration** : [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+- **Espace Client / Animateur** : [http://127.0.0.1:8000/dashboard/](http://127.0.0.1:8000/dashboard/)
+
+---
+
+**Réalisé avec ✨ pour Funkidz Animation — 2026**
