@@ -16,7 +16,13 @@ class BookingSerializer(serializers.ModelSerializer):
     selected_options = BookingOptionSerializer(many=True, required=False)
     service_details = ServiceSerializer(source='service', read_only=True)
     
+    class Meta:
+        model = Booking
+        fields = '__all__'
+        read_only_fields = ('user', 'estimated_price', 'final_price', 'status')
+
     def validate(self, attrs):
+
         booking_date = attrs.get('booking_date')
         booking_time = attrs.get('booking_time')
         service = attrs.get('service')
