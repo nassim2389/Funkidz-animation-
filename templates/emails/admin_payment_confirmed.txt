@@ -1,0 +1,19 @@
+Bonjour Administrateur,
+
+Le paiement pour la réservation #{{ booking.id }} vient d'être validé avec succès !
+
+RÉSUMÉ :
+- Client : {{ client_name }} ({{ client_email }})
+{% if contact_phone %}- Téléphone : {{ contact_phone }}{% endif %}
+- Formule : {{ service_name }} ({{ service_duration }} min)
+{% if child_name %}- Enfant : {{ child_name }}{% if child_age %} ({{ child_age }} ans){% endif %}{% endif %}
+- Date & Heure : {{ booking_date }} à {{ booking_time }}
+- Lieu : {{ location_address }}, {{ location_zip }} {{ location_city }}
+- Montant Encaissé : {{ final_price }} € TTC
+- Statut : Paiement Confirmé 💳
+
+ACTION REQUISE :
+Assigner un animateur disponible depuis le panneau d'administration :
+{{ admin_booking_url }}
+
+Funkidz Admin System

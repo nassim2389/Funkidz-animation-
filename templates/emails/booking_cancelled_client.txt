@@ -1,0 +1,13 @@
+Bonjour {{ client_name }},
+
+Nous vous confirmons que votre réservation Funkidz #{{ booking.id }} a bien été annulée.
+
+DÉTAILS DE LA RÉSERVATION ANNULÉE :
+- Formule : {{ service_name }}
+- Date prévue : {{ booking_date }} à {{ booking_time }}
+- Lieu : {{ location_address }}, {{ location_zip }} {{ location_city }}
+
+Si un paiement avait été effectué, notre service administratif traitera le remboursement selon nos CGV.
+
+À très bientôt pour une prochaine fête,
+L'équipe Funkidz Animation

@@ -1,0 +1,9 @@
+Bonjour,
+
+Merci pour votre inscription à la newsletter Funkidz Animation !
+
+Vous recevrez désormais nos meilleures inspirations de fêtes pour enfants, nos astuces d'organisation et nos offres exclusives.
+
+À très bientôt sur Funkidz !
+L'équipe Funkidz Animation
+{{ support_email }} | {{ support_phone }}

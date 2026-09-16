@@ -1,0 +1,71 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  <span class="badge badge-warning">⏳ En attente de règlement</span>
+  <h2 style="margin: 14px 0 6px; font-size: 20px; color: #0f172a;">🔔 Nouvelle demande de réservation #{{ booking.id }}</h2>
+  <p style="margin: 0; color: #64748b; font-size: 14.5px;">
+    Une nouvelle réservation vient d'être initiée sur Funkidz par <strong>{{ client_name }}</strong>.
+  </p>
+</div>
+
+<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px;">
+  <table class="info-table" style="margin: 0;">
+    <tr>
+      <td class="label">👤 Client :</td>
+      <td class="value"><strong>{{ client_name }}</strong> ({{ client_email }})</td>
+    </tr>
+    {% if contact_phone %}
+    <tr>
+      <td class="label">📞 Téléphone :</td>
+      <td class="value">{{ contact_phone }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="label">🎈 Formule :</td>
+      <td class="value"><strong>{{ service_name }}</strong> ({{ service_base_price|floatformat:2 }} €)</td>
+    </tr>
+    {% if child_name %}
+    <tr>
+      <td class="label">🎂 Enfant :</td>
+      <td class="value"><strong>{{ child_name }}</strong>{% if child_age %} ({{ child_age }} ans){% endif %}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="label">📅 Date & Heure :</td>
+      <td class="value"><strong>{{ booking_date }} à {{ booking_time }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">👥 Enfants attendus :</td>
+      <td class="value">{{ nb_children }} enfants</td>
+    </tr>
+    <tr>
+      <td class="label">📍 Adresse :</td>
+      <td class="value">{{ location_address }}, {{ location_zip }} {{ location_city }}</td>
+    </tr>
+    <tr>
+      <td class="label">💰 Montant Total :</td>
+      <td class="value"><strong>{{ final_price|floatformat:2 }} € TTC</strong></td>
+    </tr>
+    <tr>
+      <td class="label">📊 Statut :</td>
+      <td class="value"><span style="color: #b45309; font-weight: 600;">En attente de validation de paiement</span></td>
+    </tr>
+  </table>
+</div>
+
+{% if has_options %}
+<div style="margin-bottom: 20px;">
+  <h4 style="margin: 0 0 8px; font-size: 14px; color: #334155;">Options complémentaires :</h4>
+  <ul style="margin: 0; padding-left: 20px; font-size: 13.5px; color: #475569;">
+    {% for opt in selected_options %}
+      <li><strong>{{ opt.name }}</strong> (x{{ opt.quantity }}) : {{ opt.total_price|floatformat:2 }} €</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div style="text-align: center; margin-top: 25px;">
+  <a href="{{ admin_booking_url }}" class="btn" style="background-color: #334155;">Consulter dans l'Admin 🛠️</a>
+</div>
+{% endblock %}

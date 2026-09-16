@@ -17,6 +17,7 @@ class Payment(models.Model):
         choices=Status.choices,
         default=Status.PENDING
     )
+    failure_email_sent_at = models.DateTimeField(null=True, blank=True, verbose_name="E-mail d'échec envoyé le")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

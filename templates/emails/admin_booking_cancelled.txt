@@ -1,0 +1,12 @@
+Bonjour Administrateur,
+
+La réservation #{{ booking.id }} pour {{ client_name }} ({{ client_email }}) a été annulée.
+
+- Formule : {{ service_name }}
+- Date : {{ booking_date }} à {{ booking_time }}
+- Montant : {{ final_price }} €
+
+Consulter dans l'administration :
+{{ admin_booking_url }}
+
+Funkidz Admin System

@@ -1,0 +1,71 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  <span class="badge badge-info">🎯 Mission Attribuée</span>
+  <h2 style="margin: 14px 0 6px; font-size: 20px; color: #0f172a;">Bonjour {{ animateur_name }} ! 🌟</h2>
+  <p style="margin: 0; color: #64748b; font-size: 14.5px;">
+    Une nouvelle mission d'animation vient de vous être confiée par l'administration Funkidz.
+  </p>
+</div>
+
+<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px;">
+  <h3 style="margin: 0 0 12px; font-size: 15px; color: #1e293b;">Détails de l'animation (Mission #{{ booking.id }})</h3>
+
+  <table class="info-table" style="margin: 0;">
+    <tr>
+      <td class="label">🎈 Formule :</td>
+      <td class="value"><strong>{{ service_name }}</strong> ({{ service_duration }} minutes)</td>
+    </tr>
+    {% if child_name %}
+    <tr>
+      <td class="label">🎂 Enfant fêté :</td>
+      <td class="value"><strong>{{ child_name }}</strong>{% if child_age %} ({{ child_age }} ans){% endif %}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="label">📅 Date :</td>
+      <td class="value"><strong>{{ booking_date }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">⏰ Horaire :</td>
+      <td class="value"><strong>{{ booking_time }}</strong> (Arrivée conseillée : 15 min avant)</td>
+    </tr>
+    <tr>
+      <td class="label">👥 Enfants :</td>
+      <td class="value">{{ nb_children }} enfants</td>
+    </tr>
+    <tr>
+      <td class="label">📍 Adresse :</td>
+      <td class="value"><strong>{{ location_address }}, {{ location_zip }} {{ location_city }}</strong></td>
+    </tr>
+    {% if contact_phone %}
+    <tr>
+      <td class="label">📞 Contact parent :</td>
+      <td class="value">{{ client_name }} — {{ contact_phone }}</td>
+    </tr>
+    {% endif %}
+    {% if special_instructions %}
+    <tr>
+      <td class="label">📝 Consignes :</td>
+      <td class="value" style="font-style: italic; color: #b45309;">{{ special_instructions }}</td>
+    </tr>
+    {% endif %}
+  </table>
+</div>
+
+{% if has_options %}
+<div style="margin-bottom: 20px; background-color: #fdf4ff; border: 1px solid #f5d0fe; border-radius: 10px; padding: 14px 16px;">
+  <h4 style="margin: 0 0 8px; font-size: 13.5px; color: #86198f;">🎪 Options & matériel à prévoir :</h4>
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #701a75;">
+    {% for opt in selected_options %}
+      <li>• {{ opt.name }} (x{{ opt.quantity }})</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div style="text-align: center; margin-top: 25px;">
+  <a href="{{ dashboard_url }}" class="btn">Consulter mon Planning & Missions 📅</a>
+</div>
+{% endblock %}

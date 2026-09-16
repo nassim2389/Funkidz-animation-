@@ -8,28 +8,45 @@
         
         <!-- Header -->
         <div class="text-center space-y-3">
-            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Réservation en 5 étapes</span>
-            <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading">Organiser votre événement</h1>
-            <p class="text-slate-600 text-sm sm:text-base font-medium">Sélectionnez vos préférences et personnalisez votre fête d'anniversaire.</p>
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200 shadow-sm">
+                <span>🎈</span> Parcours Décomposé en 5 Étapes & Paiement Sécurisé
+            </span>
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading">
+                Organiser votre événement magique
+            </h1>
+            <p class="text-slate-600 text-sm sm:text-base font-medium max-w-2xl mx-auto">
+                Personnalisez chaque détail de la fête de votre enfant avec vérification anti-doublon en direct et règlement Stripe sécurisé.
+            </p>
         </div>
 
         <!-- Stepper Bar -->
         <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between relative px-2">
-                <template x-for="(stepName, index) in steps" :key="index">
-                    <div class="flex flex-col items-center relative z-10">
+                <template x-for="(step, index) in steps" :key="index">
+                    <div class="flex flex-col items-center relative z-10 cursor-pointer" 
+                         @click="goToStep(index + 1)">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-sm sm:text-base transition-all duration-300 shadow-sm border"
-                             :class="currentStep >= index + 1 ? 'bg-brand-600 text-white border-brand-600 shadow-glow' : 'bg-slate-50 text-slate-400 border-slate-200'">
-                            <span x-text="index + 1"></span>
+                             :class="[
+                                 currentStep === index + 1 ? 'bg-brand-600 text-white border-brand-600 ring-4 ring-brand-500/20 shadow-glow scale-105' :
+                                 currentStep > index + 1 ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm' :
+                                 'bg-slate-50 text-slate-400 border-slate-200'
+                             ]">
+                            <template x-if="currentStep > index + 1">
+                                <span>✓</span>
+                            </template>
+                            <template x-if="currentStep <= index + 1">
+                                <span x-text="index + 1"></span>
+                            </template>
                         </div>
-                        <span class="text-[11px] font-bold uppercase tracking-wider mt-2.5 hidden sm:block" 
-                              :class="currentStep >= index + 1 ? 'text-brand-600' : 'text-slate-400'" 
-                              x-text="stepName"></span>
+                        <span class="text-[11px] font-bold uppercase tracking-wider mt-2.5 hidden sm:block transition-colors" 
+                              :class="currentStep === index + 1 ? 'text-brand-600' : (currentStep > index + 1 ? 'text-emerald-700' : 'text-slate-400')" 
+                              x-text="step.title"></span>
                     </div>
                 </template>
                 <!-- Line Behind Steps -->
                 <div class="absolute top-5 sm:top-6 left-8 right-8 h-1 bg-slate-100 -z-0 rounded-full"></div>
-                <div class="absolute top-5 sm:top-6 left-8 h-1 bg-brand-600 transition-all duration-500 rounded-full" :style="'width: ' + ((currentStep - 1) / (steps.length - 1) * 85) + '%'"></div>
+                <div class="absolute top-5 sm:top-6 left-8 h-1 bg-brand-600 transition-all duration-500 rounded-full" 
+                     :style="'width: ' + ((currentStep - 1) / (steps.length - 1) * 85) + '%'"></div>
             </div>
         </div>
 
@@ -38,69 +55,233 @@
             
             <!-- STEP 1: Choisir une formule -->
             <div x-show="currentStep === 1" x-transition>
-                <div class="mb-8 space-y-1">
-                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">1. Choisissez votre Formule d'Animation</h2>
-                    <p class="text-xs text-slate-500 font-medium">Sélectionnez la prestation adaptée à votre thème et vos envies.</p>
+                <div class="mb-6 space-y-1">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <h2 class="font-heading font-extrabold text-2xl text-slate-900">1. Choisissez votre Formule d'Animation</h2>
+                        <span class="text-xs text-slate-500 font-semibold" x-text="filteredServices.length + ' formules disponibles'"></span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium">Sélectionnez la formule idéale selon le thème et les centres d'intérêt de votre enfant.</p>
                 </div>
 
-                <div class="grid sm:grid-cols-2 gap-4">
-                    <template x-for="service in services" :key="service.id">
-                        <div class="p-6 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex flex-col justify-between"
-                             :class="formData.service_id == service.id ? 'border-brand-600 bg-brand-50/50 shadow-sm' : 'border-slate-100 bg-slate-50/50 hover:border-slate-300'"
+                <!-- Category Filters -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button type="button" 
+                            @click="selectedCategory = 'ALL'"
+                            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition"
+                            :class="selectedCategory === 'ALL' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                        ✨ Toutes les formules
+                    </button>
+                    <button type="button" 
+                            @click="selectedCategory = 'ANNIVERSAIRE'"
+                            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition"
+                            :class="selectedCategory === 'ANNIVERSAIRE' ? 'bg-brand-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                        🎂 Anniversaires
+                    </button>
+                    <button type="button" 
+                            @click="selectedCategory = 'SPECTACLE'"
+                            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition"
+                            :class="selectedCategory === 'SPECTACLE' ? 'bg-brand-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                        🎭 Spectacles & Magie
+                    </button>
+                    <button type="button" 
+                            @click="selectedCategory = 'ATELIER'"
+                            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition"
+                            :class="selectedCategory === 'ATELIER' ? 'bg-brand-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                        🎨 Ateliers Créatifs
+                    </button>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-5">
+                    <template x-for="service in filteredServices" :key="service.id">
+                        <div class="rounded-3xl border-2 cursor-pointer transition-all duration-300 flex flex-col justify-between overflow-hidden group bg-white"
+                             :class="formData.service_id == service.id ? 'border-brand-600 ring-4 ring-brand-500/20 shadow-xl' : 'border-slate-200/80 hover:border-brand-300 hover:shadow-card-hover'"
                              @click="selectService(service)">
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="font-heading font-bold text-lg text-slate-900" x-text="service.name"></h3>
-                                    <span class="text-xs font-bold px-2.5 py-1 bg-white rounded-full border border-slate-200 text-slate-700 shadow-sm" x-text="service.duration_minutes + ' min'"></span>
+                            
+                            <!-- Cover Image Header -->
+                            <div class="h-44 relative overflow-hidden bg-slate-100">
+                                <img :src="service.image_url" 
+                                     :alt="service.name" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent"></div>
+
+                                <div class="absolute top-3 left-3 right-3 flex justify-between items-center z-10">
+                                    <span class="text-[11px] font-black px-2.5 py-1 rounded-full bg-white/95 backdrop-blur text-slate-800 shadow-sm" x-text="'⏱️ ' + service.duration_minutes + ' min'"></span>
+                                    <template x-if="service.badge_label">
+                                        <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-brand-600 text-white shadow" x-text="service.badge_label"></span>
+                                    </template>
                                 </div>
-                                <p class="text-xs text-slate-600 leading-relaxed line-clamp-3" x-text="service.description"></p>
+
+                                <div class="absolute bottom-3 left-4 right-4 z-10">
+                                    <h3 class="font-heading font-extrabold text-lg text-white drop-shadow leading-snug" x-text="service.name"></h3>
+                                </div>
+
+                                <!-- Selection indicator checkmark -->
+                                <div x-show="formData.service_id == service.id" 
+                                     class="absolute top-3 right-3 w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs shadow-lg ring-2 ring-white z-20">
+                                    ✓
+                                </div>
                             </div>
 
-                            <div class="pt-4 mt-4 border-t border-slate-200/50 flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-500">Tarif de base</span>
-                                <span class="font-heading font-black text-lg text-brand-600" x-text="service.base_price + ' €'"></span>
+                            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                                <p class="text-xs text-slate-600 leading-relaxed line-clamp-2" x-text="service.description"></p>
+
+                                <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
+                                    <div class="space-y-0.5">
+                                        <span class="text-[11px] font-semibold text-slate-400 uppercase">Tarif dès</span>
+                                        <div class="font-heading font-black text-xl text-brand-600" x-text="service.base_price + ' €'"></div>
+                                    </div>
+                                    <div class="text-xs font-bold px-3 py-1.5 rounded-xl transition"
+                                         :class="formData.service_id == service.id ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-700 group-hover:bg-brand-50 group-hover:text-brand-600'">
+                                        <span x-text="formData.service_id == service.id ? '✓ Sélectionné' : 'Choisir'"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </template>
                 </div>
             </div>
 
-            <!-- STEP 2: Date & Heure (Live Availability) -->
+            <!-- STEP 2: Date & Heure (Live Availability & Anti-Doublon) -->
             <div x-show="currentStep === 2" x-transition>
-                <div class="mb-8 space-y-1">
-                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">2. Date & Heure de l'Événement</h2>
-                    <p class="text-xs text-slate-500 font-medium">Vérifiez la disponibilité de nos animateurs en direct.</p>
+                <div class="mb-6 space-y-1">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <h2 class="font-heading font-extrabold text-2xl text-slate-900">2. Date & Heure de l'Événement</h2>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Vérification des disponibilités en direct
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium">Sélectionnez votre date puis choisissez un créneau horaire garanti sans double réservation.</p>
                 </div>
 
-                <div class="grid sm:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Date de l'anniversaire *</label>
-                        <input type="date" x-model="formData.booking_date" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Heure de début *</label>
-                        <input type="time" x-model="formData.booking_time" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                <!-- Anti-doublon info banner -->
+                <div class="mb-6 p-4 rounded-2xl bg-brand-50/70 border border-brand-200 flex items-start gap-3 shadow-sm">
+                    <span class="text-xl shrink-0">🛡️</span>
+                    <div class="text-xs text-slate-700 leading-relaxed">
+                        <span class="font-bold text-brand-900">Verrouillage dynamique & Anti-doublon temps réel :</span>
+                        Dès qu'un créneau est réservé par un client, il bascule immédiatement en statut <span class="font-bold text-rose-600">Complet / Indisponible</span> pour empêcher toute double réservation ou collision d'agenda.
                     </div>
                 </div>
 
-                <!-- Live Availability Feedback Badge -->
-                <div class="mt-8 p-5 rounded-2xl border transition-all duration-200"
-                     x-show="availabilityChecked"
-                     :class="availabilityLoading ? 'bg-slate-50 border-slate-200 text-slate-600' : (isAvailable ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800')">
-                    <div class="flex items-center gap-3">
-                        <template x-if="availabilityLoading">
-                            <span class="animate-spin text-lg">⏳</span>
+                <!-- Date selection with quick presets -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Date de l'anniversaire *</label>
+                    <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                        <input type="date" 
+                               :min="minDate" 
+                               x-model="formData.booking_date" 
+                               @change="onDateChanged()"
+                               class="w-full sm:w-80 px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition">
+                    </div>
+
+                    <!-- Quick Demo / Helper Date Pills -->
+                    <div class="flex flex-wrap gap-2 pt-1 items-center">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Raccourcis Démo :</span>
+                        <button type="button" @click="setQuickDate(1)" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300 border border-slate-200 text-slate-700 text-xs font-semibold transition">
+                            Demain
+                        </button>
+                        <button type="button" @click="setQuickWeekend(6)" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300 border border-slate-200 text-slate-700 text-xs font-semibold transition">
+                            Ce Samedi
+                        </button>
+                        <button type="button" @click="setQuickWeekend(0)" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300 border border-slate-200 text-slate-700 text-xs font-semibold transition">
+                            Ce Dimanche
+                        </button>
+                        <button type="button" @click="setQuickNextWeekend(6)" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300 border border-slate-200 text-slate-700 text-xs font-semibold transition">
+                            Samedi Prochain
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Créneaux Horaires Grid (when date is selected) -->
+                <div class="mt-8 space-y-4" x-show="formData.booking_date">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                            Créneaux pour le <span class="text-brand-600 font-extrabold" x-text="formatDisplayDate(formData.booking_date)"></span> *
+                        </label>
+                        <button type="button" 
+                                @click="fetchDailySlots()" 
+                                class="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1 hover:underline">
+                            🔄 Rafraîchir l'agenda
+                        </button>
+                    </div>
+
+                    <!-- Loading Skeleton -->
+                    <div x-show="slotsLoading" class="py-8 text-center space-y-2 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="inline-block animate-spin text-2xl">⏳</span>
+                        <p class="text-xs font-medium text-slate-500">Interrogation des animateurs et vérification des disponibilités en direct...</p>
+                    </div>
+
+                    <!-- Slots Cards -->
+                    <div x-show="!slotsLoading && dailySlots.length > 0" class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <template x-for="slot in dailySlots" :key="slot.time">
+                            <div class="relative p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col justify-between"
+                                 :class="[
+                                     !slot.available ? 'bg-rose-50/50 border-rose-200 text-rose-900 cursor-pointer hover:border-rose-400 hover:shadow-sm' :
+                                     (formData.booking_time === slot.time ? 'bg-brand-50/70 border-brand-600 ring-4 ring-brand-500/20 shadow-md cursor-pointer' : 'bg-white border-slate-200/90 hover:border-brand-300 hover:shadow-sm cursor-pointer')
+                                 ]"
+                                 @click="selectSlot(slot)">
+                                
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-heading font-extrabold text-base tracking-tight"
+                                          :class="slot.available ? (formData.booking_time === slot.time ? 'text-brand-700' : 'text-slate-900') : 'text-rose-700 line-through'"
+                                          x-text="slot.time"></span>
+
+                                    <template x-if="slot.available && formData.booking_time === slot.time">
+                                        <span class="w-5 h-5 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold shadow">✓</span>
+                                    </template>
+                                    <template x-if="!slot.available">
+                                        <span class="text-sm">🔒</span>
+                                    </template>
+                                </div>
+
+                                <div class="space-y-1">
+                                    <div class="text-[11px] font-bold"
+                                         :class="slot.available ? 'text-emerald-700' : 'text-rose-600'">
+                                        <span x-text="slot.available ? '🟢 Disponible' : (slot.is_past ? '⏱️ Créneau passé' : '🔴 Indisponible / Complet')"></span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 font-medium line-clamp-1" x-text="slot.end_time ? 'Durée : jusqu\'à ' + slot.end_time : ''"></div>
+                                </div>
+                            </div>
                         </template>
-                        <template x-if="!availabilityLoading && isAvailable">
-                            <span class="text-lg">✅</span>
-                        </template>
-                        <template x-if="!availabilityLoading && !isAvailable">
-                            <span class="text-lg">❌</span>
-                        </template>
-                        <div>
-                            <div class="font-bold text-sm" x-text="availabilityLoading ? 'Vérification de la disponibilité...' : (isAvailable ? 'Créneau Disponible !' : 'Indisponible')"></div>
-                            <div class="text-xs mt-0.5" x-text="availabilityMessage"></div>
+                    </div>
+
+                    <!-- Conflict / Error Alert Box (if user clicks an unavailable slot or conflict occurs) -->
+                    <div x-show="conflictError" x-transition class="p-4 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-900 space-y-1 shadow-sm">
+                        <div class="flex items-center gap-2 font-bold text-sm text-rose-800">
+                            <span>🚫 Action bloquée : Créneau indisponible</span>
+                        </div>
+                        <p class="text-xs text-rose-700 font-medium" x-text="conflictError"></p>
+                    </div>
+
+                    <!-- Success Selection Banner -->
+                    <div x-show="formData.booking_time && isAvailable && !conflictError" x-transition class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">🎉</span>
+                            <div>
+                                <div class="font-bold text-xs text-emerald-900">
+                                    Créneau <span x-text="formData.booking_time"></span> sélectionné et réservé avec succès !
+                                </div>
+                                <div class="text-[11px] text-emerald-700 font-medium" x-text="availabilityMessage"></div>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-200 text-emerald-800 tracking-wider">Disponible</span>
+                    </div>
+
+                    <!-- Custom time toggle -->
+                    <div class="pt-2">
+                        <button type="button" 
+                                @click="showCustomTime = !showCustomTime" 
+                                class="text-xs font-semibold text-slate-500 hover:text-brand-600 flex items-center gap-1.5 transition">
+                            <span x-text="showCustomTime ? '➖ Masquer l\'horaire personnalisé' : '➕ Ou choisir un horaire personnalisé au quart d\'heure'"></span>
+                        </button>
+
+                        <div x-show="showCustomTime" x-transition class="mt-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Heure de début personnalisée</label>
+                            <input type="time" 
+                                   x-model="formData.booking_time" 
+                                   @change="checkAvailability()"
+                                   class="w-full sm:w-60 px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                            <p class="text-[11px] text-slate-400">Le système interroge immédiatement nos animateurs pour vérifier la disponibilité de cet horaire.</p>
                         </div>
                     </div>
                 </div>
@@ -108,24 +289,39 @@
 
             <!-- STEP 3: Options complémentaires -->
             <div x-show="currentStep === 3" x-transition>
-                <div class="mb-8 space-y-1">
-                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">3. Options & Personnalisation</h2>
-                    <p class="text-xs text-slate-500 font-medium">Ajoutez des activités et accessoires pour enrichir votre fête.</p>
+                <div class="mb-6 space-y-1">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <h2 class="font-heading font-extrabold text-2xl text-slate-900">3. Options & Personnalisation Festives</h2>
+                        <span class="text-xs font-bold text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-200"
+                              x-text="'Sous-total options : ' + getOptionsSubtotal().toFixed(2) + ' €'"></span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium">Ajoutez des activités gourmandes et accessoires pour enrichir la fête.</p>
                 </div>
 
                 <div class="space-y-3">
                     <template x-for="option in availableOptions" :key="option.id">
-                        <label class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200"
-                               :class="selectedOptionIds.includes(option.id) ? 'border-brand-600 bg-brand-50/40' : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'">
+                        <label class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 group bg-white"
+                               :class="selectedOptionIds.includes(option.id) ? 'border-brand-600 bg-brand-50/40 ring-2 ring-brand-500/20 shadow-sm' : 'border-slate-200/80 hover:border-brand-200'">
                             <div class="flex items-center gap-4">
                                 <input type="checkbox" :value="option.id" x-model="selectedOptionIds" class="w-5 h-5 rounded text-brand-600 focus:ring-0">
+                                <img :src="option.image_url" 
+                                     :alt="option.name" 
+                                     class="w-14 h-14 rounded-2xl object-cover border border-slate-200 shadow-sm shrink-0">
                                 <div>
-                                    <h4 class="font-heading font-bold text-sm text-slate-900" x-text="option.name"></h4>
-                                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider" 
-                                          x-text="option.pricing_type == 'PER_CHILD' ? 'Par enfant' : (option.pricing_type == 'PER_HOUR' ? 'Par heure' : 'Tarif fixe')"></span>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="font-heading font-bold text-sm text-slate-900 group-hover:text-brand-600 transition" x-text="option.name"></h4>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                              :class="option.pricing_type == 'PER_CHILD' ? 'bg-amber-100 text-amber-800' : (option.pricing_type == 'PER_HOUR' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800')"
+                                              x-text="option.pricing_type == 'PER_CHILD' ? 'Par enfant' : (option.pricing_type == 'PER_HOUR' ? 'Par heure' : 'Tarif fixe')"></span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-medium line-clamp-1 mt-0.5" x-text="option.description"></p>
+                                    <div class="text-[11px] font-semibold text-slate-400 mt-1" x-text="getOptionBreakdownLabel(option)"></div>
                                 </div>
                             </div>
-                            <span class="font-heading font-extrabold text-sm text-brand-600" x-text="option.price + ' €'"></span>
+                            <div class="text-right shrink-0 pl-3">
+                                <span class="font-heading font-extrabold text-base text-brand-600 block" x-text="getOptionCalculatedPrice(option).toFixed(2) + ' €'"></span>
+                                <span class="text-[10px] text-slate-400 font-medium" x-text="option.pricing_type == 'PER_CHILD' ? '(' + option.price + ' €/enf.)' : ''"></span>
+                            </div>
                         </label>
                     </template>
 
@@ -135,76 +331,237 @@
                 </div>
             </div>
 
-            <!-- STEP 4: Adresse & Nombre d'enfants -->
+            <!-- STEP 4: Adresse, Enfant & Contact -->
             <div x-show="currentStep === 4" x-transition>
-                <div class="mb-8 space-y-1">
-                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">4. Informations sur l'Événement</h2>
-                    <p class="text-xs text-slate-500 font-medium">Renseignez le lieu exact de l'intervention de l'animateur.</p>
+                <div class="mb-6 space-y-1">
+                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">4. Informations sur l'Événement & Enfant</h2>
+                    <p class="text-xs text-slate-500 font-medium">Renseignez les détails pour que l'animateur personnalise la fête au prénom de l'enfant.</p>
                 </div>
 
-                <div class="space-y-4">
+                <div class="space-y-6">
+                    <!-- Enfant à l'honneur -->
+                    <div class="p-5 rounded-2xl bg-gradient-to-br from-brand-50/60 to-purple-50/40 border border-brand-100 space-y-4">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-brand-700 flex items-center gap-1.5">
+                            🎂 Enfant à l'honneur
+                        </span>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Prénom de l'enfant fêté</label>
+                                <input type="text" x-model="formData.child_name" placeholder="Ex: Arthur, Léa..." class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Âge célébré</label>
+                                <input type="number" min="1" max="18" x-model="formData.child_age" placeholder="Ex: 7" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nombre d'enfants & Contact Parent -->
                     <div class="grid sm:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Nombre d'enfants attendus *</label>
-                            <input type="number" min="1" max="50" x-model="formData.nb_children" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="if (formData.nb_children > 1) { formData.nb_children--; calculateTotal(); }" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 font-black text-lg text-slate-700 transition">-</button>
+                                <input type="number" min="1" max="50" x-model.number="formData.nb_children" @input="calculateTotal()" class="w-full text-center px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black focus:outline-none focus:border-brand-500 transition">
+                                <button type="button" @click="formData.nb_children++; calculateTotal();" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 font-black text-lg text-slate-700 transition">+</button>
+                            </div>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Adresse complète *</label>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Téléphone du responsable *</label>
+                            <input type="tel" x-model="formData.contact_phone" placeholder="06 12 34 56 78" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                        </div>
+                    </div>
+
+                    <!-- Lieu d'intervention -->
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Adresse d'intervention (Domicile / Salle) *</label>
                             <input type="text" x-model="formData.location_address" placeholder="Ex: 15 Rue des Lilas" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
                         </div>
-                    </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Ville *</label>
-                            <input type="text" x-model="formData.location_city" placeholder="Paris" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Ville *</label>
+                                <input type="text" x-model="formData.location_city" placeholder="Paris" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Code Postal *</label>
+                                <input type="text" x-model="formData.location_zip" placeholder="75001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
+                            </div>
                         </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Code Postal *</label>
-                            <input type="text" x-model="formData.location_zip" placeholder="75001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition">
-                        </div>
-                    </div>
 
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Instructions particulières (Optionnel)</label>
-                        <textarea x-model="formData.special_instructions" rows="2" placeholder="Digicode, étage, préférences particulières..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition"></textarea>
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Consignes pour l'animateur (Optionnel)</label>
+                            <textarea x-model="formData.special_instructions" rows="2" placeholder="Digicode, étage, intérieur ou jardin, surprises particulières..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500 transition"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- STEP 5: Récapitulatif et Confirmation -->
-            <div x-show="currentStep === 5" x-transition>
-                <div class="mb-8 space-y-1">
-                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">5. Récapitulatif de la Commande</h2>
-                    <p class="text-xs text-slate-500 font-medium">Vérifiez l'ensemble de vos choix avant d'accéder au paiement sécurisé.</p>
+            <!-- STEP 5: Récapitulatif Décomposé & Choix Paiement Stripe -->
+            <div x-show="currentStep === 5" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+                <div class="mb-6 space-y-1">
+                    <h2 class="font-heading font-extrabold text-2xl text-slate-900">5. Récapitulatif Décomposé & Paiement</h2>
+                    <p class="text-xs text-slate-500 font-medium">Vérifiez l'ensemble de votre commande détaillée avant de procéder au règlement.</p>
                 </div>
 
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200/80 space-y-4">
-                    <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
-                        <span class="text-slate-500 font-semibold">Formule choisie :</span>
-                        <span class="font-heading font-bold text-slate-900" x-text="selectedServiceName"></span>
+                <!-- Facturette Décomposée Pro -->
+                <div class="bg-slate-50 rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-6 shadow-sm">
+                    
+                    <!-- Prestation Header -->
+                    <div class="flex items-center gap-4 pb-5 border-b border-slate-200">
+                        <img :src="selectedServiceImage" :alt="selectedServiceName" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border border-slate-200 shadow-md shrink-0">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-600 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-200">
+                                Formule d'animation
+                            </span>
+                            <h3 class="font-heading font-extrabold text-xl text-slate-900 leading-snug" x-text="selectedServiceName"></h3>
+                            <div class="text-xs text-slate-500 font-medium flex flex-wrap gap-x-3 gap-y-0.5">
+                                <span>📅 <span class="font-semibold text-slate-800" x-text="formData.booking_date"></span></span>
+                                <span>⏰ <span class="font-semibold text-slate-800" x-text="formData.booking_time"></span></span>
+                                <span>👧 <span class="font-semibold text-slate-800" x-text="formData.nb_children + ' enfants'"></span></span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
-                        <span class="text-slate-500 font-semibold">Date & Heure :</span>
-                        <span class="font-bold text-slate-900" x-text="formData.booking_date + ' à ' + formData.booking_time"></span>
+                    <!-- Décomposition Détaillée Ligne par Ligne -->
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Détail des prestations & options :</h4>
+                        
+                        <!-- Ligne Formule Principale -->
+                        <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
+                            <div>
+                                <span class="font-bold text-slate-900" x-text="'Formule : ' + selectedServiceName"></span>
+                                <span class="text-xs text-slate-500 block">Animation complète de base</span>
+                            </div>
+                            <span class="font-bold text-slate-900" x-text="selectedServicePrice.toFixed(2) + ' €'"></span>
+                        </div>
+
+                        <!-- Lignes Options Décomposées -->
+                        <template x-for="opt in getDecomposedOptions()" :key="opt.id">
+                            <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
+                                <div>
+                                    <span class="font-bold text-slate-900" x-text="'Option : ' + opt.name"></span>
+                                    <span class="text-xs text-slate-500 block" x-text="opt.detail"></span>
+                                </div>
+                                <span class="font-bold text-brand-600" x-text="'+ ' + opt.subtotal.toFixed(2) + ' €'"></span>
+                            </div>
+                        </template>
+
+                        <!-- Détails Événement -->
+                        <div class="pt-2 text-xs text-slate-600 space-y-1 bg-white/70 p-3 rounded-xl border border-slate-200/60">
+                            <template x-if="formData.child_name">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Enfant fêté :</span>
+                                    <span class="font-bold text-slate-800" x-text="formData.child_name + (formData.child_age ? ' (' + formData.child_age + ' ans)' : '')"></span>
+                                </div>
+                            </template>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Lieu d'intervention :</span>
+                                <span class="font-bold text-slate-800" x-text="formData.location_address + ', ' + formData.location_zip + ' ' + formData.location_city"></span>
+                            </div>
+                            <template x-if="formData.contact_phone">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Contact parent :</span>
+                                    <span class="font-bold text-slate-800" x-text="formData.contact_phone"></span>
+                                </div>
+                            </template>
+                        </div>
                     </div>
 
-                    <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
-                        <span class="text-slate-500 font-semibold">Lieu d'intervention :</span>
-                        <span class="font-bold text-slate-900" x-text="formData.location_address + ', ' + formData.location_zip + ' ' + formData.location_city"></span>
+                    <!-- Sous-total et Total Général -->
+                    <div class="pt-2 border-t-2 border-slate-200 space-y-2">
+                        <div class="flex justify-between items-center text-xs text-slate-500 font-medium">
+                            <span>TVA (20% incluse)</span>
+                            <span x-text="(totalPrice * 0.20 / 1.20).toFixed(2) + ' €'"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-heading font-extrabold text-lg text-slate-900">Total Net TTC :</span>
+                            <span class="font-heading font-black text-3xl text-brand-600" x-text="totalPrice.toFixed(2) + ' €'"></span>
+                        </div>
                     </div>
 
-                    <div class="flex justify-between items-center text-sm py-2 border-b border-slate-200/60">
-                        <span class="text-slate-500 font-semibold">Nombre d'enfants :</span>
-                        <span class="font-bold text-slate-900" x-text="formData.nb_children + ' enfants'"></span>
-                    </div>
+                </div>
 
-                    <div class="pt-4 flex justify-between items-center">
-                        <span class="font-heading font-extrabold text-lg text-slate-900">Montant Total :</span>
-                        <span class="font-heading font-black text-3xl text-brand-600" x-text="totalPrice.toFixed(2) + ' €'"></span>
+                <!-- Choix du Mode de Règlement -->
+                <div class="mt-8 space-y-4">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Sélectionnez votre mode de règlement *
+                    </label>
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <!-- Option 1 : Stripe Checkout -->
+                        <div class="p-5 rounded-2xl border-2 cursor-pointer transition duration-200 relative bg-white"
+                             :class="paymentMode === 'stripe' ? 'border-brand-600 ring-4 ring-brand-500/20 shadow-md' : 'border-slate-200 hover:border-brand-300'"
+                             @click="paymentMode = 'stripe'">
+                            
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">💳</span>
+                                    <div>
+                                        <div class="font-bold text-sm text-slate-900">Carte Bancaire (Stripe)</div>
+                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Recommandé</span>
+                                    </div>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                                     :class="paymentMode === 'stripe' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300'">
+                                    <span x-show="paymentMode === 'stripe'" class="text-xs">✓</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 leading-relaxed mb-3">
+                                Chiffrement SSL 256 bits, protocole 3D Secure et validation bancaire instantanée.
+                            </p>
+                            <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                                <span class="text-[10px] font-bold text-slate-400">Acceptés :</span>
+                                <span class="text-xs font-bold text-slate-600">CB • Visa • Mastercard • Apple Pay</span>
+                            </div>
+                        </div>
+
+                        <!-- Option 2 : Mode Démo Instantané -->
+                        <div class="p-5 rounded-2xl border-2 cursor-pointer transition duration-200 relative bg-white"
+                             :class="paymentMode === 'demo' ? 'border-brand-600 ring-4 ring-brand-500/20 shadow-md' : 'border-slate-200 hover:border-brand-300'"
+                             @click="paymentMode = 'demo'">
+                            
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">🧪</span>
+                                    <div>
+                                        <div class="font-bold text-sm text-slate-900">Validation Démo (Test)</div>
+                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">Sans Carte</span>
+                                    </div>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                                     :class="paymentMode === 'demo' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300'">
+                                    <span x-show="paymentMode === 'demo'" class="text-xs">✓</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 leading-relaxed mb-3">
+                                Idéal pour tester tout le parcours : confirmation immédiate, e-mails automatiques et création de facturette sans débit bancaire.
+                            </p>
+                            <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                                <span class="text-[10px] font-bold text-purple-600">⚡ Test immédiat en 1 clic</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Terms and conditions acceptance -->
+                <div class="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" x-model="acceptTerms" class="w-5 h-5 rounded text-brand-600 focus:ring-0 mt-0.5 shrink-0">
+                        <span class="text-xs text-slate-600 leading-relaxed font-medium">
+                            J'ai lu et j'accepte sans réserve les <a href="{% url 'terms' %}" target="_blank" class="text-brand-600 underline font-bold">Conditions Générales de Vente</a> et la <a href="{% url 'privacy' %}" target="_blank" class="text-brand-600 underline font-bold">Politique de Confidentialité</a> de Funkidz Animation. Annulation sans frais jusqu'à 48h avant la prestation.
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Security Assurance Badges -->
+                <div class="mt-6 flex flex-wrap items-center justify-center gap-6 text-slate-400 text-xs font-semibold py-2">
+                    <span class="flex items-center gap-1.5">🔒 Chiffrement SSL 256-bit</span>
+                    <span class="flex items-center gap-1.5">🛡️ Stripe Verified Partner</span>
+                    <span class="flex items-center gap-1.5">✨ Animateurs Certifiés BAFA</span>
+                </div>
+
             </div>
 
         </div>
@@ -212,7 +569,7 @@
         <!-- Navigation Buttons -->
         <div class="flex justify-between items-center pt-4">
             <button class="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-100 transition disabled:opacity-30 disabled:pointer-events-none"
-                    @click="currentStep--" :disabled="currentStep === 1">
+                    @click="currentStep--" :disabled="currentStep === 1 || isSubmitting">
                 Précédent
             </button>
 
@@ -224,9 +581,13 @@
                 </button>
 
                 <button x-show="currentStep === 5" 
-                        class="px-8 py-3.5 bg-gradient-to-r from-brand-600 to-accent-pink text-white font-extrabold text-xs rounded-xl shadow-glow hover:scale-105 transition"
+                        class="px-8 py-3.5 bg-gradient-to-r from-brand-600 to-accent-pink text-white font-extrabold text-xs rounded-xl shadow-glow hover:scale-105 transition disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2"
+                        :disabled="!acceptTerms || isSubmitting"
                         @click="submitBooking()">
-                    Confirmer & Régler sur Stripe 💳
+                    <span x-show="isSubmitting" class="animate-spin text-sm">⏳</span>
+                    <span x-show="!isSubmitting && paymentMode === 'stripe'">Payer sur Stripe 💳 (<span x-text="totalPrice.toFixed(2) + ' €'"></span>)</span>
+                    <span x-show="!isSubmitting && paymentMode === 'demo'">Valider en Mode Démo 🎉 (<span x-text="totalPrice.toFixed(2) + ' €'"></span>)</span>
+                    <span x-show="isSubmitting">Redirection sécurisée en cours...</span>
                 </button>
             </div>
         </div>
@@ -238,14 +599,24 @@
     function bookingWizard() {
         return {
             currentStep: 1,
-            steps: ['Formule', 'Date & Heure', 'Options', 'Lieu', 'Récapitulatif'],
+            steps: [
+                { title: 'Formule' },
+                { title: 'Date & Créneau' },
+                { title: 'Options' },
+                { title: 'Lieu & Enfant' },
+                { title: 'Paiement' }
+            ],
             services: [],
+            selectedCategory: 'ALL',
             availableOptions: [],
             selectedOptionIds: [],
             formData: {
                 service_id: null,
                 booking_date: '',
                 booking_time: '',
+                child_name: '',
+                child_age: '',
+                contact_phone: '',
                 nb_children: 10,
                 location_address: '',
                 location_city: '',
@@ -255,11 +626,147 @@
             },
             totalPrice: 0,
             selectedServiceName: '',
+            selectedServiceImage: '',
+            selectedServicePrice: 0,
+
+            paymentMode: 'stripe', // 'stripe' or 'demo'
+            acceptTerms: false,
+            isSubmitting: false,
 
             availabilityChecked: false,
             availabilityLoading: false,
             isAvailable: false,
             availabilityMessage: '',
+
+            dailySlots: [],
+            slotsLoading: false,
+            showCustomTime: false,
+            conflictError: null,
+
+            get filteredServices() {
+                if (this.selectedCategory === 'ALL') {
+                    return this.services;
+                }
+                return this.services.filter(s => s.category === this.selectedCategory);
+            },
+
+            get minDate() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            },
+
+            goToStep(stepNum) {
+                if (stepNum < this.currentStep) {
+                    this.currentStep = stepNum;
+                } else if (stepNum === this.currentStep + 1 && this.isStepValid()) {
+                    this.currentStep = stepNum;
+                }
+            },
+
+            formatDisplayDate(dateStr) {
+                if (!dateStr) return '';
+                try {
+                    const parts = dateStr.split('-');
+                    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                } catch(e) {
+                    return dateStr;
+                }
+            },
+
+            setQuickDate(offsetDays) {
+                const target = new Date();
+                target.setDate(target.getDate() + offsetDays);
+                const year = target.getFullYear();
+                const month = String(target.getMonth() + 1).padStart(2, '0');
+                const day = String(target.getDate()).padStart(2, '0');
+                this.formData.booking_date = `${year}-${month}-${day}`;
+                this.onDateChanged();
+            },
+
+            setQuickWeekend(targetDayOfWeek) { // 6 = Saturday, 0 = Sunday
+                const now = new Date();
+                const currentDay = now.getDay();
+                let diff = (targetDayOfWeek - currentDay + 7) % 7;
+                if (diff === 0) diff = 7;
+                const target = new Date();
+                target.setDate(target.getDate() + diff);
+                const year = target.getFullYear();
+                const month = String(target.getMonth() + 1).padStart(2, '0');
+                const day = String(target.getDate()).padStart(2, '0');
+                this.formData.booking_date = `${year}-${month}-${day}`;
+                this.onDateChanged();
+            },
+
+            setQuickNextWeekend(targetDayOfWeek) {
+                const now = new Date();
+                const currentDay = now.getDay();
+                let diff = (targetDayOfWeek - currentDay + 7) % 7;
+                if (diff === 0) diff = 7;
+                diff += 7;
+                const target = new Date();
+                target.setDate(target.getDate() + diff);
+                const year = target.getFullYear();
+                const month = String(target.getMonth() + 1).padStart(2, '0');
+                const day = String(target.getDate()).padStart(2, '0');
+                this.formData.booking_date = `${year}-${month}-${day}`;
+                this.onDateChanged();
+            },
+
+            onDateChanged() {
+                this.conflictError = null;
+                this.formData.booking_time = '';
+                this.isAvailable = false;
+                this.availabilityChecked = false;
+                this.availabilityMessage = '';
+                this.fetchDailySlots();
+            },
+
+            selectSlot(slot) {
+                if (!slot.available) {
+                    this.conflictError = "Le créneau de " + slot.time + " est indisponible : " + slot.message;
+                    this.formData.booking_time = '';
+                    this.isAvailable = false;
+                    this.availabilityChecked = true;
+                    this.availabilityMessage = slot.message;
+                    return;
+                }
+                this.conflictError = null;
+                this.formData.booking_time = slot.time;
+                this.isAvailable = true;
+                this.availabilityChecked = true;
+                this.availabilityMessage = slot.message;
+            },
+
+            async fetchDailySlots() {
+                if (!this.formData.booking_date) return;
+                this.slotsLoading = true;
+                this.dailySlots = [];
+                try {
+                    const res = await fetch(`/api/availability/slots/?date=${this.formData.booking_date}&service=${this.formData.service_id || ''}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        this.dailySlots = data.slots || [];
+                        if (this.formData.booking_time) {
+                            const found = this.dailySlots.find(s => s.time === this.formData.booking_time);
+                            if (found) {
+                                this.isAvailable = found.available;
+                                this.availabilityMessage = found.message;
+                                if (!found.available) {
+                                    this.conflictError = "Le créneau préalablement sélectionné (" + found.time + ") est indisponible.";
+                                }
+                            }
+                        }
+                    }
+                } catch(e) {
+                    console.error("Erreur chargement des créneaux:", e);
+                } finally {
+                    this.slotsLoading = false;
+                }
+            },
 
             async init() {
                 await this.fetchServices();
@@ -288,7 +795,12 @@
             async selectService(service) {
                 this.formData.service_id = service.id;
                 this.selectedServiceName = service.name;
+                this.selectedServiceImage = service.image_url;
+                this.selectedServicePrice = parseFloat(service.base_price);
                 this.calculateTotal();
+                if (this.formData.booking_date) {
+                    this.fetchDailySlots();
+                }
                 this.checkAvailability();
                 
                 try {
@@ -299,23 +811,59 @@
                 }
             },
 
+            getOptionCalculatedPrice(option) {
+                if (option.pricing_type === 'PER_CHILD') {
+                    return parseFloat(option.price) * parseInt(this.formData.nb_children || 1);
+                }
+                if (option.pricing_type === 'PER_HOUR') {
+                    const s = this.services.find(x => x.id == this.formData.service_id);
+                    const durH = (s ? s.duration_minutes : 120) / 60;
+                    return parseFloat(option.price) * durH;
+                }
+                return parseFloat(option.price);
+            },
+
+            getOptionBreakdownLabel(option) {
+                if (option.pricing_type === 'PER_CHILD') {
+                    return `${option.price} € × ${this.formData.nb_children || 1} enfants`;
+                }
+                if (option.pricing_type === 'PER_HOUR') {
+                    const s = this.services.find(x => x.id == this.formData.service_id);
+                    return `${option.price} € / heure (${s ? s.duration_minutes : 120} min)`;
+                }
+                return 'Forfait fixe inclus';
+            },
+
+            getOptionsSubtotal() {
+                let sub = 0;
+                this.selectedOptionIds.forEach(id => {
+                    const opt = this.availableOptions.find(o => o.id == id);
+                    if (opt) {
+                        sub += this.getOptionCalculatedPrice(opt);
+                    }
+                });
+                return sub;
+            },
+
+            getDecomposedOptions() {
+                return this.selectedOptionIds.map(id => {
+                    const opt = this.availableOptions.find(o => o.id == id);
+                    if (!opt) return null;
+                    return {
+                        id: opt.id,
+                        name: opt.name,
+                        detail: this.getOptionBreakdownLabel(opt),
+                        subtotal: this.getOptionCalculatedPrice(opt)
+                    };
+                }).filter(Boolean);
+            },
+
             calculateTotal() {
                 if (!this.formData.service_id) return;
                 const service = this.services.find(s => s.id == this.formData.service_id);
                 if (!service) return;
                 let total = parseFloat(service.base_price);
-                
-                this.selectedOptionIds.forEach(id => {
-                    const option = this.availableOptions.find(o => o.id == id);
-                    if (option) {
-                        if (option.pricing_type === 'PER_CHILD') {
-                            total += parseFloat(option.price) * parseInt(this.formData.nb_children || 1);
-                        } else {
-                            total += parseFloat(option.price);
-                        }
-                    }
-                });
-                
+                total += this.getOptionsSubtotal();
                 this.totalPrice = total;
             },
 
@@ -332,6 +880,11 @@
                     const data = await res.json();
                     this.isAvailable = data.available;
                     this.availabilityMessage = data.message;
+                    if (!data.available) {
+                        this.conflictError = "Créneau indisponible : " + data.message;
+                    } else {
+                        this.conflictError = null;
+                    }
                 } catch (e) {
                     this.isAvailable = false;
                     this.availabilityMessage = "Erreur lors de la vérification de la disponibilité.";
@@ -342,19 +895,32 @@
 
             isStepValid() {
                 if (this.currentStep === 1) return this.formData.service_id !== null;
-                if (this.currentStep === 2) return this.formData.booking_date && this.formData.booking_time && this.isAvailable;
-                if (this.currentStep === 4) return this.formData.nb_children && this.formData.location_address && this.formData.location_city && this.formData.location_zip;
+                if (this.currentStep === 2) return this.formData.booking_date && this.formData.booking_time && this.isAvailable && !this.conflictError;
+                if (this.currentStep === 3) return true;
+                if (this.currentStep === 4) {
+                    return this.formData.nb_children && 
+                           this.formData.contact_phone && 
+                           this.formData.location_address && 
+                           this.formData.location_city && 
+                           this.formData.location_zip;
+                }
+                if (this.currentStep === 5) return this.acceptTerms;
                 return true;
             },
 
             init_watch() {
                 this.$watch('selectedOptionIds', () => this.calculateTotal());
                 this.$watch('formData.nb_children', () => this.calculateTotal());
-                this.$watch('formData.booking_date', () => this.checkAvailability());
-                this.$watch('formData.booking_time', () => this.checkAvailability());
+                this.$watch('formData.booking_date', () => this.onDateChanged());
             },
 
             async submitBooking() {
+                if (!this.acceptTerms) {
+                    alert("Veuillez accepter les Conditions Générales de Vente pour continuer.");
+                    return;
+                }
+
+                this.isSubmitting = true;
                 this.formData.service = this.formData.service_id;
                 this.formData.selected_options = this.selectedOptionIds.map(id => ({ option: id, quantity: 1 }));
                 
@@ -370,27 +936,42 @@
 
                     if (res.ok) {
                         const booking = await res.json();
+                        
+                        // Appel de création de session Stripe ou Démo
                         const payRes = await fetch('/api/payments/create-session/', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRFToken': '{{ csrf_token }}'
                             },
-                            body: JSON.stringify({ booking_id: booking.id })
+                            body: JSON.stringify({ 
+                                booking_id: booking.id,
+                                payment_mode: this.paymentMode 
+                            })
                         });
                         
                         const sessionData = await payRes.json();
                         if (payRes.ok && sessionData.url) {
                             window.location.href = sessionData.url;
                         } else {
-                            alert('Session de paiement Stripe : ' + (sessionData.error || 'Clé Stripe non renseignée dans le serveur. La réservation est néanmoins enregistrée !'));
-                            window.location.href = '/dashboard/';
+                            window.location.href = '/payment-success/?booking_id=' + booking.id + '&mode=demo';
                         }
                     } else {
+                        this.isSubmitting = false;
                         const error = await res.json();
-                        alert('Erreur de création : ' + JSON.stringify(error));
+                        if (error.booking_time) {
+                            const msg = Array.isArray(error.booking_time) ? error.booking_time[0] : error.booking_time;
+                            this.conflictError = "⚠️ Conflit de réservation : " + msg + " Veuillez sélectionner un autre créneau.";
+                            this.currentStep = 2;
+                            this.formData.booking_time = '';
+                            this.isAvailable = false;
+                            await this.fetchDailySlots();
+                        } else {
+                            alert('Erreur lors de la réservation : ' + JSON.stringify(error));
+                        }
                     }
                 } catch(e) {
+                    this.isSubmitting = false;
                     alert('Erreur réseau lors de la réservation.');
                 }
             }

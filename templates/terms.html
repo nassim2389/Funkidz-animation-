@@ -3,25 +3,52 @@
 {% block title %}Funkidz - Conditions Générales{% endblock %}
 
 {% block content %}
-<div class="py-24 bg-background min-h-screen">
-    <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto bg-white p-12 rounded-5xl border-4 border-slate-100 shadow-xl space-y-8">
-            <h1 class="text-5xl font-fun text-primary">Termes et Conditions</h1>
-            <div class="prose prose-lg text-slate-600 font-medium">
-                <p>Bienvenue sur le site de Funkidz. En utilisant nos services, vous acceptez sans réserve les conditions générales suivantes :</p>
-                
-                <h2 class="text-2xl font-bold text-secondary pt-6">1. Réservations</h2>
-                <p>Toute réservation d'animation est soumise à la confirmation de la disponibilité de nos équipes. Nous nous efforçons de répondre positivement à chaque demande.</p>
+<div class="py-16 sm:py-24 bg-slate-50 min-h-screen relative overflow-hidden">
+    <!-- Ambient decorative glow -->
+    <div class="absolute top-10 right-10 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <h2 class="text-2xl font-bold text-secondary pt-6">2. Paiement</h2>
-                <p>Les règlements sont sécurisés. Le paiement complet est requis pour valider définitivement la réservation.</p>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 space-y-8">
+        <!-- Header with Icon Badge -->
+        <div class="text-center space-y-3 max-w-2xl mx-auto">
+            <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto text-2xl font-bold shadow-inner">📄</div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-brand-600">Informations Légales</span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-heading">Termes et Conditions</h1>
+            <p class="text-sm text-slate-600 font-medium">Bienvenue sur le site de Funkidz. En utilisant nos services, vous acceptez sans réserve les conditions générales suivantes :</p>
+        </div>
 
-                <h2 class="text-2xl font-bold text-secondary pt-6">3. Annulations</h2>
-                <p>Vous pouvez annuler ou reporter votre événement sans frais jusqu'à 48 heures avant la prestation. Passé ce délai, aucun remboursement ne pourra être effectué.</p>
+        <div class="grid gap-6">
+            <!-- Article 1 -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm flex items-start gap-5 hover:shadow-md transition">
+                <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xl shrink-0">📅</div>
+                <div class="space-y-2">
+                    <h2 class="text-xl font-heading font-extrabold text-slate-900">1. Réservations</h2>
+                    <p class="text-sm text-slate-600 leading-relaxed font-medium">Toute réservation d'animation est soumise à la confirmation de la disponibilité de nos équipes. Nous nous efforçons de répondre positivement à chaque demande.</p>
+                </div>
             </div>
-            <div class="pt-8 text-center">
-                <a href="/" class="px-8 py-4 bg-secondary text-white font-bold rounded-full">Retour à l'accueil</a>
+
+            <!-- Article 2 -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm flex items-start gap-5 hover:shadow-md transition">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shrink-0">💳</div>
+                <div class="space-y-2">
+                    <h2 class="text-xl font-heading font-extrabold text-slate-900">2. Paiement</h2>
+                    <p class="text-sm text-slate-600 leading-relaxed font-medium">Les règlements sont sécurisés. Le paiement complet est requis pour valider définitivement la réservation.</p>
+                </div>
             </div>
+
+            <!-- Article 3 -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm flex items-start gap-5 hover:shadow-md transition">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shrink-0">⏱️</div>
+                <div class="space-y-2">
+                    <h2 class="text-xl font-heading font-extrabold text-slate-900">3. Annulations</h2>
+                    <p class="text-sm text-slate-600 leading-relaxed font-medium">Vous pouvez annuler ou reporter votre événement sans frais jusqu'à 48 heures avant la prestation. Passé ce délai, aucun remboursement ne pourra être effectué.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-4 text-center">
+            <a href="/" class="inline-flex items-center gap-2 px-8 py-3.5 bg-slate-900 hover:bg-brand-600 text-white font-extrabold text-sm rounded-xl transition duration-200 shadow-md">
+                <span>Retour à l'accueil</span>
+            </a>
         </div>
     </div>
 </div>

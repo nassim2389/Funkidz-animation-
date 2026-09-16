@@ -1,0 +1,22 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  <span class="badge badge-success">✓ Message Reçu</span>
+  <h2 style="margin: 14px 0 6px; font-size: 20px; color: #0f172a;">Merci pour votre message, {{ contact.name }} ! 🎈</h2>
+  <p style="margin: 0; color: #64748b; font-size: 14.5px;">
+    Nous avons bien reçu votre demande et nous vous répondrons dans les plus brefs délais (sous 24h ouvrées).
+  </p>
+</div>
+
+<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px;">
+  <h4 style="margin: 0 0 10px; font-size: 14px; color: #475569;">Copie de votre message :</h4>
+  <p style="margin: 0; white-space: pre-line; font-size: 14px; color: #334155; font-style: italic;">
+    "{{ contact.message }}"
+  </p>
+</div>
+
+<div style="text-align: center; margin-top: 25px;">
+  <a href="{{ site_url }}" class="btn">Découvrir nos Formules d'Animation 🎪</a>
+</div>
+{% endblock %}

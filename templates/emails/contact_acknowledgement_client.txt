@@ -1,0 +1,11 @@
+Bonjour {{ contact.name }},
+
+Nous avons bien reçu votre message et vous remercions de votre intérêt pour Funkidz Animation.
+Notre équipe vous répondra dans les plus brefs délais (sous 24h ouvrées).
+
+Rappel de votre message :
+"{{ contact.message }}"
+
+À très bientôt,
+L'équipe Funkidz Animation
+{{ support_email }} | {{ support_phone }}

@@ -15,22 +15,33 @@ class BookingAssignmentInline(admin.TabularInline):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'service', 'booking_date', 'booking_time', 'status', 'final_price', 'payment_link_display')
+    list_display = ('id', 'user', 'service', 'booking_date', 'booking_time', 'status', 'final_price', 'confirmation_email_sent_at', 'payment_link_display')
     list_editable = ('status', 'final_price')
     list_filter = ('status', 'booking_date', 'service')
-    search_fields = ('user__email', 'location_city')
+    search_fields = ('user__email', 'location_city', 'child_name')
+    readonly_fields = ('confirmation_email_sent_at', 'admin_notification_sent_at', 'cancellation_email_sent_at', 'created_at', 'updated_at')
     inlines = [BookingOptionInline, BookingAssignmentInline]
     actions = ['confirm_bookings', 'cancel_bookings', 'generate_payment_links']
 
     def confirm_bookings(self, request, queryset):
-        rows_updated = queryset.update(status=Booking.Status.CONFIRMED)
-        self.message_user(request, f"{rows_updated} réservation(s) confirmée(s) avec succès. ✅")
-    confirm_bookings.short_description = "Confirmer les réservations sélectionnées"
+        count = 0
+        for b in queryset:
+            if b.status != Booking.Status.CONFIRMED:
+                b.status = Booking.Status.CONFIRMED
+                b.save()
+                count += 1
+        self.message_user(request, f"{count} réservation(s) confirmée(s) et e-mails de confirmation envoyés. ✅")
+    confirm_bookings.short_description = "Confirmer les réservations sélectionnées (déclenche e-mails)"
 
     def cancel_bookings(self, request, queryset):
-        rows_updated = queryset.update(status=Booking.Status.CANCELLED)
-        self.message_user(request, f"{rows_updated} réservation(s) annulée(s). ❌")
-    cancel_bookings.short_description = "Annuler les réservations sélectionnées"
+        count = 0
+        for b in queryset:
+            if b.status != Booking.Status.CANCELLED:
+                b.status = Booking.Status.CANCELLED
+                b.save()
+                count += 1
+        self.message_user(request, f"{count} réservation(s) annulée(s) et e-mails envoyés. ❌")
+    cancel_bookings.short_description = "Annuler les réservations sélectionnées (déclenche e-mails)"
 
     def generate_payment_links(self, request, queryset):
         stripe.api_key = os.getenv('STRIPE_API_KEY')

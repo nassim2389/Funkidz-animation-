@@ -13,11 +13,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from datetime import timedelta
-from dotenv import load_dotenv
-
-load_dotenv(override=True)
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+from dotenv import load_dotenv
+load_dotenv(BASE_DIR / '.env', override=True)
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,7 +28,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-==8d!h#agw5o+el=tn5pll_wq2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*'] if DEBUG else os.getenv('ALLOWED_HOSTS', '').split(',')
 
 
 # Application definition
@@ -259,21 +258,26 @@ JAZZMIN_UI_TWEAKS = {
 }
 
 # ==========================================
-# EMAIL CONFIGURATION (Brevo SMTP / Console)
+# EMAIL CONFIGURATION (SMTP RÉEL / BREVO / LOCALHOST)
 # ==========================================
-# Si EMAIL_HOST est défini dans .env → vrai envoi SMTP (production avec Brevo)
-# Sinon → affichage dans la console Django (développement local)
-if os.getenv('EMAIL_HOST'):
+_email_backend_env = os.getenv('EMAIL_BACKEND')
+if _email_backend_env:
+    EMAIL_BACKEND = _email_backend_env
+elif os.getenv('EMAIL_HOST'):
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.getenv('EMAIL_HOST')
-    EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Funkidz <noreply@funkidz.fr>')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False').lower() in ('true', '1', 't')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
+
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Funkidz Animation <contact@funkidz.fr>')
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 
 # ==========================================
 # STRIPE CONFIGURATION

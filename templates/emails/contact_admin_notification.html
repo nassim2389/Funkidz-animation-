@@ -1,0 +1,40 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  <span class="badge badge-info">Nouveau Message</span>
+  <h2 style="margin: 14px 0 6px; font-size: 20px; color: #0f172a;">📩 Message reçu de {{ contact.name }}</h2>
+</div>
+
+<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px;">
+  <table class="info-table" style="margin: 0;">
+    <tr>
+      <td class="label">Expéditeur :</td>
+      <td class="value"><strong>{{ contact.name }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">E-mail :</td>
+      <td class="value"><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></td>
+    </tr>
+    <tr>
+      <td class="label">Téléphone :</td>
+      <td class="value">{{ contact.phone|default:"Non renseigné" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Date :</td>
+      <td class="value">{{ contact.created_at|date:"d/m/Y à H:i" }}</td>
+    </tr>
+  </table>
+</div>
+
+<div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+  <h4 style="margin: 0 0 10px; font-size: 14px; color: #475569;">Contenu du message :</h4>
+  <p style="margin: 0; white-space: pre-line; font-size: 14.5px; line-height: 1.6; color: #1e293b;">
+    {{ contact.message }}
+  </p>
+</div>
+
+<div style="text-align: center; margin-top: 25px;">
+  <a href="{{ admin_contact_url }}" class="btn" style="background-color: #334155;">Gérer dans l'Admin 🛠️</a>
+</div>
+{% endblock %}

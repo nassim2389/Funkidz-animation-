@@ -3,21 +3,48 @@
 {% block title %}Funkidz - Paiement annulé{% endblock %}
 
 {% block content %}
-<div class="py-24 bg-background min-h-screen flex items-center">
-    <div class="container mx-auto px-4">
-        <div class="max-w-2xl mx-auto bg-white p-12 rounded-5xl border-8 border-candy-pink shadow-2xl text-center space-y-8">
-            <div class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+<div class="py-20 sm:py-28 bg-slate-50 min-h-[85vh] flex items-center justify-center relative overflow-hidden">
+    <!-- Ambient glow -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-rose-400/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-xl mx-auto px-4 w-full relative z-10">
+        <div class="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200/80 shadow-2xl text-center space-y-6">
+            <div class="w-20 h-20 bg-rose-100 text-rose-600 rounded-3xl flex items-center justify-center mx-auto shadow-inner">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </div>
-            <h1 class="text-5xl font-fun text-primary">Paiement non finalisé</h1>
-            <p class="text-2xl text-slate-600 font-medium">
-                La transaction a été interrompue. Votre réservation n'a pas pu être confirmée.
+            
+            <div class="space-y-2">
+                <span class="inline-block px-3 py-1 bg-rose-50 text-rose-700 text-xs font-black uppercase tracking-wider rounded-full border border-rose-200">
+                    Paiement non finalisé
+                </span>
+                <h1 class="text-3xl sm:text-4xl font-black font-heading text-slate-900">
+                    La transaction a été interrompue
+                </h1>
+            </div>
+
+            <p class="text-base text-slate-600 font-medium leading-relaxed">
+                Aucun montant n'a été prélevé sur votre carte bancaire. Votre réservation reste enregistrée en attente de règlement.
             </p>
-            <div class="pt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{% url 'booking-wizard' %}" class="px-10 py-4 bg-secondary text-white font-bold rounded-full hover:scale-105 transition">Réessayer la réservation</a>
-                <a href="/" class="px-10 py-4 border-4 border-slate-100 text-slate-400 font-bold rounded-full hover:bg-slate-50 transition">Retour à l'accueil</a>
+
+            {% if booking %}
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-700 font-medium space-y-1 text-left">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-slate-900">Réservation #{{ booking.id }}</span>
+                    <span class="font-black text-brand-600">{{ booking.final_price }} €</span>
+                </div>
+                <p class="text-slate-500">Formule {{ booking.service.name }} — Le {{ booking.booking_date }} à {{ booking.booking_time }}</p>
+            </div>
+            {% endif %}
+
+            <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="{% url 'dashboard' %}" class="px-6 py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm rounded-xl shadow-glow hover:shadow-xl hover:scale-105 transition duration-200">
+                    Mon espace client
+                </a>
+                <a href="{% url 'booking-wizard' %}" class="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm rounded-xl transition duration-200">
+                    Nouvelle réservation
+                </a>
             </div>
         </div>
     </div>

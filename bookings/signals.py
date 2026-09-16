@@ -1,140 +1,94 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.mail import send_mail
-from django.conf import settings
+from django.utils import timezone
 from .models import Booking, BookingAssignment
+from core.emails import (
+    send_booking_confirmation_client,
+    send_booking_admin_notification,
+    send_booking_cancellation_emails,
+    send_animateur_mission_notification,
+)
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 @receiver(post_save, sender=Booking)
 def send_booking_email(sender, instance, created, **kwargs):
-    from core.utils import get_admin_recipient_emails
+    """
+    Signal d'envoi d'e-mails pour les réservations avec garantie d'idempotence stricte (anti-doublon).
+    Combine une vérification d'état en mémoire et un verrou atomique en base de données.
+    """
+    now = timezone.now()
 
-    # Alert Admin on new booking creation (Pending payment)
+    # 1. Alerte Administrateur à la création d'une réservation (En attente de paiement)
     if created and instance.status == Booking.Status.PENDING:
-        admin_subject = f"🔔 Nouvelle demande de réservation #{instance.id} (En attente de paiement Stripe)"
-        admin_message = (
-            f"Bonjour Administrateur,\n\n"
-            f"Une nouvelle demande de réservation vient d'être initiée sur le site par {instance.user.first_name or ''} {instance.user.last_name or ''} ({instance.user.email}).\n\n"
-            f"- Numéro de réservation : #{instance.id}\n"
-            f"- Formule : {instance.service.name}\n"
-            f"- Date & Heure : {instance.booking_date} à {instance.booking_time}\n"
-            f"- Nombre d'enfants : {instance.nb_children}\n"
-            f"- Lieu : {instance.location_address}, {instance.location_zip} {instance.location_city}\n"
-            f"- Montant : {instance.final_price}€\n"
-            f"- Statut actuel : En attente de règlement sur Stripe\n\n"
-            f"Le client est actuellement sur la page de paiement sécurisé Stripe.\n\n"
-            f"Funkidz Admin System"
-        )
-        try:
-            send_mail(
-                subject=admin_subject,
-                message=admin_message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
-                recipient_list=get_admin_recipient_emails(),
-                fail_silently=True,
-            )
-        except Exception as e:
-            logger.error(f"Erreur d'envoi d'email admin pour la création de réservation #{instance.id}: {e}")
+        if getattr(instance, 'admin_notification_sent_at', None):
+            return
 
-    # Send Confirmation emails when payment succeeds
-    if instance.status == Booking.Status.CONFIRMED:
-        # Client confirmation email
-        subject = f"Confirmation de votre réservation Funkidz #{instance.id} 🎈"
-        message = (
-            f"Bonjour {instance.user.first_name or ''},\n\n"
-            f"Nous avons le plaisir de vous confirmer votre réservation pour l'animation suivante :\n"
-            f"- Formule : {instance.service.name}\n"
-            f"- Date : {instance.booking_date}\n"
-            f"- Heure : {instance.booking_time}\n"
-            f"- Lieu : {instance.location_address}, {instance.location_zip} {instance.location_city}\n\n"
-            f"Le montant de {instance.final_price}€ a bien été réglé avec succès. 💳\n\n"
-            f"Nos animateurs se préparent pour faire de cette journée un moment inoubliable pour les enfants ! 🌟\n\n"
-            f"Vous pouvez retrouver tous les détails et télécharger votre reçu de paiement à tout moment dans votre espace client.\n\n"
-            f"L'équipe Funkidz"
-        )
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
-                recipient_list=[instance.user.email],
-                fail_silently=False,
-            )
-        except Exception as e:
-            logger.error(f"Erreur d'envoi d'email de confirmation client pour la réservation #{instance.id}: {e}")
+        updated = Booking.objects.filter(
+            id=instance.id,
+            admin_notification_sent_at__isnull=True
+        ).update(admin_notification_sent_at=now)
 
-        # Admin confirmation notification
-        admin_conf_subject = f"✅ PAIEMENT CONFIRMÉ - Réservation #{instance.id} ({instance.service.name})"
-        admin_conf_message = (
-            f"Bonjour Administrateur,\n\n"
-            f"Le paiement de {instance.final_price}€ pour la réservation #{instance.id} a été RÉUSSI avec succès par carte bancaire !\n\n"
-            f"- Client : {instance.user.first_name or ''} {instance.user.last_name or ''} ({instance.user.email})\n"
-            f"- Formule : {instance.service.name}\n"
-            f"- Date & Heure : {instance.booking_date} à {instance.booking_time}\n"
-            f"- Lieu : {instance.location_address}, {instance.location_zip} {instance.location_city}\n\n"
-            f"Vous pouvez dès à présent désigner un animateur depuis votre espace administrateur (/admin/).\n\n"
-            f"Funkidz Admin System"
-        )
-        try:
-            send_mail(
-                subject=admin_conf_subject,
-                message=admin_conf_message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
-                recipient_list=get_admin_recipient_emails(),
-                fail_silently=True,
-            )
-        except Exception as e:
-            logger.error(f"Erreur d'envoi d'email admin de confirmation pour la réservation #{instance.id}: {e}")
+        if updated > 0:
+            instance.admin_notification_sent_at = now
+            logger.info(f"[Signal] Envoi notification admin pour nouvelle réservation #{instance.id}")
+            send_booking_admin_notification(instance, event_type='new_booking')
 
+    # 2. Confirmation Client & Notification Admin dès que le paiement est validé (Statut CONFIRMED)
+    elif instance.status == Booking.Status.CONFIRMED:
+        # Contrôle rapide en mémoire
+        if getattr(instance, 'confirmation_email_sent_at', None):
+            logger.debug(f"[Signal] E-mail de confirmation déjà envoyé (in-memory) pour #{instance.id}")
+            return
 
+        # Verrou atomique en base de données : protège contre les requêtes simultanées (webhook + redirect)
+        updated = Booking.objects.filter(
+            id=instance.id,
+            confirmation_email_sent_at__isnull=True
+        ).update(confirmation_email_sent_at=now)
 
+        if updated > 0:
+            instance.confirmation_email_sent_at = now
+            logger.info(f"[Signal] Paiement validé pour #{instance.id} — Déclenchement e-mails confirmation")
+            send_booking_confirmation_client(instance)
+            send_booking_admin_notification(instance, event_type='payment_confirmed')
+        else:
+            logger.debug(f"[Signal] E-mail de confirmation déjà envoyé en BDD pour #{instance.id}")
+
+    # 3. Notification d'annulation (Client et Admin)
     elif instance.status == Booking.Status.CANCELLED:
-        subject = f"Annulation de votre réservation Funkidz #{instance.id} ❌"
-        message = (
-            f"Bonjour,\n\n"
-            f"Nous vous informons que votre réservation #{instance.id} pour la formule '{instance.service.name}' prévue le {instance.booking_date} a bien été annulée.\n\n"
-            f"Si vous avez déjà effectué le règlement, notre équipe de support procédera à la vérification et au remboursement selon nos conditions générales de vente.\n\n"
-            f"Nous espérons vous revoir très bientôt pour de nouvelles aventures ! 💫\n\n"
-            f"L'équipe Funkidz"
-        )
-        
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
-                recipient_list=[instance.user.email],
-                fail_silently=False,
-            )
-        except Exception as e:
-            logger.error(f"Erreur d'envoi d'email d'annulation pour la réservation #{instance.id}: {e}")
+        if getattr(instance, 'cancellation_email_sent_at', None):
+            return
+
+        updated = Booking.objects.filter(
+            id=instance.id,
+            cancellation_email_sent_at__isnull=True
+        ).update(cancellation_email_sent_at=now)
+
+        if updated > 0:
+            instance.cancellation_email_sent_at = now
+            logger.info(f"[Signal] Réservation #{instance.id} annulée — Déclenchement e-mails d'annulation")
+            send_booking_cancellation_emails(instance)
+
 
 @receiver(post_save, sender=BookingAssignment)
 def send_animateur_assignment_email(sender, instance, created, **kwargs):
-    if created or instance.status == BookingAssignment.Status.PENDING:
-        subject = f"🎯 Nouvelle mission d'animation attribuée #{instance.booking.id} - Funkidz"
-        message = (
-            f"Bonjour {instance.animateur.user.first_name or instance.animateur.user.email},\n\n"
-            f"Une nouvelle mission d'animation vient de vous être attribuée par l'administrateur !\n\n"
-            f"Détails de la mission :\n"
-            f"- Formule : {instance.booking.service.name}\n"
-            f"- Date : {instance.booking.booking_date}\n"
-            f"- Heure : {instance.booking.booking_time}\n"
-            f"- Nombre d'enfants : {instance.booking.nb_children}\n"
-            f"- Lieu : {instance.booking.location_address}, {instance.booking.location_zip} {instance.booking.location_city}\n\n"
-            f"Veuillez vous connecter à votre espace personnel Animateur (/dashboard/) pour accepter ou refuser la mission.\n\n"
-            f"L'équipe Funkidz Animation"
-        )
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@funkidz.fr'),
-                recipient_list=[instance.animateur.user.email],
-                fail_silently=True,
-            )
-        except Exception as e:
-            logger.error(f"Erreur d'envoi d'email à l'animateur #{instance.animateur.id}: {e}")
+    """
+    Notification envoyée à l'animateur lorsqu'une mission lui est assignée.
+    Garantie anti-doublon via notification_sent_at.
+    """
+    if getattr(instance, 'notification_sent_at', None):
+        return
 
+    now = timezone.now()
+    updated = BookingAssignment.objects.filter(
+        id=instance.id,
+        notification_sent_at__isnull=True
+    ).update(notification_sent_at=now)
+
+    if updated > 0:
+        instance.notification_sent_at = now
+        logger.info(f"[Signal] Nouvelle attribution de mission pour l'animateur #{instance.animateur_id} sur réservation #{instance.booking_id}")
+        send_animateur_mission_notification(instance)

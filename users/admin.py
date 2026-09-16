@@ -40,4 +40,3 @@ class UserAdmin(admin.ModelAdmin):
 class AnimateurProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'phone', 'rating')
     search_fields = ('user__email', 'phone')
-

@@ -1,0 +1,31 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  <span class="badge badge-warning">Échec de Règlement</span>
+  <h2 style="margin: 14px 0 6px; font-size: 20px; color: #0f172a;">Règlement non abouti — Réservation #{{ booking.id }}</h2>
+  <p style="margin: 0; color: #64748b; font-size: 14.5px;">
+    Bonjour {{ client_name }}, nous n'avons pas pu traiter le règlement pour votre réservation.
+  </p>
+</div>
+
+<div style="background-color: #fff7ed; border: 1px solid #ffedd5; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px;">
+  <p style="margin: 0 0 10px; color: #9a3412; font-weight: 600;">
+    Détail de l'incident bancaire :
+  </p>
+  <p style="margin: 0; font-family: monospace; background: #ffedd5; padding: 8px 12px; border-radius: 6px; color: #7c2d12; font-size: 13px;">
+    {{ error_message }}
+  </p>
+</div>
+
+<div class="alert-box">
+  💡 <strong>Que faire maintenant ?</strong>
+  <p style="margin: 6px 0 0; line-height: 1.5;">
+    Votre créneau reste temporairement sauvegardé. Vous pouvez réessayer le paiement directement depuis votre espace client ou utiliser un autre moyen de règlement.
+  </p>
+</div>
+
+<div style="text-align: center; margin-top: 25px;">
+  <a href="{{ dashboard_url }}" class="btn">Réessayer le Paiement sur mon Espace Client 💳</a>
+</div>
+{% endblock %}

@@ -63,19 +63,22 @@
                             <div class="grid gap-4">
                                 {% for assignment in assignments %}
                                 <div class="p-6 rounded-2xl border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                    <div class="space-y-2">
-                                        <div class="flex items-center gap-3">
-                                            <h3 class="font-heading font-bold text-base text-slate-900">{{ assignment.booking.service.name }}</h3>
-                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide
-                                                {% if assignment.status == 'ACCEPTED' %}bg-emerald-50 text-emerald-700 border border-emerald-200
-                                                {% elif assignment.status == 'PENDING' %}bg-amber-50 text-amber-700 border border-amber-200
-                                                {% else %}bg-slate-100 text-slate-600{% endif %}">
-                                                Assignation : {{ assignment.get_status_display }}
-                                            </span>
-                                        </div>
-                                        <div class="text-xs text-slate-500 font-medium space-x-4">
-                                            <span>🗓️ {{ assignment.booking.booking_date }} à {{ assignment.booking.booking_time }}</span>
-                                            <span>📍 {{ assignment.booking.location_address }}, {{ assignment.booking.location_city }}</span>
+                                    <div class="flex items-center gap-4">
+                                        <img src="{{ assignment.booking.service.get_image_url }}" alt="{{ assignment.booking.service.name }}" class="w-16 h-16 rounded-2xl object-cover border border-slate-200 shadow-sm shrink-0">
+                                        <div class="space-y-1.5">
+                                            <div class="flex items-center gap-3">
+                                                <h3 class="font-heading font-bold text-base text-slate-900">{{ assignment.booking.service.name }}</h3>
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide
+                                                    {% if assignment.status == 'ACCEPTED' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                                                    {% elif assignment.status == 'PENDING' %}bg-amber-50 text-amber-700 border border-amber-200
+                                                    {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                                    Assignation : {{ assignment.get_status_display }}
+                                                </span>
+                                            </div>
+                                            <div class="text-xs text-slate-500 font-medium space-x-4">
+                                                <span>🗓️ {{ assignment.booking.booking_date }} à {{ assignment.booking.booking_time }}</span>
+                                                <span>📍 {{ assignment.booking.location_address }}, {{ assignment.booking.location_city }}</span>
+                                            </div>
                                         </div>
                                     </div>
 

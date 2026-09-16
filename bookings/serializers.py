@@ -4,13 +4,16 @@ from services.models import Service, Option
 from services.serializers import ServiceSerializer, OptionSerializer
 from decimal import Decimal
 
+from django.db import transaction
+
 class BookingOptionSerializer(serializers.ModelSerializer):
     option_details = OptionSerializer(source='option', read_only=True)
+    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     
     class Meta:
         model = BookingOption
-        fields = ('id', 'option', 'option_details', 'quantity', 'price_at_time')
-        read_only_fields = ('price_at_time',)
+        fields = ('id', 'option', 'option_details', 'quantity', 'price_at_time', 'total_price')
+        read_only_fields = ('price_at_time', 'total_price')
 
 class BookingSerializer(serializers.ModelSerializer):
     selected_options = BookingOptionSerializer(many=True, required=False)
@@ -22,7 +25,6 @@ class BookingSerializer(serializers.ModelSerializer):
         read_only_fields = ('user', 'estimated_price', 'final_price', 'status')
 
     def validate(self, attrs):
-
         booking_date = attrs.get('booking_date')
         booking_time = attrs.get('booking_time')
         service = attrs.get('service')
@@ -37,10 +39,21 @@ class BookingSerializer(serializers.ModelSerializer):
         
         return attrs
 
+    @transaction.atomic
     def create(self, validated_data):
-
         options_data = validated_data.pop('selected_options', [])
         user = self.context['request'].user
+        
+        # Re-check availability inside the transaction to prevent concurrent double-booking (Anti-doublon)
+        booking_date = validated_data.get('booking_date')
+        booking_time = validated_data.get('booking_time')
+        service = validated_data.get('service')
+        
+        from availability.views import is_slot_available_for_booking
+        service_id = service.id if service else None
+        available, msg = is_slot_available_for_booking(booking_date, booking_time, service_id=service_id)
+        if not available:
+            raise serializers.ValidationError({'booking_time': f"Conflit de réservation : {msg}"})
         
         # Initial booking creation
         booking = Booking.objects.create(user=user, **validated_data)

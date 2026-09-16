@@ -28,20 +28,37 @@
             <div class="grid gap-4">
                 {% for booking in bookings %}
                 <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-3">
-                            <h3 class="font-heading font-bold text-lg text-slate-900">{{ booking.service.name }}</h3>
-                            <span class="px-3 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wide
-                                {% if booking.status == 'CONFIRMED' %}bg-emerald-50 text-emerald-700 border border-emerald-200
-                                {% elif booking.status == 'PENDING' %}bg-amber-50 text-amber-700 border border-amber-200
-                                {% else %}bg-slate-100 text-slate-600{% endif %}">
-                                {{ booking.get_status_display }}
-                            </span>
-                        </div>
-                        <div class="text-xs text-slate-500 font-medium space-x-4">
-                            <span>📅 {{ booking.booking_date }} à {{ booking.booking_time }}</span>
-                            <span>📍 {{ booking.location_address }}, {{ booking.location_city }}</span>
-                            <span>👧 {{ booking.nb_children }} enfants</span>
+                    <div class="flex items-center gap-4">
+                        <img src="{{ booking.service.get_image_url }}" alt="{{ booking.service.name }}" class="w-16 h-16 rounded-2xl object-cover border border-slate-200 shadow-sm shrink-0">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-3">
+                                <h3 class="font-heading font-bold text-lg text-slate-900">{{ booking.service.name }}</h3>
+                                <span class="px-3 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wide
+                                    {% if booking.status == 'CONFIRMED' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                                    {% elif booking.status == 'PENDING' %}bg-amber-50 text-amber-700 border border-amber-200
+                                    {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="text-xs text-slate-500 font-medium flex flex-wrap gap-x-4 gap-y-1">
+                                <span>📅 {{ booking.booking_date }} à {{ booking.booking_time }}</span>
+                                <span>📍 {{ booking.location_address }}, {{ booking.location_city }}</span>
+                                <span>👧 {{ booking.nb_children }} enfants</span>
+                                {% if booking.child_name %}
+                                <span class="text-brand-700 font-bold">🎂 {{ booking.child_name }}{% if booking.child_age %} ({{ booking.child_age }} ans){% endif %}</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Options Décomposées -->
+                            {% if booking.selected_options.exists %}
+                            <div class="flex flex-wrap gap-1.5 pt-1">
+                                {% for opt in booking.selected_options.all %}
+                                <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-semibold">
+                                    + {{ opt.option.name }} (x{{ opt.quantity }}) : {{ opt.total_price }}€
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -51,14 +68,21 @@
                             <span class="font-heading font-black text-xl text-brand-600">{{ booking.final_price }} €</span>
                         </div>
 
-                        <div class="flex gap-2">
+                        <div class="flex flex-wrap gap-2 items-center">
                             {% if booking.status == 'PENDING' %}
-                            <a href="{% url 'contact' %}?subject=Modification%20réservation%20%23{{ booking.id }}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
-                                Modifier
+                            <button type="button" 
+                                    onclick="initiatePayment({{ booking.id }})" 
+                                    class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-black rounded-xl shadow-glow transition">
+                                Payer 💳
+                            </button>
+                            {% endif %}
+                            {% if booking.status == 'CONFIRMED' or booking.status == 'DONE' %}
+                            <a href="{% url 'payment-success' %}?booking_id={{ booking.id }}" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-200 transition">
+                                Reçu 🧾
                             </a>
                             {% endif %}
                             {% if booking.status != 'DONE' and booking.status != 'CANCELLED' %}
-                            <a href="{% url 'cancel-booking' booking.id %}" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition">
+                            <a href="{% url 'cancel-booking' booking.id %}" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition">
                                 Annuler
                             </a>
                             {% endif %}
@@ -67,6 +91,29 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <script>
+                async function initiatePayment(bookingId) {
+                    try {
+                        const res = await fetch('/api/payments/create-session/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            },
+                            body: JSON.stringify({ booking_id: bookingId, payment_mode: 'stripe' })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.url) {
+                            window.location.href = data.url;
+                        } else {
+                            window.location.href = '/payment-success/?booking_id=' + bookingId + '&mode=demo';
+                        }
+                    } catch (e) {
+                        alert("Erreur lors de l'initialisation du paiement.");
+                    }
+                }
+            </script>
             {% else %}
             <div class="bg-white p-12 rounded-3xl border border-slate-200/80 text-center space-y-4">
                 <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-2xl font-bold">🎈</div>

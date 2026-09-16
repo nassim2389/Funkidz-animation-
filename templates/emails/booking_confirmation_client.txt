@@ -1,0 +1,39 @@
+{% autoescape off %}Bonjour {{ client_name }},
+
+Nous avons le plaisir de vous confirmer votre réservation d'animation Funkidz !
+Votre paiement a été validé avec succès 💳
+
+RÉCAPITULATIF DE VOTRE ÉVÉNEMENT :
+- Numéro de réservation : #{{ booking.id }}
+- Client : {{ client_name }} ({{ client_email }})
+{% if contact_phone %}- Téléphone : {{ contact_phone }}{% endif %}
+- Formule : {{ service_name }} ({{ service_duration }} minutes)
+{% if child_name %}- Enfant fêté : {{ child_name }}{% if child_age %} ({{ child_age }} ans){% endif %}{% endif %}
+- Date de l'événement : {{ booking_date }}
+- Horaire : {{ booking_time }}
+- Nombre d'enfants : {{ nb_children }}
+- Lieu : {{ location_address }}, {{ location_zip }} {{ location_city }}
+{% if special_instructions %}- Instructions particulières : {{ special_instructions }}{% endif %}
+
+DÉTAIL DU RÈGLEMENT :
+- Formule de base : {{ service_base_price }} €
+{% if has_options %}
+Options complémentaires :
+{% for opt in selected_options %}
+  • {{ opt.name }} (x{{ opt.quantity }}) : {{ opt.total_price }} €
+{% endfor %}
+{% else %}
+- Options : Aucune option complémentaire
+{% endif %}
+- MONTANT TOTAL RÉGLÉ : {{ final_price }} € TTC (Paiement validé 💳)
+- Statut : {{ status_label }}
+
+ORGANISATION :
+Notre animateur arrivera 15 à 30 minutes avant le début de l'animation pour tout installer.
+Retrouvez les détails de votre réservation sur votre espace client :
+{{ dashboard_url }}
+
+À très bientôt pour la fête !
+L'équipe Funkidz Animation ✨
+{{ support_email }} | {{ support_phone }}
+{% endautoescape %}

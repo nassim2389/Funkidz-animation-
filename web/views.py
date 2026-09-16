@@ -18,6 +18,7 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['services'] = Service.objects.all()[:3]
+        context['gallery_preview'] = MediaGallery.objects.all().order_by('order')[:6]
         return context
 
 class BookingWizardView(LoginRequiredMixin, TemplateView):
@@ -53,39 +54,68 @@ class PaymentSuccessView(TemplateView):
 
         session_id = request.GET.get('session_id')
         booking_id = request.GET.get('booking_id')
+        mode = request.GET.get('mode', '')
+
+        self.booking = None
+        self.payment = None
+        self.is_demo = (mode == 'demo')
 
         if session_id:
             try:
-                payment = Payment.objects.get(stripe_session_id=session_id)
-                if payment.status != Payment.Status.SUCCEEDED:
-                    payment.status = Payment.Status.SUCCEEDED
-                    payment.save()
-                booking = payment.booking
-                if booking.status != Booking.Status.CONFIRMED:
-                    booking.status = Booking.Status.CONFIRMED
-                    booking.save()  # Déclenche le signal d'envoi d'e-mail de confirmation
-            except Payment.DoesNotExist:
+                payment = Payment.objects.filter(stripe_session_id=session_id).first()
+                if payment:
+                    if payment.status != Payment.Status.SUCCEEDED:
+                        payment.status = Payment.Status.SUCCEEDED
+                        payment.save()
+                    booking = payment.booking
+                    if booking.status != Booking.Status.CONFIRMED:
+                        booking.status = Booking.Status.CONFIRMED
+                        booking.save()  # Déclenche le signal d'envoi d'e-mail de confirmation
+                    self.booking = booking
+                    self.payment = payment
+            except Exception:
                 pass
-        elif booking_id:
+
+        if not self.booking and booking_id:
             try:
                 booking = Booking.objects.get(id=booking_id)
                 if booking.status != Booking.Status.CONFIRMED:
                     booking.status = Booking.Status.CONFIRMED
                     booking.save()  # Déclenche le signal d'envoi d'e-mail de confirmation
-                payment, created = Payment.objects.get_or_create(
+                payment, _ = Payment.objects.get_or_create(
                     booking=booking,
                     defaults={'stripe_session_id': f'demo_{booking.id}', 'amount': booking.final_price, 'status': Payment.Status.SUCCEEDED}
                 )
-                if not created and payment.status != Payment.Status.SUCCEEDED:
+                if payment.status != Payment.Status.SUCCEEDED:
                     payment.status = Payment.Status.SUCCEEDED
                     payment.save()
+                self.booking = booking
+                self.payment = payment
             except Booking.DoesNotExist:
                 pass
 
         return super().get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['booking'] = getattr(self, 'booking', None)
+        context['payment'] = getattr(self, 'payment', None)
+        context['is_demo'] = getattr(self, 'is_demo', False)
+        return context
+
 class PaymentCancelledView(TemplateView):
     template_name = 'payments/cancelled.html'
+
+    def get_context_data(self, **kwargs):
+        from bookings.models import Booking
+        context = super().get_context_data(**kwargs)
+        booking_id = self.request.GET.get('booking_id')
+        if booking_id:
+            try:
+                context['booking'] = Booking.objects.get(id=booking_id)
+            except Booking.DoesNotExist:
+                context['booking'] = None
+        return context
 
 class ContactView(TemplateView):
     template_name = 'contact.html'
@@ -139,60 +169,17 @@ def newsletter_signup(request):
         email = request.POST.get('email')
         if email:
             from contact.models import ContactMessage
-            from django.core.mail import send_mail
-            from django.conf import settings
+            from core.emails import send_newsletter_welcome_email
             
-            # Record in ContactMessage DB
+            # Enregistrement en base de données
             ContactMessage.objects.create(
                 name="Abonné Newsletter",
                 email=email,
                 message="Inscription à la Newsletter Funkidz"
             )
             
-            # Send notification email to admin
-            subject = f"📩 Nouvelle inscription Newsletter Funkidz : {email}"
-            email_body = f"""Bonjour,
-
-Un nouvel abonné vient de s'inscrire à la Newsletter Funkidz :
-
-Adresse E-mail : {email}
-
----
-Cette inscription a été enregistrée dans la base de données.
-"""
-            try:
-                from core.utils import get_admin_recipient_emails
-                send_mail(
-                    subject=subject,
-                    message=email_body,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=get_admin_recipient_emails(),
-                    fail_silently=True
-                )
-            except Exception:
-                pass
-            
-            # Send welcome email to subscriber
-            welcome_subject = "Bienvenue dans la communauté Funkidz ! 🎈"
-            welcome_body = f"""Bonjour,
-
-Merci pour votre inscription à la newsletter Funkidz !
-
-Vous recevrez désormais nos meilleures idées d'animations, nos conseils pour organiser des fêtes inoubliables et nos offres exclusives.
-
-À très bientôt sur Funkidz !
-L'équipe Funkidz Animation
-"""
-            try:
-                send_mail(
-                    subject=welcome_subject,
-                    message=welcome_body,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[email],
-                    fail_silently=True
-                )
-            except Exception:
-                pass
+            # Envoi de l'e-mail de bienvenue responsive Funkidz
+            send_newsletter_welcome_email(email)
 
             messages.success(request, "Merci pour votre inscription à notre newsletter ! Un e-mail de bienvenue vous a été envoyé.")
     return redirect(request.META.get('HTTP_REFERER', '/'))

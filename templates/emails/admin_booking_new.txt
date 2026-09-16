@@ -1,0 +1,20 @@
+Bonjour Administrateur,
+
+Une nouvelle réservation vient d'être initiée sur Funkidz :
+
+DÉTAILS :
+- Numéro : #{{ booking.id }}
+- Client : {{ client_name }} ({{ client_email }})
+{% if contact_phone %}- Téléphone : {{ contact_phone }}{% endif %}
+- Formule : {{ service_name }}
+{% if child_name %}- Enfant : {{ child_name }}{% if child_age %} ({{ child_age }} ans){% endif %}{% endif %}
+- Date & Heure : {{ booking_date }} à {{ booking_time }}
+- Enfants : {{ nb_children }}
+- Lieu : {{ location_address }}, {{ location_zip }} {{ location_city }}
+- Montant Total : {{ final_price }} € TTC
+- Statut : En attente de paiement
+
+Lien d'administration :
+{{ admin_booking_url }}
+
+Funkidz Admin System

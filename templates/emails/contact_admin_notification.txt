@@ -1,0 +1,13 @@
+Nouveau message de contact reçu sur Funkidz :
+
+- Nom : {{ contact.name }}
+- E-mail : {{ contact.email }}
+- Téléphone : {{ contact.phone|default:"Non renseigné" }}
+
+Message :
+{{ contact.message }}
+
+Lien d'administration :
+{{ admin_contact_url }}
+
+Funkidz Admin System

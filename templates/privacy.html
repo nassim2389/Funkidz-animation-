@@ -3,25 +3,52 @@
 {% block title %}Funkidz - Politique de Confidentialité{% endblock %}
 
 {% block content %}
-<div class="py-24 bg-background min-h-screen">
-    <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto bg-white p-12 rounded-5xl border-4 border-slate-100 shadow-xl space-y-8">
-            <h1 class="text-5xl font-fun text-primary">Politique de Confidentialité</h1>
-            <div class="prose prose-lg text-slate-600 font-medium">
-                <p>Chez Funkidz, nous accordons une grande importance à la protection et à la confidentialité de vos données personnelles.</p>
-                
-                <h2 class="text-2xl font-bold text-secondary pt-6">1. Données collectées</h2>
-                <p>Nous ne collectons que les informations nécessaires à l'organisation de vos événements : nom, adresse e-mail, numéro de téléphone et adresse postale.</p>
+<div class="py-16 sm:py-24 bg-slate-50 min-h-screen relative overflow-hidden">
+    <!-- Ambient decorative glow -->
+    <div class="absolute top-10 left-10 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <h2 class="text-2xl font-bold text-secondary pt-6">2. Utilisation</h2>
-                <p>Vos données personnelles ne sont jamais vendues ou partagées avec des tiers à des fins commerciales. Elles sont uniquement utilisées pour la gestion de vos réservations et la communication relative à vos prestations.</p>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 space-y-8">
+        <!-- Header with Icon Badge -->
+        <div class="text-center space-y-3 max-w-2xl mx-auto">
+            <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto text-2xl font-bold shadow-inner">🔒</div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-brand-600">Protection des Données</span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-heading">Politique de Confidentialité</h1>
+            <p class="text-sm text-slate-600 font-medium">Chez Funkidz, nous accordons une grande importance à la protection et à la confidentialité de vos données personnelles.</p>
+        </div>
 
-                <h2 class="text-2xl font-bold text-secondary pt-6">3. Tes droits (RGPD)</h2>
-                <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression de vos données personnelles. Vous pouvez exercer ce droit à tout moment en nous contactant par e-mail.</p>
+        <div class="grid gap-6">
+            <!-- Section 1 -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm flex items-start gap-5 hover:shadow-md transition">
+                <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xl shrink-0">📋</div>
+                <div class="space-y-2">
+                    <h2 class="text-xl font-heading font-extrabold text-slate-900">1. Données collectées</h2>
+                    <p class="text-sm text-slate-600 leading-relaxed font-medium">Nous ne collectons que les informations nécessaires à l'organisation de vos événements : nom, adresse e-mail, numéro de téléphone et adresse postale.</p>
+                </div>
             </div>
-            <div class="pt-8 text-center">
-                <a href="/" class="px-8 py-4 bg-secondary text-white font-bold rounded-full">Retour à l'accueil</a>
+
+            <!-- Section 2 -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm flex items-start gap-5 hover:shadow-md transition">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shrink-0">🛡️</div>
+                <div class="space-y-2">
+                    <h2 class="text-xl font-heading font-extrabold text-slate-900">2. Utilisation</h2>
+                    <p class="text-sm text-slate-600 leading-relaxed font-medium">Vos données personnelles ne sont jamais vendues ou partagées avec des tiers à des fins commerciales. Elles sont uniquement utilisées pour la gestion de vos réservations et la communication relative à vos prestations.</p>
+                </div>
             </div>
+
+            <!-- Section 3 -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm flex items-start gap-5 hover:shadow-md transition">
+                <div class="w-12 h-12 rounded-2xl bg-accent-pink/10 text-accent-pink flex items-center justify-center font-bold text-xl shrink-0">⚖️</div>
+                <div class="space-y-2">
+                    <h2 class="text-xl font-heading font-extrabold text-slate-900">3. Tes droits (RGPD)</h2>
+                    <p class="text-sm text-slate-600 leading-relaxed font-medium">Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression de vos données personnelles. Vous pouvez exercer ce droit à tout moment en nous contactant par e-mail.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-4 text-center">
+            <a href="/" class="inline-flex items-center gap-2 px-8 py-3.5 bg-slate-900 hover:bg-brand-600 text-white font-extrabold text-sm rounded-xl transition duration-200 shadow-md">
+                <span>Retour à l'accueil</span>
+            </a>
         </div>
     </div>
 </div>

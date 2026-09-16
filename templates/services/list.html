@@ -73,17 +73,22 @@
                 <div>
                     <!-- Card Header with HD Image Background -->
                     <div class="h-56 relative overflow-hidden p-6 flex flex-col justify-between">
-                        <img src="{% if 'Pirate' in service.name %}https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80{% elif 'Magie' in service.name %}https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80{% elif 'Héros' in service.name %}https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=800&q=80{% elif 'Disco' in service.name %}https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80{% elif 'Pâtisserie' in service.name %}https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80{% elif 'Princesse' in service.name %}https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=800&q=80{% elif 'Escape' in service.name %}https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80{% elif 'Scientifique' in service.name %}https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80{% elif 'Mascotte' in service.name %}https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=800&q=80{% else %}https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=800&q=80{% endif %}" 
+                        <img src="{{ service.get_image_url }}" 
                              alt="{{ service.name }}" 
-                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-out">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-black/20"></div>
 
                         <div class="flex justify-between items-center relative z-10">
-                            <span class="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold text-slate-800 shadow-sm">⏱️ {{ service.duration_minutes }} min</span>
+                            <span class="px-3 py-1 bg-white/95 backdrop-blur-md rounded-full text-xs font-black text-slate-800 shadow-sm">⏱️ {{ service.duration_minutes }} min</span>
+                            {% if service.badge_label %}
+                            <span class="px-3 py-1 bg-brand-600 text-white rounded-full text-xs font-black shadow-md">{{ service.badge_label }}</span>
+                            {% else %}
                             <span class="px-3 py-1 bg-slate-900/90 backdrop-blur-md text-white rounded-full text-xs font-bold border border-white/20">👥 Max {{ service.max_children }} enfants</span>
+                            {% endif %}
                         </div>
 
                         <div class="relative z-10">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-300 drop-shadow">{{ service.get_category_display }}</span>
                             <h3 class="font-heading font-extrabold text-2xl text-white tracking-tight drop-shadow-md">{{ service.name }}</h3>
                         </div>
                     </div>

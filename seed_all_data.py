@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from services.models import Service, Option
 from users.models import User, AnimateurProfile
 from bookings.models import Booking, BookingOption, BookingAssignment
+from availability.models import Availability, AnimateurLeave, WeeklySchedule
 from payments.models import Payment
 from media.models import MediaGallery
 from contact.models import ContactMessage
@@ -25,6 +26,9 @@ def seed_all():
     BookingAssignment.objects.all().delete()
     BookingOption.objects.all().delete()
     Booking.objects.all().delete()
+    WeeklySchedule.objects.all().delete()
+    AnimateurLeave.objects.all().delete()
+    Availability.objects.all().delete()
     Option.objects.all().delete()
     Service.objects.all().delete()
     MediaGallery.objects.all().delete()
@@ -208,25 +212,31 @@ def seed_all():
     print("✅ Compte Administrateur fonctionnel créé (admin@funkidz.fr / admin123).")
 
     clients_data = [
-        {"email": "sedraniainaeuphredat@gmail.com", "first_name": "Sedra", "last_name": "Nia"},
-        {"email": "euphredat91@gmail.com", "first_name": "Euphredat", "last_name": "Test"},
-        {"email": "marie.dubois@gmail.com", "first_name": "Marie", "last_name": "Dubois"},
-        {"email": "pierre.moreau@yahoo.fr", "first_name": "Pierre", "last_name": "Moreau"},
-        {"email": "julie.laurent@outlook.com", "first_name": "Julie", "last_name": "Laurent"},
-        {"email": "david.benoit@gmail.com", "first_name": "David", "last_name": "Benoit"}
+        {"email": "client1@funkidz.fr", "first_name": "Jean", "last_name": "Dupont", "password": "client123"},
+        {"email": "client2@funkidz.fr", "first_name": "Amélie", "last_name": "Legrand", "password": "client123"},
+        {"email": "client3@funkidz.fr", "first_name": "Nicolas", "last_name": "Bernard", "password": "client123"},
+        {"email": "sedraniainaeuphredat@gmail.com", "first_name": "Sedra", "last_name": "Nia", "password": "password123"},
+        {"email": "euphredat91@gmail.com", "first_name": "Euphredat", "last_name": "Test", "password": "password123"},
+        {"email": "marie.dubois@gmail.com", "first_name": "Marie", "last_name": "Dubois", "password": "client123"},
+        {"email": "pierre.moreau@yahoo.fr", "first_name": "Pierre", "last_name": "Moreau", "password": "client123"},
+        {"email": "julie.laurent@outlook.com", "first_name": "Julie", "last_name": "Laurent", "password": "password123"},
+        {"email": "david.benoit@gmail.com", "first_name": "David", "last_name": "Benoit", "password": "password123"}
     ]
 
     created_clients = []
     for c_data in clients_data:
+        pwd = c_data.pop("password", "client123")
         user, _ = User.objects.get_or_create(
             email=c_data["email"],
             defaults={"first_name": c_data["first_name"], "last_name": c_data["last_name"], "role": User.Role.CLIENT, "is_verified": True}
         )
-        user.set_password("password123")
+        user.role = User.Role.CLIENT
+        user.is_verified = True
+        user.set_password(pwd)
         user.save()
         created_clients.append(user)
 
-    print(f"✅ {len(created_clients)} Clients de test créés.")
+    print(f"✅ {len(created_clients)} Clients de test créés (dont client1@funkidz.fr, client2, client3).")
 
     # 5. CRÉATION DE RÉSERVATIONS ET PAIEMENTS RÉALISTES
     bookings_data = [
@@ -236,6 +246,9 @@ def seed_all():
             "booking_date": date.today() + timedelta(days=3),
             "booking_time": time(14, 0),
             "nb_children": 12,
+            "child_name": "Léo",
+            "child_age": 7,
+            "contact_phone": "06 12 34 56 78",
             "location_address": "15 Avenue des Champs-Élysées",
             "location_city": "Paris",
             "location_zip": "75008",
@@ -243,7 +256,10 @@ def seed_all():
             "estimated_price": 190.00,
             "final_price": 225.00,
             "animator": created_animators[0],
-            "payment_status": Payment.Status.SUCCEEDED
+            "payment_status": Payment.Status.SUCCEEDED,
+            "options": [
+                {"name": "Épées gonflables & Bandanas pour l'équipe", "qty": 1, "price": 35.00}
+            ]
         },
         {
             "user": created_clients[1],
@@ -251,6 +267,9 @@ def seed_all():
             "booking_date": date.today() + timedelta(days=7),
             "booking_time": time(15, 30),
             "nb_children": 10,
+            "child_name": "Emma",
+            "child_age": 6,
+            "contact_phone": "06 98 76 54 32",
             "location_address": "8 Rue de la Paix",
             "location_city": "Boulogne-Billancourt",
             "location_zip": "92100",
@@ -258,7 +277,10 @@ def seed_all():
             "estimated_price": 160.00,
             "final_price": 205.00,
             "animator": created_animators[1],
-            "payment_status": Payment.Status.SUCCEEDED
+            "payment_status": Payment.Status.SUCCEEDED,
+            "options": [
+                {"name": "Apparition spéciale du gâteau en magie", "qty": 1, "price": 45.00}
+            ]
         },
         {
             "user": created_clients[2],
@@ -266,6 +288,9 @@ def seed_all():
             "booking_date": date.today() + timedelta(days=12),
             "booking_time": time(16, 0),
             "nb_children": 25,
+            "child_name": "Lucas",
+            "child_age": 9,
+            "contact_phone": "07 11 22 33 44",
             "location_address": "42 Rue Victor Hugo",
             "location_city": "Lyon",
             "location_zip": "69002",
@@ -273,7 +298,10 @@ def seed_all():
             "estimated_price": 230.00,
             "final_price": 260.00,
             "animator": None,
-            "payment_status": Payment.Status.PENDING
+            "payment_status": Payment.Status.PENDING,
+            "options": [
+                {"name": "Machine à bulles & fumée parfumée", "qty": 1, "price": 30.00}
+            ]
         },
         {
             "user": created_clients[3],
@@ -281,6 +309,9 @@ def seed_all():
             "booking_date": date.today() - timedelta(days=5),
             "booking_time": time(14, 30),
             "nb_children": 14,
+            "child_name": "Arthur",
+            "child_age": 8,
+            "contact_phone": "06 55 44 33 22",
             "location_address": "10 Boulevard Haussmann",
             "location_city": "Paris",
             "location_zip": "75009",
@@ -288,7 +319,10 @@ def seed_all():
             "estimated_price": 175.00,
             "final_price": 225.00,
             "animator": created_animators[2],
-            "payment_status": Payment.Status.SUCCEEDED
+            "payment_status": Payment.Status.SUCCEEDED,
+            "options": [
+                {"name": "Photobooth Super-Héros avec impression instantanée", "qty": 1, "price": 50.00}
+            ]
         },
         {
             "user": created_clients[4],
@@ -296,6 +330,9 @@ def seed_all():
             "booking_date": date.today() + timedelta(days=15),
             "booking_time": time(14, 0),
             "nb_children": 10,
+            "child_name": "Chloé",
+            "child_age": 10,
+            "contact_phone": "06 77 88 99 00",
             "location_address": "25 Rue de la République",
             "location_city": "Lille",
             "location_zip": "59000",
@@ -303,14 +340,29 @@ def seed_all():
             "estimated_price": 220.00,
             "final_price": 255.00,
             "animator": created_animators[4],
-            "payment_status": Payment.Status.SUCCEEDED
+            "payment_status": Payment.Status.SUCCEEDED,
+            "options": [
+                {"name": "Cadenas cryptex surprise final", "qty": 1, "price": 35.00}
+            ]
         }
     ]
 
     for b_data in bookings_data:
         animator = b_data.pop("animator")
         pay_status = b_data.pop("payment_status")
+        opts = b_data.pop("options", [])
         booking = Booking.objects.create(**b_data)
+
+        # Attachement des options choisies
+        for opt_item in opts:
+            opt_obj = Option.objects.filter(service=booking.service, name=opt_item["name"]).first()
+            if opt_obj:
+                BookingOption.objects.create(
+                    booking=booking,
+                    option=opt_obj,
+                    quantity=opt_item["qty"],
+                    price_at_time=opt_item["price"]
+                )
 
         # Création du paiement associé
         Payment.objects.create(
@@ -336,9 +388,97 @@ def seed_all():
                 comment="Animation incroyable ! Thomas a été fantastique avec les enfants, les activités super-héros étaient parfaitement rythmées. À refaire !"
             )
 
-    print("✅ Réservations, Paiements, Assignations et Avis créés.")
+    print("✅ Réservations (avec options décomposées et enfants), Paiements, Assignations et Avis créés.")
 
-    # 6. GALERIE MÉDIA DE 12 PHOTOS HD
+    # 6. CONFIGURATION DES CRÉNEAUX, INDISPONIBILITÉS & DÉMO ANTI-DOUBLON (ÉTAPE 3)
+    today = date.today()
+    days_until_saturday = (5 - today.weekday()) % 7
+    if days_until_saturday == 0:
+        days_until_saturday = 7
+    demo_saturday = today + timedelta(days=days_until_saturday)
+
+    # Scénario Démo Étape 3 : Sur demo_saturday, le créneau de 14h00 est 100% COMPLET / INDISPONIBLE
+    # 4 animateurs occupés par des réservations à 14h00
+    for i in range(4):
+        b = Booking.objects.create(
+            user=created_clients[i % len(created_clients)],
+            service=created_services[i],
+            booking_date=demo_saturday,
+            booking_time=time(14, 0),
+            nb_children=12,
+            location_address=f"{15 + i} Avenue de l'Opéra",
+            location_city="Paris",
+            location_zip="75001",
+            status=Booking.Status.CONFIRMED,
+            estimated_price=created_services[i].base_price,
+            final_price=created_services[i].base_price
+        )
+        Payment.objects.create(
+            booking=b,
+            amount=b.final_price,
+            stripe_session_id=f"demo_session_{b.id}",
+            status=Payment.Status.SUCCEEDED
+        )
+        BookingAssignment.objects.create(
+            booking=b,
+            animateur=created_animators[i],
+            status=BookingAssignment.Status.ACCEPTED
+        )
+
+    # 1 animateur en congé approuvé sur ce samedi (Alexandre Roux)
+    AnimateurLeave.objects.create(
+        animateur=created_animators[4],
+        start_date=demo_saturday - timedelta(days=2),
+        end_date=demo_saturday + timedelta(days=2),
+        reason="Vacances en famille",
+        status=AnimateurLeave.Status.APPROVED
+    )
+
+    # 1 animateur avec indisponibilité bloquée sur 13h00 - 17h00 (Chloé Morel)
+    Availability.objects.create(
+        animateur=created_animators[5],
+        date=demo_saturday,
+        start_time=time(13, 0),
+        end_time=time(17, 0),
+        is_blocked=True
+    )
+
+    # Congé en attente de test pour Lucas Dupont
+    AnimateurLeave.objects.create(
+        animateur=created_animators[0],
+        start_date=today + timedelta(days=20),
+        end_date=today + timedelta(days=24),
+        reason="Stage de perfectionnement magie",
+        status=AnimateurLeave.Status.PENDING
+    )
+
+    # Horaires récurrents hebdomadaires pour les animateurs
+    for anim in created_animators:
+        WeeklySchedule.objects.create(
+            animateur=anim,
+            weekday=2, # Mercredi
+            start_time=time(13, 0),
+            end_time=time(19, 0),
+            is_active=True
+        )
+        WeeklySchedule.objects.create(
+            animateur=anim,
+            weekday=5, # Samedi
+            start_time=time(9, 30),
+            end_time=time(19, 0),
+            is_active=True
+        )
+        WeeklySchedule.objects.create(
+            animateur=anim,
+            weekday=6, # Dimanche
+            start_time=time(10, 0),
+            end_time=time(18, 0),
+            is_active=True
+        )
+
+    print(f"✅ Étape 3 configurée : Démo anti-doublon sur le samedi {demo_saturday} (14h00 COMPLET / 10h00 & 16h30 DISPONIBLES).")
+
+    # 7. GALERIE MÉDIA DE 12 PHOTOS HD
     media_items = [
         {"title": "Spectacle de Magie d'Anniversaire", "media_url": "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80"},
         {"title": "Chasse au Trésor et Déguisements Pirates", "media_url": "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80"},

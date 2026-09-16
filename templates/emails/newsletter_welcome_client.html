@@ -1,0 +1,19 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  <span class="badge badge-success">Bienvenue</span>
+  <h2 style="margin: 14px 0 6px; font-size: 22px; color: #0f172a;">Bienvenue dans le club Funkidz ! 🎈</h2>
+  <p style="margin: 0; color: #64748b; font-size: 15px;">
+    Merci pour votre inscription à notre newsletter.
+  </p>
+</div>
+
+<div class="alert-box">
+  ✨ Vous recevrez nos meilleures idées de jeux, des conseils d'animateurs professionnels pour organiser l'anniversaire rêvé de vos enfants, ainsi que des offres et réductions exclusives !
+</div>
+
+<div style="text-align: center; margin-top: 25px;">
+  <a href="{{ site_url }}" class="btn">Explorer le Site Funkidz 🚀</a>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  <span class="badge badge-success">✓ Paiement Validé & Réservation Confirmée</span>
+  <h2 style="margin: 14px 0 6px; font-size: 22px; color: #0f172a;">Merci pour votre confiance, {{ client_name }} ! 🎉</h2>
+  <p style="margin: 0; color: #64748b; font-size: 15px;">
+    Votre fête d'anniversaire Funkidz est officiellement confirmée. Nos animateurs ont hâte de faire vivre une journée magique aux enfants !
+  </p>
+</div>
+
+<!-- RÉCAPITULATIF DE LA RÉSERVATION -->
+<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;">
+  <h3 style="margin: 0 0 12px; font-size: 16px; color: #1e293b; display: flex; align-items: center;">
+    📋 Récapitulatif de votre réservation <span style="margin-left: auto; font-size: 14px; color: #4f46e5; font-weight: 700;">#{{ booking.id }}</span>
+  </h3>
+
+  <table class="info-table" style="margin: 0;">
+    <tr>
+      <td class="label">👤 Client :</td>
+      <td class="value"><strong>{{ client_name }}</strong> ({{ client_email }})</td>
+    </tr>
+    {% if contact_phone %}
+    <tr>
+      <td class="label">📞 Téléphone :</td>
+      <td class="value">{{ contact_phone }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="label">🎈 Formule :</td>
+      <td class="value"><strong>{{ service_name }}</strong> ({{ service_duration }} minutes)</td>
+    </tr>
+    {% if child_name %}
+    <tr>
+      <td class="label">🎂 Enfant fêté :</td>
+      <td class="value"><strong>{{ child_name }}</strong>{% if child_age %} ({{ child_age }} ans){% endif %}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="label">📅 Date :</td>
+      <td class="value"><strong>{{ booking_date }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">⏰ Horaire :</td>
+      <td class="value"><strong>{{ booking_time }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">👥 Nombre d'enfants :</td>
+      <td class="value">{{ nb_children }} enfants</td>
+    </tr>
+    <tr>
+      <td class="label">📍 Lieu de l'événement :</td>
+      <td class="value">{{ location_address }}, {{ location_zip }} {{ location_city }}</td>
+    </tr>
+    {% if special_instructions %}
+    <tr>
+      <td class="label">📝 Instructions :</td>
+      <td class="value" style="font-style: italic;">{{ special_instructions }}</td>
+    </tr>
+    {% endif %}
+  </table>
+</div>
+
+<!-- OPTIONS DÉCOMPOSÉES -->
+<div style="margin-bottom: 24px;">
+  <h4 style="margin: 0 0 10px; font-size: 15px; color: #1e293b;">✨ Détail des prestations & options :</h4>
+  <table style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
+    <thead>
+      <tr style="background-color: #f1f5f9; text-align: left; color: #475569;">
+        <th style="padding: 8px 12px; border-radius: 6px 0 0 6px;">Prestation / Option</th>
+        <th style="padding: 8px 12px; text-align: center;">Qté</th>
+        <th style="padding: 8px 12px; text-align: right; border-radius: 0 6px 6px 0;">Total TTC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px 12px;"><strong>Formule {{ service_name }}</strong> (Base)</td>
+        <td style="padding: 10px 12px; text-align: center;">1</td>
+        <td style="padding: 10px 12px; text-align: right; font-weight: 600;">{{ service_base_price|floatformat:2 }} €</td>
+      </tr>
+      {% if has_options %}
+        {% for opt in selected_options %}
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 10px 12px;">• {{ opt.name }} <span style="font-size: 11px; color: #64748b;">({{ opt.pricing_type }})</span></td>
+          <td style="padding: 10px 12px; text-align: center;">x{{ opt.quantity }}</td>
+          <td style="padding: 10px 12px; text-align: right; font-weight: 600;">{{ opt.total_price|floatformat:2 }} €</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td colspan="3" style="padding: 8px 12px; color: #94a3b8; font-style: italic;">Aucune option complémentaire sélectionnée</td>
+        </tr>
+      {% endif %}
+      <tr style="background-color: #e0e7ff; font-weight: 800; font-size: 15px; color: #312e81;">
+        <td colspan="2" style="padding: 12px; border-radius: 8px 0 0 8px;">TOTAL RÉGLÉ (TTC) :</td>
+        <td style="padding: 12px; text-align: right; border-radius: 0 8px 8px 0; color: #4338ca;">{{ final_price|floatformat:2 }} €</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- INFO BOX -->
+<div class="alert-box">
+  💡 <strong>Bon à savoir pour le jour J :</strong>
+  <ul style="margin: 6px 0 0; padding-left: 18px; line-height: 1.5;">
+    <li>Notre animateur arrivera environ 15 à 30 minutes avant l'heure pour préparer le matériel.</li>
+    <li>Prévoyez un espace dégagé pour les jeux et activités prévus dans la formule.</li>
+    <li>Votre facture et reçu de paiement sont disponibles à tout moment sur votre espace client.</li>
+  </ul>
+</div>
+
+<!-- BOUTON DASHBOARD -->
+<div style="text-align: center; margin: 30px 0 10px;">
+  <a href="{{ dashboard_url }}" class="btn">Accéder à mon Espace Client 🎈</a>
+</div>
+{% endblock %}

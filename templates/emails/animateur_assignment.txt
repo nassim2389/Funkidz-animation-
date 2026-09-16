@@ -1,0 +1,26 @@
+Bonjour {{ animateur_name }},
+
+Une nouvelle mission d'animation vient de vous être attribuée par l'administration Funkidz !
+
+DÉTAILS DE LA MISSION (#{{ booking.id }}) :
+- Formule : {{ service_name }} ({{ service_duration }} minutes)
+{% if child_name %}- Enfant fêté : {{ child_name }}{% if child_age %} ({{ child_age }} ans){% endif %}{% endif %}
+- Date : {{ booking_date }}
+- Horaire : {{ booking_time }} (Arrivée conseillée : 15 min avant)
+- Nombre d'enfants : {{ nb_children }}
+- Lieu : {{ location_address }}, {{ location_zip }} {{ location_city }}
+{% if contact_phone %}- Contact parent : {{ client_name }} ({{ contact_phone }}){% endif %}
+{% if special_instructions %}- Consignes particulières : {{ special_instructions }}{% endif %}
+
+{% if has_options %}
+OPTIONS & MATÉRIEL À PRÉVOIR :
+{% for opt in selected_options %}
+  • {{ opt.name }} (x{{ opt.quantity }})
+{% endfor %}
+{% endif %}
+
+Veuillez vous connecter sur votre espace Animateur pour consulter tous les détails :
+{{ dashboard_url }}
+
+Bonne animation !
+L'équipe Funkidz Animation

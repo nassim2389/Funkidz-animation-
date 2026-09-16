@@ -2,12 +2,15 @@ from rest_framework import serializers
 from .models import Service, Option
 
 class OptionSerializer(serializers.ModelSerializer):
+    image_url = serializers.CharField(source='get_image_url', read_only=True)
+
     class Meta:
         model = Option
         fields = '__all__'
 
 class ServiceSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True, read_only=True)
+    image_url = serializers.CharField(source='get_image_url', read_only=True)
 
     class Meta:
         model = Service

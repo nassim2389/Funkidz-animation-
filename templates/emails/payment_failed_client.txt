@@ -1,0 +1,13 @@
+Bonjour {{ client_name }},
+
+Nous n'avons pas pu traiter le règlement pour votre réservation #{{ booking.id }} ({{ service_name }}).
+
+Raison bancaire :
+{{ error_message }}
+
+Votre réservation reste en attente. Vous pouvez renouveler votre paiement depuis votre espace client :
+{{ dashboard_url }}
+
+Besoin d'aide ? Contactez notre équipe au {{ support_phone }} ou par e-mail à {{ support_email }}.
+
+L'équipe Funkidz Animation
