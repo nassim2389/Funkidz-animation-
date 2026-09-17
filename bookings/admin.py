@@ -13,21 +13,64 @@ class BookingAssignmentInline(admin.TabularInline):
     model = BookingAssignment
     extra = 1
 
+# Couleurs des pastilles de statut affichées dans la liste des réservations.
+STATUS_BADGE_STYLES = {
+    Booking.Status.CONFIRMED: ("#15803d", "#dcfce7", "#86efac", "🟢"),
+    Booking.Status.PENDING:   ("#b45309", "#ffedd5", "#fdba74", "🟠"),
+    Booking.Status.CANCELLED: ("#b91c1c", "#fee2e2", "#fca5a5", "🔴"),
+    Booking.Status.DONE:      ("#334155", "#e2e8f0", "#cbd5e1", "⚪"),
+}
+
+
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'service', 'booking_date', 'booking_time', 'status', 'final_price', 'confirmation_email_sent_at', 'payment_link_display')
+    list_display = ('id', 'status_badge', 'user', 'service', 'booking_date', 'booking_time', 'status', 'final_price', 'confirmation_email_sent_at', 'payment_link_display')
     list_editable = ('status', 'final_price')
-    list_filter = ('status', 'booking_date', 'service')
+    list_filter = ('status', 'cancelled_by', 'booking_date', 'service')
     search_fields = ('user__email', 'location_city', 'child_name')
     readonly_fields = ('confirmation_email_sent_at', 'admin_notification_sent_at', 'cancellation_email_sent_at', 'created_at', 'updated_at')
     inlines = [BookingOptionInline, BookingAssignmentInline]
     actions = ['confirm_bookings', 'cancel_bookings', 'generate_payment_links']
+
+    # Tri chronologique par défaut (date puis heure) ; les deux colonnes
+    # restent triables par un clic sur leur en-tête.
+    ordering = ('booking_date', 'booking_time')
+    date_hierarchy = 'booking_date'
+
+    @admin.display(description="Statut", ordering='status')
+    def status_badge(self, obj):
+        """Pastille colorée reflétant le statut réel de la réservation."""
+        color, background, border, dot = STATUS_BADGE_STYLES.get(
+            obj.status, ("#334155", "#e2e8f0", "#cbd5e1", "⚪")
+        )
+        label = obj.get_status_display()
+        if obj.status == Booking.Status.CANCELLED and obj.cancelled_by:
+            label = f"{label} par {obj.get_cancelled_by_display().lower()}"
+        return format_html(
+            '<span style="display:inline-block; padding:3px 10px; border-radius:9999px;'
+            ' background:{}; color:{}; border:1px solid {}; font-weight:700;'
+            ' font-size:11px; white-space:nowrap;">{} {}</span>',
+            background, color, border, dot, label
+        )
+
+    def save_model(self, request, obj, form, change):
+        """
+        Trace l'origine d'une annulation décidée depuis l'administration.
+        Couvre aussi bien le formulaire complet que la liste éditable.
+        """
+        if obj.status == Booking.Status.CANCELLED:
+            if not obj.cancelled_by:
+                obj.cancelled_by = Booking.CancelledBy.ADMIN
+        else:
+            obj.cancelled_by = ''
+        super().save_model(request, obj, form, change)
 
     def confirm_bookings(self, request, queryset):
         count = 0
         for b in queryset:
             if b.status != Booking.Status.CONFIRMED:
                 b.status = Booking.Status.CONFIRMED
+                b.cancelled_by = ''
                 b.save()
                 count += 1
         self.message_user(request, f"{count} réservation(s) confirmée(s) et e-mails de confirmation envoyés. ✅")
@@ -38,6 +81,7 @@ class BookingAdmin(admin.ModelAdmin):
         for b in queryset:
             if b.status != Booking.Status.CANCELLED:
                 b.status = Booking.Status.CANCELLED
+                b.cancelled_by = Booking.CancelledBy.ADMIN
                 b.save()
                 count += 1
         self.message_user(request, f"{count} réservation(s) annulée(s) et e-mails envoyés. ❌")

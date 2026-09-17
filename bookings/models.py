@@ -3,11 +3,19 @@ from django.conf import settings
 from services.models import Service, Option
 
 class Booking(models.Model):
+    # Délai minimum, en heures, entre l'annulation faite par le client et le
+    # début de la prestation. Au-delà, l'annulation passe par l'administration.
+    CLIENT_CANCELLATION_DEADLINE_HOURS = 48
+
     class Status(models.TextChoices):
         PENDING = 'PENDING', 'En attente'
         CONFIRMED = 'CONFIRMED', 'Confirmée'
         CANCELLED = 'CANCELLED', 'Annulée'
         DONE = 'DONE', 'Terminée'
+
+    class CancelledBy(models.TextChoices):
+        ADMIN = 'ADMIN', "Administrateur"
+        CLIENT = 'CLIENT', "Client"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='bookings')
     service = models.ForeignKey(Service, on_delete=models.PROTECT)
@@ -24,6 +32,17 @@ class Booking(models.Model):
         default=Status.PENDING
     )
     
+    # Origine de l'annulation : permet de distinguer dans l'administration une
+    # annulation décidée par l'administrateur d'une annulation faite par le
+    # client. Vide tant que la réservation n'est pas annulée.
+    cancelled_by = models.CharField(
+        max_length=10,
+        choices=CancelledBy.choices,
+        blank=True,
+        default='',
+        verbose_name="Annulée par"
+    )
+
     location_address = models.CharField(max_length=255)
     location_city = models.CharField(max_length=100)
     location_zip = models.CharField(max_length=20)
@@ -56,6 +75,41 @@ class Booking(models.Model):
             or previous['booking_time'] != self.booking_time
             or previous['service_id'] != self.service_id
         )
+
+    @property
+    def start_datetime(self):
+        """Date et heure de début de la prestation, dans le fuseau du projet."""
+        if not self.booking_date or not self.booking_time:
+            return None
+        from django.utils import timezone
+        from datetime import datetime
+        naive = datetime.combine(self.booking_date, self.booking_time)
+        if timezone.is_naive(naive):
+            return timezone.make_aware(naive, timezone.get_current_timezone())
+        return naive
+
+    @property
+    def hours_before_start(self):
+        """Nombre d'heures restantes avant le début de la prestation."""
+        from django.utils import timezone
+        start = self.start_datetime
+        if start is None:
+            return None
+        return (start - timezone.now()).total_seconds() / 3600
+
+    @property
+    def can_be_cancelled_by_client(self):
+        """
+        Le client peut annuler lui-même tant que la prestation n'a pas commencé
+        et qu'il reste au moins CLIENT_CANCELLATION_DEADLINE_HOURS heures avant
+        le début. Passé ce délai, l'annulation relève de l'administration.
+        """
+        if self.status in (self.Status.CANCELLED, self.Status.DONE):
+            return False
+        remaining = self.hours_before_start
+        if remaining is None:
+            return False
+        return remaining >= self.CLIENT_CANCELLATION_DEADLINE_HOURS
 
     def clean(self):
         super().clean()
