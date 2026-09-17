@@ -312,3 +312,76 @@ class EmailNotificationsTests(TestCase):
         env_pwd = os.getenv('EMAIL_HOST_PASSWORD', '')
         settings_pwd = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
         self.assertEqual(env_pwd, settings_pwd)
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+class AdminRecipientRoutingTests(TestCase):
+    """
+    Routage des notifications administratives (Étape 3).
+
+    Vérifie que ADMIN_NOTIFICATION_EMAILS permet de diriger explicitement les
+    e-mails admin vers une boîte de test, sans toucher au code ni exposer
+    d'adresse en dur, et que le comportement historique reste en place quand la
+    variable n'est pas renseignée.
+    """
+
+    def setUp(self):
+        mail.outbox.clear()
+        self.admin = User.objects.create_superuser(
+            email="admin.routing@funkidz.fr",
+            password="adminpassword123",
+            first_name="Admin",
+            last_name="Routing",
+        )
+
+    @override_settings(ADMIN_NOTIFICATION_EMAILS=[])
+    def test_admin_recipients_fallback_on_admin_accounts(self):
+        from core.utils import get_admin_recipient_emails
+
+        recipients = get_admin_recipient_emails()
+        self.assertIn(self.admin.email, recipients)
+
+    @override_settings(ADMIN_NOTIFICATION_EMAILS=['boite-de-test@exemple.invalid'])
+    def test_admin_recipients_use_configured_addresses_only(self):
+        from core.utils import get_admin_recipient_emails
+
+        recipients = get_admin_recipient_emails()
+        self.assertEqual(recipients, ['boite-de-test@exemple.invalid'])
+        self.assertNotIn(self.admin.email, recipients)
+
+    @override_settings(ADMIN_NOTIFICATION_EMAILS=['boite-de-test@exemple.invalid'])
+    def test_admin_notification_is_routed_to_configured_address(self):
+        client_user = User.objects.create_user(
+            email="client.routing@exemple.invalid",
+            password="clientpassword123",
+            first_name="Claire",
+            last_name="Routing",
+        )
+        service = Service.objects.create(
+            name="Atelier Routage",
+            description="Prestation de test",
+            base_price=Decimal('120.00'),
+            duration_minutes=120,
+        )
+        mail.outbox.clear()
+
+        Booking.objects.create(
+            user=client_user,
+            service=service,
+            booking_date='2026-11-15',
+            booking_time='14:00:00',
+            nb_children=8,
+            estimated_price=Decimal('120.00'),
+            final_price=Decimal('120.00'),
+            location_address="1 rue du Routage",
+            location_city="Paris",
+            location_zip="75001",
+            status=Booking.Status.PENDING,
+        )
+
+        admin_messages = [m for m in mail.outbox if 'boite-de-test@exemple.invalid' in m.to]
+        self.assertTrue(admin_messages, "La notification admin doit partir vers l'adresse configurée")
+        for message in admin_messages:
+            self.assertNotIn(client_user.email, message.to)
+            self.assertFalse(message.cc)
+            self.assertFalse(message.bcc)

@@ -276,7 +276,22 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
 
+# Dossier de dépôt des e-mails quand EMAIL_BACKEND est le backend "filebased"
+# (utile pour une démonstration : chaque e-mail est écrit dans un fichier lisible).
+EMAIL_FILE_PATH = os.getenv('EMAIL_FILE_PATH', str(BASE_DIR / 'sent_emails'))
+
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Funkidz Animation <contact@funkidz.fr>')
+
+# Destinataires des notifications administratives.
+# Renseigner ADMIN_NOTIFICATION_EMAILS dans le .env (adresses séparées par des
+# virgules) pour router explicitement les e-mails admin vers une boîte de test.
+# Si la variable est vide, les destinataires sont déduits des comptes
+# administrateurs enregistrés (voir core.utils.get_admin_recipient_emails).
+ADMIN_NOTIFICATION_EMAILS = [
+    addr.strip()
+    for addr in os.getenv('ADMIN_NOTIFICATION_EMAILS', '').split(',')
+    if addr.strip() and '@' in addr
+]
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 
 # ==========================================

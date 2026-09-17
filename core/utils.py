@@ -5,10 +5,20 @@ from django.db.models import Q
 
 def get_admin_recipient_emails():
     """
-    Récupère dynamiquement la liste des adresses email des administrateurs.
-    Extrait l'adresse email configurée dans DEFAULT_FROM_EMAIL
-    et y ajoute les adresses des comptes administrateurs enregistrés.
+    Récupère la liste des adresses email destinataires des notifications
+    administratives.
+
+    Ordre de priorité :
+    1. ADMIN_NOTIFICATION_EMAILS (variable d'environnement) : si elle est
+       renseignée, elle fait foi. C'est le réglage à utiliser pour diriger les
+       notifications admin vers une boîte de test précise, sans toucher au code.
+    2. Sinon : l'adresse extraite de DEFAULT_FROM_EMAIL, complétée par les
+       adresses des comptes ayant le rôle ADMIN ou is_superuser=True.
     """
+    configured = getattr(settings, 'ADMIN_NOTIFICATION_EMAILS', None)
+    if configured:
+        return list(configured)
+
     emails = set()
 
     # 1. Extraction depuis DEFAULT_FROM_EMAIL

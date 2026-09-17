@@ -49,3 +49,6 @@ venv/
 
 retours/
 docs/
+
+# E-mails deposes par le backend "filebased" (mode demonstration)
+sent_emails/
