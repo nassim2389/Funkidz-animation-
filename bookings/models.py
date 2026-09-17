@@ -42,9 +42,31 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def _slot_has_changed(self):
+        """Le créneau (date, heure, prestation) diffère-t-il de celui en base ?"""
+        if not self.pk:
+            return True
+        previous = Booking.objects.filter(pk=self.pk).values(
+            'booking_date', 'booking_time', 'service_id'
+        ).first()
+        if previous is None:
+            return True
+        return (
+            previous['booking_date'] != self.booking_date
+            or previous['booking_time'] != self.booking_time
+            or previous['service_id'] != self.service_id
+        )
+
     def clean(self):
         super().clean()
         if self.booking_date and self.booking_time and self.status in [self.Status.CONFIRMED, self.Status.PENDING]:
+            # Le contrôle de disponibilité ne concerne que les créneaux
+            # nouveaux ou modifiés. Rejouer ce contrôle sur un créneau déjà
+            # enregistré ferait échouer une simple modification de statut
+            # (liste éditable de l'admin) sur un formulaire qui ne contient
+            # pas le champ `booking_time`.
+            if not self._slot_has_changed():
+                return
             from availability.views import is_slot_available_for_booking
             from django.core.exceptions import ValidationError
             service_id = self.service_id if hasattr(self, 'service_id') else None
