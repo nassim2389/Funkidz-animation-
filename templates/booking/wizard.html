@@ -240,6 +240,10 @@
                                         <span x-text="slot.available ? '🟢 Disponible' : (slot.is_past ? '⏱️ Créneau passé' : '🔴 Indisponible / Complet')"></span>
                                     </div>
                                     <div class="text-[10px] text-slate-500 font-medium line-clamp-1" x-text="slot.end_time ? 'Durée : jusqu\'à ' + slot.end_time : ''"></div>
+                                    <div class="text-[10px] font-semibold line-clamp-1"
+                                         :class="slot.animators_available > 0 ? 'text-slate-500' : 'text-rose-500'"
+                                         x-show="!slot.is_past && slot.animators_available !== undefined"
+                                         x-text="slot.animators_available + (slot.animators_available > 1 ? ' animateurs disponibles' : ' animateur disponible')"></div>
                                 </div>
                             </div>
                         </template>

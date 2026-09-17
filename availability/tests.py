@@ -272,3 +272,223 @@ class AvailabilityCheckTests(APITestCase):
         ).exists()
         self.assertFalse(blocked_exists)
 
+
+class PerAnimatorAvailabilityTests(APITestCase):
+    """Créneaux par animateur : une réservation ne bloque que son animateur."""
+
+    def setUp(self):
+        self.service = Service.objects.create(
+            name="Anniversaire Magique",
+            description="Prestation 2h",
+            base_price=150.00,
+            duration_minutes=120
+        )
+        self.animators = {}
+        for key in ('A', 'B', 'C'):
+            user = User.objects.create_user(
+                email=f"anim{key.lower()}@funkidz.fr",
+                password="password123",
+                first_name=f"Anim{key}",
+                last_name="Test",
+                role=User.Role.ANIMATEUR
+            )
+            profile, _ = AnimateurProfile.objects.get_or_create(user=user)
+            self.animators[key] = profile
+
+        self.client_user = User.objects.create_user(
+            email="client.pa@example.com",
+            password="password123",
+            first_name="Alice",
+            last_name="Martin",
+            role=User.Role.CLIENT
+        )
+
+        self.date_x = date(2026, 6, 15)
+        self.time_y = time(14, 0)
+
+    def _make_booking(self, booking_date, booking_time, animator=None,
+                      assignment_status=BookingAssignment.Status.ACCEPTED):
+        booking = Booking.objects.create(
+            user=self.client_user,
+            service=self.service,
+            booking_date=booking_date,
+            booking_time=booking_time,
+            nb_children=10,
+            estimated_price=150.00,
+            final_price=150.00,
+            location_address="1 rue des Fêtes",
+            location_city="Paris",
+            location_zip="75001",
+            status=Booking.Status.CONFIRMED
+        )
+        if animator is not None:
+            BookingAssignment.objects.create(
+                booking=booking, animateur=animator, status=assignment_status
+            )
+        return booking
+
+    # TEST 1 — Animateur A réservé : son créneau devient indisponible
+    def test_1_booked_animator_slot_is_unavailable_for_him(self):
+        from availability.views import is_slot_available_for_booking
+        self._make_booking(self.date_x, self.time_y, self.animators['A'])
+
+        available, message = is_slot_available_for_booking(
+            self.date_x, self.time_y, self.service.id,
+            animateur_id=self.animators['A'].id
+        )
+        self.assertFalse(available)
+        self.assertIn("indisponible", message.lower())
+
+    # TEST 2 — Même créneau, animateur B : autorisé (retour du professeur)
+    def test_2_other_animator_stays_available_on_same_slot(self):
+        from availability.views import is_slot_available_for_booking, get_animators_availability
+        self._make_booking(self.date_x, self.time_y, self.animators['A'])
+
+        for key in ('B', 'C'):
+            available, _ = is_slot_available_for_booking(
+                self.date_x, self.time_y, self.service.id,
+                animateur_id=self.animators[key].id
+            )
+            self.assertTrue(available, f"L'animateur {key} devrait rester disponible")
+
+        # Le créneau global reste ouvert : il reste des animateurs libres
+        available, _ = is_slot_available_for_booking(self.date_x, self.time_y, self.service.id)
+        self.assertTrue(available)
+
+        _, nb_free = get_animators_availability(self.date_x, self.time_y, self.service.id)
+        self.assertEqual(nb_free, 2)
+
+        # Et une seconde réservation sur le même créneau est acceptée
+        from bookings.serializers import BookingSerializer
+        serializer = BookingSerializer(data={
+            'service': self.service.id,
+            'booking_date': self.date_x.isoformat(),
+            'booking_time': '14:00',
+            'nb_children': 8,
+            'location_address': '2 rue des Ballons',
+            'location_city': 'Paris',
+            'location_zip': '75002'
+        })
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    # TEST 3 — Même animateur + même créneau : refusé
+    def test_3_same_animator_same_slot_is_refused(self):
+        from django.core.exceptions import ValidationError
+        from availability.views import is_slot_available_for_booking
+        self._make_booking(self.date_x, self.time_y, self.animators['A'])
+
+        available, message = is_slot_available_for_booking(
+            self.date_x, self.time_y, self.service.id,
+            animateur_id=self.animators['A'].id
+        )
+        self.assertFalse(available)
+        self.assertIn("indisponible", message.lower())
+
+        second = self._make_booking(self.date_x, self.time_y)
+        conflicting = BookingAssignment(
+            booking=second,
+            animateur=self.animators['A'],
+            status=BookingAssignment.Status.ACCEPTED
+        )
+        with self.assertRaises(ValidationError):
+            conflicting.clean()
+
+    # TEST 4 — Même animateur, autre créneau sans chevauchement : disponible
+    def test_4_same_animator_other_slot_is_available(self):
+        from availability.views import is_slot_available_for_booking
+        self._make_booking(self.date_x, self.time_y, self.animators['A'])
+
+        available, _ = is_slot_available_for_booking(
+            self.date_x, time(17, 0), self.service.id,
+            animateur_id=self.animators['A'].id
+        )
+        self.assertTrue(available)
+
+    # TEST 5 — Même animateur, même heure, autre date : disponible
+    def test_5_same_animator_other_date_is_available(self):
+        from availability.views import is_slot_available_for_booking
+        self._make_booking(self.date_x, self.time_y, self.animators['A'])
+
+        available, _ = is_slot_available_for_booking(
+            self.date_x + timedelta(days=1), self.time_y, self.service.id,
+            animateur_id=self.animators['A'].id
+        )
+        self.assertTrue(available)
+
+    # Capacité du pool : anti-doublon conservé quand tous les animateurs sont pris
+    def test_pool_capacity_is_still_enforced(self):
+        from availability.views import is_slot_available_for_booking
+        for key in ('A', 'B', 'C'):
+            self._make_booking(self.date_x, self.time_y, self.animators[key])
+
+        available, message = is_slot_available_for_booking(
+            self.date_x, self.time_y, self.service.id
+        )
+        self.assertFalse(available)
+        self.assertIn("indisponible", message.lower())
+
+    def test_pool_capacity_counts_unassigned_bookings(self):
+        from availability.views import is_slot_available_for_booking
+        # 3 réservations actives non attribuées mobiliseront les 3 animateurs
+        for _ in range(3):
+            self._make_booking(self.date_x, self.time_y)
+
+        available, message = is_slot_available_for_booking(
+            self.date_x, self.time_y, self.service.id
+        )
+        self.assertFalse(available)
+        self.assertIn("mobilisés", message.lower())
+
+    # Endpoints API
+    def test_check_endpoint_accepts_animateur_param(self):
+        self._make_booking(self.date_x, self.time_y, self.animators['A'])
+        url = reverse('availability-check-availability')
+
+        resp_a = self.client.get(url, {
+            'date': '2026-06-15', 'time': '14:00',
+            'service': self.service.id, 'animateur': self.animators['A'].id
+        })
+        self.assertEqual(resp_a.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp_a.data['available'])
+
+        resp_b = self.client.get(url, {
+            'date': '2026-06-15', 'time': '14:00',
+            'service': self.service.id, 'animateur': self.animators['B'].id
+        })
+        self.assertEqual(resp_b.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp_b.data['available'])
+        self.assertEqual(resp_b.data['animators_available'], 2)
+
+    def test_animators_endpoint_returns_individual_calendar(self):
+        self._make_booking(self.date_x, self.time_y, self.animators['A'])
+        url = reverse('availability-get-animators-for-slot')
+        resp = self.client.get(url, {
+            'date': '2026-06-15', 'time': '14:00', 'service': self.service.id
+        })
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['animators_total'], 3)
+        self.assertEqual(resp.data['animators_available'], 2)
+
+        by_id = {a['animateur_id']: a for a in resp.data['animators']}
+        self.assertFalse(by_id[self.animators['A'].id]['available'])
+        self.assertTrue(by_id[self.animators['B'].id]['available'])
+        self.assertTrue(by_id[self.animators['C'].id]['available'])
+
+    def test_slots_endpoint_exposes_free_animator_count(self):
+        future = date.today() + timedelta(days=10)
+        self._make_booking(future, time(14, 0), self.animators['A'])
+
+        url = reverse('availability-get-daily-slots')
+        resp = self.client.get(url, {'date': future.isoformat(), 'service': self.service.id})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        slot_14 = next(s for s in resp.data['slots'] if s['time'] == '14:00')
+        self.assertTrue(slot_14['available'])          # B et C restent libres
+        self.assertEqual(slot_14['animators_available'], 2)
+
+        resp_a = self.client.get(url, {
+            'date': future.isoformat(), 'service': self.service.id,
+            'animateur': self.animators['A'].id
+        })
+        slot_14_a = next(s for s in resp_a.data['slots'] if s['time'] == '14:00')
+        self.assertFalse(slot_14_a['available'])       # mais pas pour l'animateur A
