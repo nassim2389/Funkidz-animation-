@@ -17,6 +17,129 @@ logger = logging.getLogger(__name__)
 stripe.api_key = os.getenv('STRIPE_API_KEY')
 
 
+def _stripe_is_configured():
+    """Les deux clés Stripe nécessaires au formulaire de carte sont-elles présentes ?"""
+    return bool(getattr(settings, 'STRIPE_ENABLED', False))
+
+
+def _missing_stripe_settings():
+    """Liste des variables d'environnement Stripe à renseigner."""
+    missing = []
+    if not getattr(settings, 'STRIPE_API_KEY', ''):
+        missing.append('STRIPE_API_KEY')
+    if not getattr(settings, 'STRIPE_PUBLISHABLE_KEY', ''):
+        missing.append('STRIPE_PUBLISHABLE_KEY')
+    return missing
+
+
+class CreatePaymentIntentView(APIView):
+    """
+    Prépare un paiement par carte affiché directement dans le site.
+
+    Crée (ou réutilise) un PaymentIntent Stripe pour la réservation et renvoie
+    son client_secret. C'est ce secret qui alimente le Payment Element officiel
+    de Stripe, seul composant autorisé à recevoir le numéro de carte : aucune
+    donnée bancaire ne transite par le serveur Funkidz.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        if not _stripe_is_configured():
+            return Response(
+                {
+                    'error': "Le paiement par carte n'est pas disponible : la configuration "
+                             "Stripe est incomplète.",
+                    'missing': _missing_stripe_settings(),
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+
+        stripe.api_key = settings.STRIPE_API_KEY
+        booking_id = request.data.get('booking_id')
+
+        try:
+            booking = Booking.objects.select_related('service').get(id=booking_id, user=request.user)
+        except Booking.DoesNotExist:
+            return Response({'error': 'Réservation introuvable.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if booking.status == Booking.Status.CANCELLED:
+            return Response(
+                {'error': "Cette réservation est annulée : elle ne peut plus être réglée."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        amount_cents = int(round(float(booking.final_price) * 100))
+        if amount_cents <= 0:
+            return Response(
+                {'error': "Le montant de cette réservation est nul."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        payment = Payment.objects.filter(booking=booking).order_by('-created_at').first()
+
+        try:
+            intent = None
+            # Réutilise l'intention existante tant qu'elle est encore payable et
+            # porte le bon montant, pour ne pas multiplier les paiements Stripe.
+            if payment and payment.stripe_payment_intent:
+                try:
+                    existing = stripe.PaymentIntent.retrieve(payment.stripe_payment_intent)
+                    reusable = existing.get('status') in (
+                        'requires_payment_method', 'requires_confirmation', 'requires_action'
+                    )
+                    if reusable and existing.get('amount') == amount_cents:
+                        intent = existing
+                except stripe.error.StripeError:
+                    intent = None
+
+            if intent is None:
+                intent = stripe.PaymentIntent.create(
+                    amount=amount_cents,
+                    currency='eur',
+                    automatic_payment_methods={'enabled': True},
+                    receipt_email=request.user.email,
+                    description=f"Funkidz — Réservation #{booking.id} : {booking.service.name}",
+                    metadata={
+                        'booking_id': str(booking.id),
+                        'user_id': str(request.user.id),
+                        'client_email': request.user.email,
+                        'service': booking.service.name,
+                        'booking_date': str(booking.booking_date),
+                        'booking_time': str(booking.booking_time),
+                    }
+                )
+
+            Payment.objects.update_or_create(
+                booking=booking,
+                defaults={
+                    'stripe_session_id': intent['id'],
+                    'stripe_payment_intent': intent['id'],
+                    'amount': booking.final_price,
+                    'status': Payment.Status.PENDING,
+                }
+            )
+
+            logger.info(f"PaymentIntent {intent['id']} prêt pour la réservation #{booking.id}")
+            return Response({
+                'client_secret': intent['client_secret'],
+                'publishable_key': settings.STRIPE_PUBLISHABLE_KEY,
+                'amount': float(booking.final_price),
+                'currency': 'eur',
+                'booking_id': booking.id,
+            })
+
+        except stripe.error.AuthenticationError:
+            logger.error("Clé API Stripe refusée par Stripe.")
+            return Response(
+                {'error': "La clé Stripe configurée a été refusée par Stripe. "
+                          "Vérifiez STRIPE_API_KEY dans le fichier .env."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        except stripe.error.StripeError as e:
+            logger.error(f"Erreur Stripe (PaymentIntent) pour la réservation #{booking_id}: {e}")
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class CreateStripeSessionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -32,25 +155,30 @@ class CreateStripeSessionView(APIView):
         except Booking.DoesNotExist:
             return Response({'error': 'Réservation introuvable.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Si le client choisit explicitement le mode démo ou si la clé Stripe n'est pas renseignée
-        if payment_mode == 'demo' or not api_key or 'REMPLACER' in api_key:
-            logger.info(f"Mode démonstration activé pour la réservation #{booking.id}")
-            payment, _ = Payment.objects.update_or_create(
-                booking=booking,
-                defaults={
-                    'stripe_session_id': f'demo_session_{booking.id}',
-                    'amount': booking.final_price,
-                    'status': Payment.Status.PENDING
-                }
-            )
-            success_url = request.build_absolute_uri('/payment-success/') + f'?booking_id={booking.id}&mode=demo'
+        # « Payer plus tard » : la réservation reste En attente et AUCUN paiement
+        # n'est enregistré. Le client est renvoyé vers son espace, d'où il pourra
+        # régler par carte quand il le souhaite.
+        if payment_mode == 'later':
+            logger.info(f"Paiement différé demandé pour la réservation #{booking.id}")
             return Response({
-                'session_id': payment.stripe_session_id,
-                'url': success_url,
-                'mode': 'demo',
+                'mode': 'later',
+                'url': request.build_absolute_uri('/dashboard/'),
                 'booking_id': booking.id,
                 'amount': float(booking.final_price)
             })
+
+        # Sans clé Stripe exploitable, aucun paiement n'est possible : on le dit
+        # explicitement au lieu de faire croire à un règlement abouti.
+        if not _stripe_is_configured():
+            logger.warning("Stripe non configuré : impossible de créer une session de paiement.")
+            return Response(
+                {
+                    'error': "Le paiement par carte n'est pas disponible : la configuration "
+                             "Stripe est incomplète.",
+                    'missing': _missing_stripe_settings(),
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
 
         try:
             # Construction décomposée des Line Items pour Stripe Checkout
@@ -143,23 +271,12 @@ class CreateStripeSessionView(APIView):
             })
 
         except stripe.error.AuthenticationError:
-            logger.error("Clé API Stripe invalide. Bascule sur mode démo.")
-            payment, _ = Payment.objects.update_or_create(
-                booking=booking,
-                defaults={
-                    'stripe_session_id': f'demo_session_{booking.id}',
-                    'amount': booking.final_price,
-                    'status': Payment.Status.PENDING
-                }
+            logger.error("Clé API Stripe refusée par Stripe.")
+            return Response(
+                {'error': "La clé Stripe configurée a été refusée par Stripe. "
+                          "Vérifiez STRIPE_API_KEY dans le fichier .env."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
-            success_url = request.build_absolute_uri('/payment-success/') + f'?booking_id={booking.id}&mode=demo'
-            return Response({
-                'session_id': payment.stripe_session_id,
-                'url': success_url,
-                'mode': 'demo',
-                'booking_id': booking.id,
-                'amount': float(booking.final_price)
-            })
         except Exception as e:
             logger.error(f"Erreur Stripe pour la réservation #{booking_id}: {e}")
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

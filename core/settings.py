@@ -298,5 +298,18 @@ SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 # STRIPE CONFIGURATION
 # ==========================================
 STRIPE_API_KEY = os.getenv('STRIPE_API_KEY', '')
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+
+
+def _stripe_key_is_usable(key):
+    """Une clé Stripe exploitable commence par sk_/pk_ et n'est pas un placeholder."""
+    if not key or 'REMPLACER' in key:
+        return False
+    return key.startswith(('sk_', 'pk_', 'rk_'))
+
+
+# Vrai uniquement si les deux clés Stripe nécessaires au formulaire de carte
+# (clé secrète côté serveur, clé publiable côté navigateur) sont renseignées.
+STRIPE_ENABLED = _stripe_key_is_usable(STRIPE_API_KEY) and _stripe_key_is_usable(STRIPE_PUBLISHABLE_KEY)
 

@@ -2,7 +2,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 from .views import (
     HomeView, ServiceListWebView, BookingWizardView, GalleryView, PricingView, 
-    AboutView, ContactView, DashboardView, PaymentSuccessView, PaymentCancelledView,
+    AboutView, ContactView, DashboardView, PaymentPageView, PaymentSuccessView, PaymentCancelledView,
     newsletter_signup
 )
 from . import views_animateur, views_client
@@ -22,6 +22,7 @@ urlpatterns = [
     path('terms/', TemplateView.as_view(template_name='terms.html'), name='terms'),
     path('privacy/', TemplateView.as_view(template_name='privacy.html'), name='privacy'),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('paiement/<int:booking_id>/', PaymentPageView.as_view(), name='payment-page'),
     path('payment-success/', PaymentSuccessView.as_view(), name='payment-success'),
     path('payment-cancelled/', PaymentCancelledView.as_view(), name='payment-cancelled'),
     path('assignment/<int:assignment_id>/accept/', views_animateur.accept_assignment, name='accept-assignment'),

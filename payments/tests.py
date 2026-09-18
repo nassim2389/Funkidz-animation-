@@ -60,20 +60,34 @@ class StripePaymentTests(APITestCase):
             price_at_time=Decimal("6.00")
         )
 
-    def test_create_session_demo_mode(self):
+    def test_pay_later_does_not_create_payment(self):
+        """« Payer plus tard » laisse la réservation en attente, sans paiement."""
         url = reverse('create-stripe-session')
-        payload = {
-            'booking_id': self.booking.id,
-            'payment_mode': 'demo'
-        }
-        response = self.client.post(url, payload, format='json')
+        response = self.client.post(
+            url, {'booking_id': self.booking.id, 'payment_mode': 'later'}, format='json'
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['mode'], 'demo')
-        self.assertIn('/payment-success/', response.data['url'])
-        self.assertEqual(response.data['booking_id'], self.booking.id)
+        self.assertEqual(response.data['mode'], 'later')
+        self.assertIn('/dashboard/', response.data['url'])
+        self.assertNotIn('/payment-success/', response.data['url'])
 
-        payment = Payment.objects.get(booking=self.booking)
-        self.assertEqual(payment.amount, Decimal("220.00"))
+        self.assertFalse(Payment.objects.filter(booking=self.booking).exists())
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+
+    def test_create_session_without_stripe_keys_is_refused(self):
+        """Sans clé Stripe, aucune session n'est créée et rien n'est marqué payé."""
+        url = reverse('create-stripe-session')
+        with patch('django.conf.settings.STRIPE_ENABLED', False):
+            response = self.client.post(
+                url, {'booking_id': self.booking.id, 'payment_mode': 'stripe'}, format='json'
+            )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertIn('error', response.data)
+
+        self.assertFalse(Payment.objects.filter(booking=self.booking).exists())
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
 
     @patch('stripe.checkout.Session.create')
     def test_create_session_stripe_decomposed_line_items(self, mock_stripe_create):
@@ -82,7 +96,9 @@ class StripePaymentTests(APITestCase):
         mock_session.url = "https://checkout.stripe.com/pay/cs_test_abc123"
         mock_stripe_create.return_value = mock_session
 
-        with patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'):
+        with patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'), \
+             patch('django.conf.settings.STRIPE_PUBLISHABLE_KEY', 'pk_test_mock_key_123'), \
+             patch('django.conf.settings.STRIPE_ENABLED', True):
             url = reverse('create-stripe-session')
             payload = {
                 'booking_id': self.booking.id,
@@ -179,13 +195,215 @@ class StripePaymentTests(APITestCase):
         payment.refresh_from_db()
         self.assertEqual(payment.status, Payment.Status.FAILED)
 
-    def test_payment_success_view(self):
+    def test_success_page_does_not_confirm_without_stripe_reference(self):
+        """Arriver sur l'URL de succès ne suffit pas à valider un paiement."""
         url = reverse('payment-success') + f'?booking_id={self.booking.id}&mode=demo'
         response = self.client.get(url)
+
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'payments/success.html')
-        self.assertEqual(response.context['booking'].id, self.booking.id)
-        self.assertTrue(response.context['is_demo'])
-        
+        self.assertFalse(response.context['payment_confirmed'])
+
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+        self.assertFalse(Payment.objects.filter(
+            booking=self.booking, status=Payment.Status.SUCCEEDED
+        ).exists())
+
+    @patch('stripe.PaymentIntent.retrieve')
+    def test_success_page_confirms_only_when_stripe_says_succeeded(self, mock_retrieve):
+        """Le paiement n'est validé que si Stripe répond succeeded."""
+        Payment.objects.create(
+            booking=self.booking,
+            stripe_session_id='pi_test_ok_1',
+            stripe_payment_intent='pi_test_ok_1',
+            amount=self.booking.final_price,
+            status=Payment.Status.PENDING,
+        )
+        mock_retrieve.return_value = {
+            'id': 'pi_test_ok_1',
+            'status': 'succeeded',
+            'metadata': {'booking_id': str(self.booking.id)},
+        }
+
+        url = reverse('payment-success') + '?payment_intent=pi_test_ok_1'
+        with patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'):
+            response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['payment_confirmed'])
+
         self.booking.refresh_from_db()
         self.assertEqual(self.booking.status, Booking.Status.CONFIRMED)
+        self.assertEqual(
+            Payment.objects.get(booking=self.booking).status, Payment.Status.SUCCEEDED
+        )
+
+    @patch('stripe.PaymentIntent.retrieve')
+    def test_success_page_rejects_unpaid_intent(self, mock_retrieve):
+        """Un paiement refusé ne confirme ni la réservation ni le règlement."""
+        Payment.objects.create(
+            booking=self.booking,
+            stripe_session_id='pi_test_ko_1',
+            stripe_payment_intent='pi_test_ko_1',
+            amount=self.booking.final_price,
+            status=Payment.Status.PENDING,
+        )
+        mock_retrieve.return_value = {
+            'id': 'pi_test_ko_1',
+            'status': 'requires_payment_method',
+            'metadata': {'booking_id': str(self.booking.id)},
+        }
+
+        url = reverse('payment-success') + '?payment_intent=pi_test_ko_1'
+        with patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'):
+            response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['payment_confirmed'])
+
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+        self.assertEqual(
+            Payment.objects.get(booking=self.booking).status, Payment.Status.FAILED
+        )
+
+    @patch('stripe.checkout.Session.retrieve')
+    def test_success_page_rejects_unpaid_checkout_session(self, mock_retrieve):
+        """Une Checkout Session non payée ne confirme pas la réservation."""
+        Payment.objects.create(
+            booking=self.booking,
+            stripe_session_id='cs_test_unpaid',
+            amount=self.booking.final_price,
+            status=Payment.Status.PENDING,
+        )
+        mock_retrieve.return_value = {
+            'id': 'cs_test_unpaid',
+            'payment_status': 'unpaid',
+            'metadata': {'booking_id': str(self.booking.id)},
+        }
+
+        url = reverse('payment-success') + '?session_id=cs_test_unpaid'
+        with patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'):
+            response = self.client.get(url)
+
+        self.assertFalse(response.context['payment_confirmed'])
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+
+
+class PaymentElementTests(APITestCase):
+    """Formulaire de carte affiché dans le site via le Payment Element Stripe."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="client.element@funkidz.fr",
+            password="password123",
+            first_name="Marc",
+            last_name="Durand",
+            role=User.Role.CLIENT,
+        )
+        self.service = Service.objects.create(
+            name="Atelier Carte",
+            description="Prestation de test",
+            base_price=Decimal("180.00"),
+            duration_minutes=120,
+        )
+        self.booking = Booking.objects.create(
+            user=self.user,
+            service=self.service,
+            booking_date="2026-08-20",
+            booking_time="10:00",
+            nb_children=12,
+            location_address="8 rue du Paiement",
+            location_city="Paris",
+            location_zip="75008",
+            estimated_price=Decimal("180.00"),
+            final_price=Decimal("180.00"),
+            status=Booking.Status.PENDING,
+        )
+
+    def test_intent_refused_without_stripe_configuration(self):
+        self.client.force_authenticate(user=self.user)
+        with patch('django.conf.settings.STRIPE_ENABLED', False):
+            response = self.client.post(
+                reverse('create-payment-intent'), {'booking_id': self.booking.id}, format='json'
+            )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertIn('missing', response.data)
+        self.assertFalse(Payment.objects.filter(booking=self.booking).exists())
+
+    @patch('stripe.PaymentIntent.create')
+    def test_intent_amount_matches_booking(self, mock_create):
+        mock_create.return_value = {
+            'id': 'pi_test_amount',
+            'client_secret': 'pi_test_amount_secret_xyz',
+            'status': 'requires_payment_method',
+        }
+        self.client.force_authenticate(user=self.user)
+
+        with patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'), \
+             patch('django.conf.settings.STRIPE_PUBLISHABLE_KEY', 'pk_test_mock_key_123'), \
+             patch('django.conf.settings.STRIPE_ENABLED', True):
+            response = self.client.post(
+                reverse('create-payment-intent'), {'booking_id': self.booking.id}, format='json'
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['client_secret'], 'pi_test_amount_secret_xyz')
+        self.assertEqual(response.data['publishable_key'], 'pk_test_mock_key_123')
+
+        _, kwargs = mock_create.call_args
+        self.assertEqual(kwargs['amount'], 18000)          # 180,00 EUR
+        self.assertEqual(kwargs['currency'], 'eur')
+        self.assertEqual(kwargs['metadata']['booking_id'], str(self.booking.id))
+
+        payment = Payment.objects.get(booking=self.booking)
+        self.assertEqual(payment.status, Payment.Status.PENDING)
+        self.assertEqual(payment.stripe_payment_intent, 'pi_test_amount')
+
+    def test_intent_refuses_booking_of_another_user(self):
+        other = User.objects.create_user(
+            email="intrus@funkidz.fr", password="password123", role=User.Role.CLIENT
+        )
+        self.client.force_authenticate(user=other)
+        with patch('django.conf.settings.STRIPE_ENABLED', True), \
+             patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'):
+            response = self.client.post(
+                reverse('create-payment-intent'), {'booking_id': self.booking.id}, format='json'
+            )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_payment_page_shows_card_form_when_stripe_configured(self):
+        self.client.force_login(self.user)
+        with patch('django.conf.settings.STRIPE_ENABLED', True), \
+             patch('django.conf.settings.STRIPE_PUBLISHABLE_KEY', 'pk_test_mock_key_123'):
+            response = self.client.get(reverse('payment-page', args=[self.booking.id]))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('payment-element', content)               # conteneur du Payment Element
+        self.assertIn('js.stripe.com/v3', content)              # Stripe.js officiel
+        self.assertIn('Paiement par carte bancaire', content)
+        self.assertNotIn('name="card_number"', content)         # aucun champ carte maison
+
+    def test_payment_page_explains_missing_configuration(self):
+        self.client.force_login(self.user)
+        with patch('django.conf.settings.STRIPE_ENABLED', False), \
+             patch('django.conf.settings.STRIPE_API_KEY', ''), \
+             patch('django.conf.settings.STRIPE_PUBLISHABLE_KEY', ''):
+            response = self.client.get(reverse('payment-page', args=[self.booking.id]))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('STRIPE_API_KEY', content)
+        self.assertIn('STRIPE_PUBLISHABLE_KEY', content)
+        self.assertNotIn('js.stripe.com/v3', content)
+
+    def test_payment_page_refuses_booking_of_another_user(self):
+        other = User.objects.create_user(
+            email="intrus2@funkidz.fr", password="password123", role=User.Role.CLIENT
+        )
+        self.client.force_login(other)
+        response = self.client.get(reverse('payment-page', args=[self.booking.id]))
+        self.assertEqual(response.status_code, 404)

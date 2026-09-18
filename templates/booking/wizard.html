@@ -503,7 +503,7 @@
                                 <div class="flex items-center gap-2">
                                     <span class="text-2xl">💳</span>
                                     <div>
-                                        <div class="font-bold text-sm text-slate-900">Carte Bancaire (Stripe)</div>
+                                        <div class="font-bold text-sm text-slate-900">Carte bancaire (Stripe)</div>
                                         <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Recommandé</span>
                                     </div>
                                 </div>
@@ -513,7 +513,8 @@
                                 </div>
                             </div>
                             <p class="text-xs text-slate-500 leading-relaxed mb-3">
-                                Chiffrement SSL 256 bits, protocole 3D Secure et validation bancaire instantanée.
+                                Saisie du numéro de carte, de la date d'expiration et du CVC dans les
+                                champs sécurisés de Stripe, à l'étape suivante.
                             </p>
                             <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
                                 <span class="text-[10px] font-bold text-slate-400">Acceptés :</span>
@@ -523,27 +524,28 @@
 
                         <!-- Option 2 : Mode Démo Instantané -->
                         <div class="p-5 rounded-2xl border-2 cursor-pointer transition duration-200 relative bg-white"
-                             :class="paymentMode === 'demo' ? 'border-brand-600 ring-4 ring-brand-500/20 shadow-md' : 'border-slate-200 hover:border-brand-300'"
-                             @click="paymentMode = 'demo'">
+                             :class="paymentMode === 'later' ? 'border-brand-600 ring-4 ring-brand-500/20 shadow-md' : 'border-slate-200 hover:border-brand-300'"
+                             @click="paymentMode = 'later'">
                             
                             <div class="flex justify-between items-start mb-3">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-2xl">🧪</span>
+                                    <span class="text-2xl">⏳</span>
                                     <div>
-                                        <div class="font-bold text-sm text-slate-900">Validation Démo (Test)</div>
-                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">Sans Carte</span>
+                                        <div class="font-bold text-sm text-slate-900">Payer plus tard</div>
+                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">En attente</span>
                                     </div>
                                 </div>
                                 <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
-                                     :class="paymentMode === 'demo' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300'">
-                                    <span x-show="paymentMode === 'demo'" class="text-xs">✓</span>
+                                     :class="paymentMode === 'later' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300'">
+                                    <span x-show="paymentMode === 'later'" class="text-xs">✓</span>
                                 </div>
                             </div>
                             <p class="text-xs text-slate-500 leading-relaxed mb-3">
-                                Idéal pour tester tout le parcours : confirmation immédiate, e-mails automatiques et création de facturette sans débit bancaire.
+                                La réservation est enregistrée mais reste en attente de règlement.
+                                Vous pourrez payer par carte depuis votre espace client.
                             </p>
                             <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
-                                <span class="text-[10px] font-bold text-purple-600">⚡ Test immédiat en 1 clic</span>
+                                <span class="text-[10px] font-bold text-purple-600">⏳ Aucun débit — réservation en attente</span>
                             </div>
                         </div>
                     </div>
@@ -589,9 +591,9 @@
                         :disabled="!acceptTerms || isSubmitting"
                         @click="submitBooking()">
                     <span x-show="isSubmitting" class="animate-spin text-sm">⏳</span>
-                    <span x-show="!isSubmitting && paymentMode === 'stripe'">Payer sur Stripe 💳 (<span x-text="totalPrice.toFixed(2) + ' €'"></span>)</span>
-                    <span x-show="!isSubmitting && paymentMode === 'demo'">Valider en Mode Démo 🎉 (<span x-text="totalPrice.toFixed(2) + ' €'"></span>)</span>
-                    <span x-show="isSubmitting">Redirection sécurisée en cours...</span>
+                    <span x-show="!isSubmitting && paymentMode === 'stripe'">Payer par carte 💳 (<span x-text="totalPrice.toFixed(2) + ' €'"></span>)</span>
+                    <span x-show="!isSubmitting && paymentMode === 'later'">Réserver et payer plus tard ⏳ (<span x-text="totalPrice.toFixed(2) + ' €'"></span>)</span>
+                    <span x-show="isSubmitting">Enregistrement de la réservation...</span>
                 </button>
             </div>
         </div>
@@ -633,7 +635,7 @@
             selectedServiceImage: '',
             selectedServicePrice: 0,
 
-            paymentMode: 'stripe', // 'stripe' or 'demo'
+            paymentMode: 'stripe', // 'stripe' (carte bancaire) ou 'later' (paiement differe)
             acceptTerms: false,
             isSubmitting: false,
 
@@ -941,25 +943,14 @@
                     if (res.ok) {
                         const booking = await res.json();
                         
-                        // Appel de création de session Stripe ou Démo
-                        const payRes = await fetch('/api/payments/create-session/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token }}'
-                            },
-                            body: JSON.stringify({ 
-                                booking_id: booking.id,
-                                payment_mode: this.paymentMode 
-                            })
-                        });
-                        
-                        const sessionData = await payRes.json();
-                        if (payRes.ok && sessionData.url) {
-                            window.location.href = sessionData.url;
-                        } else {
-                            window.location.href = '/payment-success/?booking_id=' + booking.id + '&mode=demo';
+                        // Paiement différé : la réservation reste en attente de règlement.
+                        if (this.paymentMode === 'later') {
+                            window.location.href = '/dashboard/';
+                            return;
                         }
+
+                        // Paiement par carte : page de saisie Stripe pour cette réservation.
+                        window.location.href = '/paiement/' + booking.id + '/';
                     } else {
                         this.isSubmitting = false;
                         const error = await res.json();

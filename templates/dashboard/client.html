@@ -71,11 +71,10 @@
 
                         <div class="flex flex-wrap gap-2 items-center">
                             {% if booking.status == 'PENDING' %}
-                            <button type="button" 
-                                    onclick="initiatePayment({{ booking.id }})" 
-                                    class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-black rounded-xl shadow-glow transition">
-                                Payer 💳
-                            </button>
+                            <a href="{% url 'payment-page' booking.id %}"
+                               class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-black rounded-xl shadow-glow transition">
+                                Payer par carte 💳
+                            </a>
                             {% endif %}
                             {% if booking.status == 'CONFIRMED' or booking.status == 'DONE' %}
                             <a href="{% url 'payment-success' %}?booking_id={{ booking.id }}" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-200 transition">
@@ -100,28 +99,6 @@
                 {% endfor %}
             </div>
 
-            <script>
-                async function initiatePayment(bookingId) {
-                    try {
-                        const res = await fetch('/api/payments/create-session/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token }}'
-                            },
-                            body: JSON.stringify({ booking_id: bookingId, payment_mode: 'stripe' })
-                        });
-                        const data = await res.json();
-                        if (res.ok && data.url) {
-                            window.location.href = data.url;
-                        } else {
-                            window.location.href = '/payment-success/?booking_id=' + bookingId + '&mode=demo';
-                        }
-                    } catch (e) {
-                        alert("Erreur lors de l'initialisation du paiement.");
-                    }
-                }
-            </script>
             {% else %}
             <div class="bg-white p-12 rounded-3xl border border-slate-200/80 text-center space-y-4">
                 <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-2xl font-bold">🎈</div>

@@ -45,63 +45,167 @@ class PricingView(TemplateView):
 class AboutView(TemplateView):
     template_name = 'about.html'
 
+class PaymentPageView(LoginRequiredMixin, TemplateView):
+    """
+    Page de règlement par carte bancaire.
+
+    Affiche le récapitulatif de la réservation puis le Payment Element officiel
+    de Stripe : le numéro de carte, la date d'expiration et le CVC sont saisis
+    dans les champs fournis par Stripe, jamais par un formulaire maison.
+    """
+    template_name = 'payments/checkout.html'
+    login_url = '/auth/login/'
+
+    def get_context_data(self, **kwargs):
+        from django.conf import settings
+        from django.shortcuts import get_object_or_404
+        from bookings.models import Booking
+
+        context = super().get_context_data(**kwargs)
+        booking = get_object_or_404(
+            Booking, id=kwargs.get('booking_id'), user=self.request.user
+        )
+
+        missing = []
+        if not getattr(settings, 'STRIPE_API_KEY', ''):
+            missing.append('STRIPE_API_KEY')
+        if not getattr(settings, 'STRIPE_PUBLISHABLE_KEY', ''):
+            missing.append('STRIPE_PUBLISHABLE_KEY')
+
+        context['booking'] = booking
+        context['stripe_enabled'] = getattr(settings, 'STRIPE_ENABLED', False)
+        context['stripe_publishable_key'] = getattr(settings, 'STRIPE_PUBLISHABLE_KEY', '')
+        context['missing_stripe_settings'] = missing
+        context['already_paid'] = booking.payments.filter(status='SUCCEEDED').exists()
+        return context
+
+
 class PaymentSuccessView(TemplateView):
+    """
+    Page de résultat du paiement.
+
+    Le règlement n'est jamais considéré comme abouti du simple fait d'arriver
+    sur cette URL : l'état réel est demandé à Stripe (Checkout Session ou
+    PaymentIntent) avant toute confirmation de la réservation.
+    """
     template_name = 'payments/success.html'
 
     def get(self, request, *args, **kwargs):
+        import logging
+        import stripe
+        from django.conf import settings
         from payments.models import Payment
         from bookings.models import Booking
 
+        logger = logging.getLogger(__name__)
+
         session_id = request.GET.get('session_id')
-        booking_id = request.GET.get('booking_id')
-        mode = request.GET.get('mode', '')
+        intent_id = request.GET.get('payment_intent')
 
         self.booking = None
         self.payment = None
-        self.is_demo = (mode == 'demo')
+        self.payment_confirmed = False
+        self.payment_message = ""
 
+        if not session_id and not intent_id:
+            self.payment_message = (
+                "Aucune référence de paiement n'a été transmise. "
+                "Le règlement n'a pas pu être vérifié auprès de Stripe."
+            )
+            return super().get(request, *args, **kwargs)
+
+        if not getattr(settings, 'STRIPE_API_KEY', ''):
+            self.payment_message = (
+                "La configuration Stripe est incomplète : le paiement ne peut pas "
+                "être vérifié."
+            )
+            return super().get(request, *args, **kwargs)
+
+        stripe.api_key = settings.STRIPE_API_KEY
+
+        booking_id = None
+        paid = False
+        try:
+            if session_id:
+                session = stripe.checkout.Session.retrieve(session_id)
+                paid = session.get('payment_status') == 'paid'
+                booking_id = (session.get('metadata') or {}).get('booking_id')
+                reference = session.get('payment_intent') or session_id
+            else:
+                intent = stripe.PaymentIntent.retrieve(intent_id)
+                paid = intent.get('status') == 'succeeded'
+                booking_id = (intent.get('metadata') or {}).get('booking_id')
+                reference = intent_id
+        except Exception as exc:
+            logger.error(f"Vérification du paiement impossible auprès de Stripe : {exc}")
+            self.payment_message = (
+                "Le paiement n'a pas pu être vérifié auprès de Stripe. "
+                "Votre réservation reste en attente de règlement."
+            )
+            return super().get(request, *args, **kwargs)
+
+        payment = None
         if session_id:
-            try:
-                payment = Payment.objects.filter(stripe_session_id=session_id).first()
-                if payment:
-                    if payment.status != Payment.Status.SUCCEEDED:
-                        payment.status = Payment.Status.SUCCEEDED
-                        payment.save()
-                    booking = payment.booking
-                    if booking.status != Booking.Status.CONFIRMED:
-                        booking.status = Booking.Status.CONFIRMED
-                        booking.save()  # Déclenche le signal d'envoi d'e-mail de confirmation
-                    self.booking = booking
-                    self.payment = payment
-            except Exception:
-                pass
+            payment = Payment.objects.filter(stripe_session_id=session_id).first()
+        if payment is None and intent_id:
+            payment = Payment.objects.filter(stripe_payment_intent=intent_id).first()
+        if payment is None and booking_id:
+            payment = Payment.objects.filter(booking_id=booking_id).order_by('-created_at').first()
 
-        if not self.booking and booking_id:
-            try:
-                booking = Booking.objects.get(id=booking_id)
-                if booking.status != Booking.Status.CONFIRMED:
-                    booking.status = Booking.Status.CONFIRMED
-                    booking.save()  # Déclenche le signal d'envoi d'e-mail de confirmation
-                payment, _ = Payment.objects.get_or_create(
-                    booking=booking,
-                    defaults={'stripe_session_id': f'demo_{booking.id}', 'amount': booking.final_price, 'status': Payment.Status.SUCCEEDED}
-                )
-                if payment.status != Payment.Status.SUCCEEDED:
-                    payment.status = Payment.Status.SUCCEEDED
-                    payment.save()
-                self.booking = booking
-                self.payment = payment
-            except Booking.DoesNotExist:
-                pass
+        booking = payment.booking if payment else None
+        if booking is None and booking_id:
+            booking = Booking.objects.filter(id=booking_id).first()
 
+        if booking is None:
+            self.payment_message = "Réservation introuvable pour ce paiement."
+            return super().get(request, *args, **kwargs)
+
+        if not paid:
+            if payment and payment.status != Payment.Status.SUCCEEDED:
+                payment.status = Payment.Status.FAILED
+                payment.save(update_fields=['status', 'updated_at'])
+            self.booking = booking
+            self.payment = payment
+            self.payment_message = (
+                "Stripe n'a pas confirmé ce règlement. La réservation reste en "
+                "attente de paiement."
+            )
+            return super().get(request, *args, **kwargs)
+
+        # Paiement confirmé par Stripe
+        if payment is None:
+            payment = Payment.objects.create(
+                booking=booking,
+                stripe_session_id=session_id or reference,
+                stripe_payment_intent=reference,
+                amount=booking.final_price,
+                status=Payment.Status.SUCCEEDED,
+            )
+        else:
+            payment.stripe_payment_intent = reference
+            payment.status = Payment.Status.SUCCEEDED
+            payment.save()
+
+        if booking.status != Booking.Status.CONFIRMED:
+            booking.status = Booking.Status.CONFIRMED
+            booking.cancelled_by = ''
+            booking.save()  # Déclenche les e-mails de confirmation
+
+        self.booking = booking
+        self.payment = payment
+        self.payment_confirmed = True
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['booking'] = getattr(self, 'booking', None)
         context['payment'] = getattr(self, 'payment', None)
-        context['is_demo'] = getattr(self, 'is_demo', False)
+        context['payment_confirmed'] = getattr(self, 'payment_confirmed', False)
+        context['payment_message'] = getattr(self, 'payment_message', '')
+        # Conservé pour compatibilité avec le gabarit existant
+        context['is_demo'] = False
         return context
+
 
 class PaymentCancelledView(TemplateView):
     template_name = 'payments/cancelled.html'
