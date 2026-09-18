@@ -124,7 +124,16 @@ def get_animators_availability(booking_date, booking_time, service_id=None, excl
             'reason': reason,
         })
 
-    return results, sum(1 for r in results if r['available'])
+    # Le calendrier individuel ne "voit" un animateur occupé qu'une fois une
+    # BookingAssignment posée sur lui. Tant qu'une réservation reste non
+    # attribuée, elle mobilise quand même virtuellement un animateur du pool
+    # (cf. is_slot_available_for_booking) : on déduit ce nombre du compteur
+    # affiché, sinon il reste faussement au maximum jusqu'au blocage brutal.
+    pending_load = _unassigned_load(booking_date, new_start_dt, new_end_dt, exclude_booking_id)
+    raw_available = sum(1 for r in results if r['available'])
+    effective_available = max(0, raw_available - pending_load)
+
+    return results, effective_available
 
 
 def _unassigned_load(booking_date, new_start_dt, new_end_dt, exclude_booking_id=None):
