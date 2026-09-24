@@ -80,6 +80,27 @@ class PaymentPageView(LoginRequiredMixin, TemplateView):
         return context
 
 
+PAYMENT_OUTCOME_MESSAGES = {
+    'succeeded': '',
+    'processing': (
+        "Votre paiement est en cours de traitement par votre banque. La réservation "
+        "sera confirmée automatiquement dès sa validation."
+    ),
+    'failed': (
+        "Le paiement a été refusé. Aucun montant n'a été débité : vous pouvez "
+        "réessayer avec une autre carte. La réservation reste en attente de paiement."
+    ),
+    'canceled': (
+        "Le paiement a été annulé. Aucun montant n'a été débité ; la réservation "
+        "reste en attente de paiement."
+    ),
+    'pending': (
+        "Stripe n'a pas confirmé ce règlement. La réservation reste en "
+        "attente de paiement."
+    ),
+}
+
+
 def _user_can_view_booking(user, booking):
     """Une réservation n'est visible que par son titulaire ou par l'administration."""
     if booking is None or not user.is_authenticated:
@@ -102,6 +123,7 @@ class PaymentSuccessView(TemplateView):
         import stripe
         from django.conf import settings
         from payments.models import Payment
+        from payments.services import apply_intent_outcome, as_dict
         from bookings.models import Booking
 
         logger = logging.getLogger(__name__)
@@ -134,12 +156,12 @@ class PaymentSuccessView(TemplateView):
         paid = False
         try:
             if session_id:
-                session = stripe.checkout.Session.retrieve(session_id)
+                session = as_dict(stripe.checkout.Session.retrieve(session_id))
                 paid = session.get('payment_status') == 'paid'
                 booking_id = (session.get('metadata') or {}).get('booking_id')
                 reference = session.get('payment_intent') or session_id
             else:
-                intent = stripe.PaymentIntent.retrieve(intent_id)
+                intent = as_dict(stripe.PaymentIntent.retrieve(intent_id))
                 paid = intent.get('status') == 'succeeded'
                 booking_id = (intent.get('metadata') or {}).get('booking_id')
                 reference = intent_id
@@ -167,16 +189,22 @@ class PaymentSuccessView(TemplateView):
             self.payment_message = "Réservation introuvable pour ce paiement."
             return super().get(request, *args, **kwargs)
 
-        if not paid:
-            if payment and payment.status != Payment.Status.SUCCEEDED:
-                payment.status = Payment.Status.FAILED
-                payment.save(update_fields=['status', 'updated_at'])
+        # Paiement par carte (PaymentIntent) : l'état réel est répercuté tel quel,
+        # y compris un traitement en cours ou un refus.
+        if intent_id and not session_id and payment is not None:
+            outcome = apply_intent_outcome(payment, intent)
+            payment.refresh_from_db()
+            booking.refresh_from_db()
             self.booking = booking
             self.payment = payment
-            self.payment_message = (
-                "Stripe n'a pas confirmé ce règlement. La réservation reste en "
-                "attente de paiement."
-            )
+            self.payment_confirmed = outcome == 'succeeded'
+            self.payment_message = PAYMENT_OUTCOME_MESSAGES.get(outcome, '')
+            return super().get(request, *args, **kwargs)
+
+        if not paid:
+            self.booking = booking
+            self.payment = payment
+            self.payment_message = PAYMENT_OUTCOME_MESSAGES['pending']
             return super().get(request, *args, **kwargs)
 
         # Paiement confirmé par Stripe

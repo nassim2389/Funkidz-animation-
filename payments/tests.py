@@ -285,6 +285,8 @@ class StripePaymentTests(APITestCase):
         mock_retrieve.return_value = {
             'id': 'pi_test_ko_1',
             'status': 'requires_payment_method',
+            # Un refus réel est toujours accompagné de l'erreur renvoyée par la banque
+            'last_payment_error': {'message': 'Votre carte a été refusée.'},
             'metadata': {'booking_id': str(self.booking.id)},
         }
 
@@ -477,5 +479,184 @@ class PaymentPagesOwnershipTests(TestCase):
             response = self.client.get(reverse('payment-success') + '?payment_intent=pi_test_owner')
         # context_data : contexte de la page elle-même, hors gabarits d'e-mails rendus pendant la requête
         self.assertIsNone(response.context_data['booking'])
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.CONFIRMED)
+
+
+class PaymentOutcomeTests(TestCase):
+    """Répercussion de l'état réel du PaymentIntent sur le paiement et la réservation."""
+
+    def setUp(self):
+        from django.core import mail
+        self.mail = mail
+        service = Service.objects.create(
+            name="Spectacle", description="Spectacle", base_price=Decimal("150.00"), duration_minutes=60
+        )
+        self.user = User.objects.create_user(email="client.issue@funkidz.fr", password="Mot-de-passe-2026")
+        self.other = User.objects.create_user(email="autre.issue@funkidz.fr", password="Mot-de-passe-2026")
+        self.booking = Booking.objects.create(
+            user=self.user, service=service, booking_date="2030-05-01", booking_time="14:00",
+            nb_children=8, location_address="3 rue Test", location_city="Nantes", location_zip="44000",
+            estimated_price=Decimal("150.00"), final_price=Decimal("150.00"), status=Booking.Status.PENDING
+        )
+        self.payment = Payment.objects.create(
+            booking=self.booking, stripe_session_id="pi_issue", stripe_payment_intent="pi_issue",
+            amount=Decimal("150.00"), status=Payment.Status.PENDING
+        )
+
+    def _intent(self, status, error=None):
+        intent = {'id': 'pi_issue', 'status': status, 'metadata': {'booking_id': str(self.booking.id)}}
+        if error:
+            intent['last_payment_error'] = {'message': error}
+        return intent
+
+    def _apply(self, intent):
+        from payments.services import apply_intent_outcome
+        outcome = apply_intent_outcome(self.payment, intent)
+        self.payment.refresh_from_db()
+        self.booking.refresh_from_db()
+        return outcome
+
+    def test_succeeded_confirms_booking(self):
+        self.assertEqual(self._apply(self._intent('succeeded')), 'succeeded')
+        self.assertEqual(self.payment.status, Payment.Status.SUCCEEDED)
+        self.assertEqual(self.booking.status, Booking.Status.CONFIRMED)
+
+    def test_processing_stays_pending_instead_of_failed(self):
+        self.assertEqual(self._apply(self._intent('processing')), 'processing')
+        self.assertEqual(self.payment.status, Payment.Status.PENDING)
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+
+    def test_declined_card_marks_failed_and_emails_client_once(self):
+        self.mail.outbox.clear()
+        intent = self._intent('requires_payment_method', error="Votre carte a été refusée.")
+        self.assertEqual(self._apply(intent), 'failed')
+        self._apply(intent)
+        self.assertEqual(self.payment.status, Payment.Status.FAILED)
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+        failure_mails = [m for m in self.mail.outbox if self.user.email in m.to]
+        self.assertEqual(len(failure_mails), 1)
+
+    def test_canceled_intent_keeps_booking_pending(self):
+        self.assertEqual(self._apply(self._intent('canceled')), 'canceled')
+        self.assertEqual(self.payment.status, Payment.Status.FAILED)
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+
+    def test_abandoned_payment_stays_pending(self):
+        self.assertEqual(self._apply(self._intent('requires_payment_method')), 'pending')
+        self.assertEqual(self.payment.status, Payment.Status.PENDING)
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+
+    def test_succeeded_payment_is_never_downgraded(self):
+        self._apply(self._intent('succeeded'))
+        self._apply(self._intent('requires_payment_method', error="refus tardif"))
+        self.assertEqual(self.payment.status, Payment.Status.SUCCEEDED)
+        self.assertEqual(self.booking.status, Booking.Status.CONFIRMED)
+
+    @patch('stripe.PaymentIntent.retrieve')
+    def test_success_page_shows_processing_message(self, mock_retrieve):
+        mock_retrieve.return_value = self._intent('processing')
+        self.client.force_login(self.user)
+        with patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'):
+            response = self.client.get(reverse('payment-success') + '?payment_intent=pi_issue')
+        self.assertContains(response, 'en cours de traitement')
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.status, Payment.Status.PENDING)
+
+    @patch('stripe.PaymentIntent.retrieve')
+    def test_sync_endpoint_records_declined_card(self, mock_retrieve):
+        mock_retrieve.return_value = self._intent('requires_payment_method', error="Fonds insuffisants.")
+        self.client.force_login(self.user)
+        with patch('django.conf.settings.STRIPE_ENABLED', True), \
+                patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'):
+            response = self.client.post(reverse('sync-payment-status'), {'booking_id': self.booking.id},
+                                        content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['outcome'], 'failed')
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.status, Payment.Status.FAILED)
+
+    def test_sync_endpoint_refuses_other_client_and_anonymous(self):
+        url = reverse('sync-payment-status')
+        with patch('django.conf.settings.STRIPE_ENABLED', True):
+            anonymous = self.client.post(url, {'booking_id': self.booking.id}, content_type='application/json')
+            self.client.force_login(self.other)
+            other = self.client.post(url, {'booking_id': self.booking.id}, content_type='application/json')
+        self.assertIn(anonymous.status_code, (401, 403))
+        self.assertEqual(other.status_code, 404)
+
+    def test_checkout_page_passes_customer_email_to_stripe(self):
+        self.client.force_login(self.user)
+        with patch('django.conf.settings.STRIPE_ENABLED', True):
+            response = self.client.get(reverse('payment-page', args=[self.booking.id]))
+        self.assertContains(response, 'id="customer-email"')
+        self.assertContains(response, self.user.email)
+        self.assertContains(response, 'billingDetails')
+
+
+class StripeSdkObjectTests(TestCase):
+    """
+    Non-régression : le SDK Stripe (v15+) renvoie des objets sans méthode get.
+    Les tests précédents simulaient des dictionnaires ; ceux-ci utilisent de
+    vrais objets du SDK pour garantir que la vérification ne plante plus.
+    """
+
+    def setUp(self):
+        service = Service.objects.create(
+            name="Magie", description="Magie", base_price=Decimal("150.00"), duration_minutes=60
+        )
+        self.user = User.objects.create_user(email="client.sdk@funkidz.fr", password="Mot-de-passe-2026")
+        self.booking = Booking.objects.create(
+            user=self.user, service=service, booking_date="2030-06-01", booking_time="11:00",
+            nb_children=8, location_address="4 rue Test", location_city="Lille", location_zip="59000",
+            estimated_price=Decimal("150.00"), final_price=Decimal("150.00"), status=Booking.Status.PENDING
+        )
+        Payment.objects.create(
+            booking=self.booking, stripe_session_id="pi_sdk", stripe_payment_intent="pi_sdk",
+            amount=Decimal("150.00"), status=Payment.Status.PENDING
+        )
+
+    def _sdk_intent(self, status, **extra):
+        import stripe
+        data = {'id': 'pi_sdk', 'object': 'payment_intent', 'status': status, 'amount': 15000,
+                'client_secret': 'pi_sdk_secret_x', 'metadata': {'booking_id': str(self.booking.id)}}
+        data.update(extra)
+        return stripe.PaymentIntent.construct_from(data, 'sk_test_mock')
+
+    @patch('stripe.PaymentIntent.retrieve')
+    def test_success_page_confirms_with_real_sdk_object(self, mock_retrieve):
+        mock_retrieve.return_value = self._sdk_intent('succeeded')
+        self.client.force_login(self.user)
+        with patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock'):
+            response = self.client.get(reverse('payment-success') + '?payment_intent=pi_sdk')
+        self.assertTrue(response.context_data['payment_confirmed'])
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.CONFIRMED)
+
+    @patch('stripe.PaymentIntent.retrieve')
+    def test_create_intent_reuses_existing_sdk_object(self, mock_retrieve):
+        mock_retrieve.return_value = self._sdk_intent('requires_payment_method')
+        self.client.force_login(self.user)
+        with patch('django.conf.settings.STRIPE_ENABLED', True), \
+                patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock'), \
+                patch('stripe.PaymentIntent.create') as mock_create:
+            response = self.client.post(reverse('create-payment-intent'), {'booking_id': self.booking.id},
+                                        content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['client_secret'], 'pi_sdk_secret_x')
+        mock_create.assert_not_called()
+
+    def test_signed_webhook_with_real_sdk_event(self):
+        import stripe
+        event = stripe.Event.construct_from({
+            'id': 'evt_sdk', 'object': 'event', 'type': 'payment_intent.succeeded',
+            'data': {'object': {'id': 'pi_sdk', 'object': 'payment_intent',
+                                'metadata': {'booking_id': str(self.booking.id)}}}
+        }, 'sk_test_mock')
+        with override_settings(STRIPE_WEBHOOK_SECRET='whsec_unittest'), \
+                patch('stripe.Webhook.construct_event', return_value=event):
+            response = self.client.post(reverse('stripe-webhook'), data='{}', content_type='application/json',
+                                        HTTP_STRIPE_SIGNATURE='t=1,v1=signature')
+        self.assertEqual(response.status_code, 200)
         self.booking.refresh_from_db()
         self.assertEqual(self.booking.status, Booking.Status.CONFIRMED)

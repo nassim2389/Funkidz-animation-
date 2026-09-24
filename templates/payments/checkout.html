@@ -128,6 +128,8 @@
 
 {% if stripe_enabled and not already_paid %}
 <script src="https://js.stripe.com/v3/"></script>
+{{ user.email|json_script:"customer-email" }}
+{{ user.get_full_name|json_script:"customer-name" }}
 <script>
 (function () {
     const bookingId = {{ booking.id }};
@@ -170,17 +172,36 @@
                 return;
             }
 
-            stripe = Stripe(data.publishable_key || publishableKey);
+            stripe = Stripe(data.publishable_key || publishableKey, { locale: 'fr' });
             elements = stripe.elements({
                 clientSecret: data.client_secret,
+                locale: 'fr',
                 appearance: { theme: 'stripe', variables: { colorPrimary: '#4f46e5' } }
             });
-            // Champs officiels Stripe : numéro de carte, date d'expiration, CVC
-            elements.create('payment', { layout: 'tabs' }).mount('#payment-element');
+            // Champs officiels Stripe : numéro de carte, date d'expiration, CVC.
+            // L'e-mail du compte est transmis pour que Stripe Link reconnaisse le client
+            // sans lui redemander son adresse.
+            const customerEmail = JSON.parse(document.getElementById('customer-email').textContent);
+            const customerName = JSON.parse(document.getElementById('customer-name').textContent);
+            elements.create('payment', {
+                layout: 'tabs',
+                defaultValues: { billingDetails: { email: customerEmail, name: customerName || undefined } }
+            }).mount('#payment-element');
             setBusy(false);
         } catch (err) {
             showMessage("Erreur lors de l'initialisation du paiement.");
         }
+    }
+
+    function syncPaymentStatus() {
+        return fetch('/api/payments/sync-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ booking_id: bookingId })
+        }).catch(function () { /* l'état sera de toute façon revérifié au prochain essai */ });
     }
 
     form.addEventListener('submit', async function (event) {
@@ -202,6 +223,11 @@
         if (error) {
             showMessage(error.message || "Le paiement n'a pas abouti.");
             setBusy(false);
+            // Carte refusée : l'échec est enregistré côté serveur d'après l'état
+            // réel du paiement chez Stripe, et le client en est informé par e-mail.
+            if (error.type === 'card_error') {
+                syncPaymentStatus();
+            }
         }
     });
 

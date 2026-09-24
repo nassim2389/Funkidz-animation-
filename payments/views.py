@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from bookings.models import Booking
 from .models import Payment
+from .services import apply_intent_outcome, as_dict, notify_payment_failure
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +84,7 @@ class CreatePaymentIntentView(APIView):
             # porte le bon montant, pour ne pas multiplier les paiements Stripe.
             if payment and payment.stripe_payment_intent:
                 try:
-                    existing = stripe.PaymentIntent.retrieve(payment.stripe_payment_intent)
+                    existing = as_dict(stripe.PaymentIntent.retrieve(payment.stripe_payment_intent))
                     reusable = existing.get('status') in (
                         'requires_payment_method', 'requires_confirmation', 'requires_action'
                     )
@@ -93,7 +94,7 @@ class CreatePaymentIntentView(APIView):
                     intent = None
 
             if intent is None:
-                intent = stripe.PaymentIntent.create(
+                intent = as_dict(stripe.PaymentIntent.create(
                     amount=amount_cents,
                     currency='eur',
                     automatic_payment_methods={'enabled': True},
@@ -107,7 +108,7 @@ class CreatePaymentIntentView(APIView):
                         'booking_date': str(booking.booking_date),
                         'booking_time': str(booking.booking_time),
                     }
-                )
+                ))
 
             Payment.objects.update_or_create(
                 booking=booking,
@@ -138,6 +139,47 @@ class CreatePaymentIntentView(APIView):
         except stripe.error.StripeError as e:
             logger.error(f"Erreur Stripe (PaymentIntent) pour la réservation #{booking_id}: {e}")
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SyncPaymentStatusView(APIView):
+    """
+    Synchronise le paiement d'une réservation avec l'état réel du PaymentIntent.
+
+    Appelé par le formulaire de carte lorsqu'un paiement est refusé sans
+    redirection (carte déclinée, fonds insuffisants) : le refus est enregistré
+    et le client prévenu par e-mail sans dépendre du webhook. Seul l'état
+    renvoyé par Stripe fait foi, jamais une valeur transmise par le navigateur.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        if not _stripe_is_configured():
+            return Response({'error': "Stripe n'est pas configuré."}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        booking = Booking.objects.filter(id=request.data.get('booking_id'), user=request.user).first()
+        if booking is None:
+            return Response({'error': 'Réservation introuvable.'}, status=status.HTTP_404_NOT_FOUND)
+
+        payment = Payment.objects.filter(booking=booking).order_by('-created_at').first()
+        if payment is None or not payment.stripe_payment_intent:
+            return Response({'error': 'Aucun paiement en cours pour cette réservation.'}, status=status.HTTP_404_NOT_FOUND)
+
+        stripe.api_key = settings.STRIPE_API_KEY
+        try:
+            intent = stripe.PaymentIntent.retrieve(payment.stripe_payment_intent)
+        except stripe.error.StripeError as exc:
+            logger.error(f"Synchronisation impossible pour la réservation #{booking.id} : {exc}")
+            return Response({'error': "Le paiement n'a pas pu être vérifié auprès de Stripe."},
+                            status=status.HTTP_502_BAD_GATEWAY)
+
+        outcome = apply_intent_outcome(payment, intent)
+        payment.refresh_from_db()
+        booking.refresh_from_db()
+        return Response({
+            'outcome': outcome,
+            'payment_status': payment.status,
+            'booking_status': booking.status,
+        })
 
 
 class CreateStripeSessionView(APIView):
@@ -309,7 +351,7 @@ def stripe_webhook(request):
         return HttpResponse(status=400)
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        event = as_dict(stripe.Webhook.construct_event(payload, sig_header, endpoint_secret))
     except ValueError:
         logger.error("Webhook Stripe : payload invalide.")
         return HttpResponse(status=400)
@@ -374,20 +416,11 @@ def stripe_webhook(request):
                 if booking_id:
                     payment = Payment.objects.filter(booking_id=booking_id).order_by('-created_at').first()
 
-            if payment:
+            if payment and payment.status != Payment.Status.SUCCEEDED:
                 payment.status = Payment.Status.FAILED
                 payment.stripe_payment_intent = intent.get('id', '')
                 payment.save()
-
-                from django.utils import timezone
-                updated = Payment.objects.filter(
-                    id=payment.id,
-                    failure_email_sent_at__isnull=True
-                ).update(failure_email_sent_at=timezone.now())
-
-                if updated > 0:
-                    from core.emails import send_payment_failed_notification
-                    send_payment_failed_notification(payment.booking, error_message=error_msg)
+                notify_payment_failure(payment, error_message=error_msg)
         except Exception as e:
             logger.error(f"Erreur traitement webhook payment_failed: {e}")
 
