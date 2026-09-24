@@ -3,6 +3,18 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 class UserManager(BaseUserManager):
+    @classmethod
+    def normalize_email(cls, email):
+        """
+        Adresse e-mail normalisée en minuscules : une même adresse saisie avec
+        ou sans majuscules désigne toujours le même compte.
+        """
+        return (email or '').strip().lower()
+
+    def get_by_natural_key(self, username):
+        """Connexion insensible à la casse de l'adresse e-mail."""
+        return self.get(**{f'{self.model.USERNAME_FIELD}__iexact': (username or '').strip()})
+
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError('The Email field must be set')
@@ -45,6 +57,13 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = UserManager()
+
+    def save(self, *args, **kwargs):
+        # Couvre toutes les voies de création et de modification (administration,
+        # API, scripts) en plus du gestionnaire.
+        if self.email:
+            self.email = User.objects.normalize_email(self.email)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.email

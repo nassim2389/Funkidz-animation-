@@ -10,7 +10,7 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'ADMIN':
+        if user.is_staff or user.role == 'ADMIN':
             return Booking.objects.all()
         return Booking.objects.filter(user=user)
 

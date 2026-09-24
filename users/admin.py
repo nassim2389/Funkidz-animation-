@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from .forms import UserAdminForm
 from .models import User, AnimateurProfile
 
 class AnimateurProfileInline(admin.StackedInline):
@@ -9,6 +10,7 @@ class AnimateurProfileInline(admin.StackedInline):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    form = UserAdminForm
     list_display = ('email', 'first_name', 'last_name', 'role', 'is_verified', 'is_staff')
     list_filter = ('role', 'is_verified', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name')

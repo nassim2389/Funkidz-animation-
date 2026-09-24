@@ -18,12 +18,15 @@ class UserLoginView(LoginView):
 
 def signup_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        if email and password:
-            user = User.objects.create_user(email=email, password=password, is_verified=True)
-            login(request, user)
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('/')
+        for errors in form.errors.values():
+            for error in errors:
+                messages.error(request, error)
+        return render(request, 'auth/signup.html', {'email': request.POST.get('email', '')})
     return render(request, 'auth/signup.html')
 
 import logging
