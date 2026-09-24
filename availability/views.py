@@ -238,7 +238,16 @@ def is_slot_available_for_booking(booking_date, booking_time, service_id=None, e
 class AvailabilityViewSet(viewsets.ModelViewSet):
     queryset = Availability.objects.all()
     serializer_class = AvailabilitySerializer
-    permission_classes = [permissions.AllowAny]
+
+    # Consultation publique (tunnel de réservation) ; modification réservée à
+    # l'administration. Les animateurs gèrent leurs indisponibilités depuis
+    # leur espace personnel, qui contrôle la propriété de chaque plage.
+    READ_ONLY_ACTIONS = ('list', 'retrieve', 'check_availability', 'get_animators_for_slot', 'get_daily_slots')
+
+    def get_permissions(self):
+        if self.action in self.READ_ONLY_ACTIONS:
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
 
     @action(detail=False, methods=['get'], url_path='check')
     def check_availability(self, request):

@@ -80,6 +80,13 @@ class PaymentPageView(LoginRequiredMixin, TemplateView):
         return context
 
 
+def _user_can_view_booking(user, booking):
+    """Une réservation n'est visible que par son titulaire ou par l'administration."""
+    if booking is None or not user.is_authenticated:
+        return False
+    return booking.user_id == user.id or user.is_staff
+
+
 class PaymentSuccessView(TemplateView):
     """
     Page de résultat du paiement.
@@ -198,8 +205,12 @@ class PaymentSuccessView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['booking'] = getattr(self, 'booking', None)
-        context['payment'] = getattr(self, 'payment', None)
+        booking = getattr(self, 'booking', None)
+        # Le détail de la réservation n'est affiché qu'à son titulaire ou à
+        # l'administration ; le statut reste mis à jour dans tous les cas.
+        can_view = _user_can_view_booking(self.request.user, booking)
+        context['booking'] = booking if can_view else None
+        context['payment'] = getattr(self, 'payment', None) if can_view else None
         context['payment_confirmed'] = getattr(self, 'payment_confirmed', False)
         context['payment_message'] = getattr(self, 'payment_message', '')
         # Conservé pour compatibilité avec le gabarit existant
@@ -214,11 +225,10 @@ class PaymentCancelledView(TemplateView):
         from bookings.models import Booking
         context = super().get_context_data(**kwargs)
         booking_id = self.request.GET.get('booking_id')
-        if booking_id:
-            try:
-                context['booking'] = Booking.objects.get(id=booking_id)
-            except Booking.DoesNotExist:
-                context['booking'] = None
+        booking = None
+        if booking_id and str(booking_id).isdigit():
+            booking = Booking.objects.filter(id=booking_id).first()
+        context['booking'] = booking if _user_can_view_booking(self.request.user, booking) else None
         return context
 
 class ContactView(TemplateView):

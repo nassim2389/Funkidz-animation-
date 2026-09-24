@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -124,6 +124,49 @@ class StripePaymentTests(APITestCase):
             self.assertEqual(line_items[1]['price_data']['unit_amount'], 6000)
             self.assertIn("Chapeau Magique", line_items[1]['price_data']['product_data']['name'])
 
+    def _post_signed_webhook(self, payload):
+        """Simule un événement Stripe dont la signature a été validée."""
+        with override_settings(STRIPE_WEBHOOK_SECRET='whsec_unittest'), \
+                patch('stripe.Webhook.construct_event', return_value=payload):
+            return self.client.post(
+                reverse('stripe-webhook'),
+                data=json.dumps(payload),
+                content_type='application/json',
+                HTTP_STRIPE_SIGNATURE='t=1,v1=signature'
+            )
+
+    def _forged_success_event(self):
+        return {
+            'type': 'payment_intent.succeeded',
+            'data': {'object': {'id': 'pi_forged', 'metadata': {'booking_id': str(self.booking.id)}}}
+        }
+
+    @override_settings(STRIPE_WEBHOOK_SECRET='')
+    def test_webhook_without_secret_is_refused(self):
+        """Sans secret configuré, aucun événement n'est accepté."""
+        response = self.client.post(
+            reverse('stripe-webhook'),
+            data=json.dumps(self._forged_success_event()),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+        self.assertFalse(Payment.objects.filter(booking=self.booking).exists())
+
+    @override_settings(STRIPE_WEBHOOK_SECRET='whsec_unittest')
+    def test_webhook_with_invalid_signature_is_refused(self):
+        """Un événement dont la signature est fausse est rejeté."""
+        response = self.client.post(
+            reverse('stripe-webhook'),
+            data=json.dumps(self._forged_success_event()),
+            content_type='application/json',
+            HTTP_STRIPE_SIGNATURE='t=1,v1=fausse_signature'
+        )
+        self.assertEqual(response.status_code, 400)
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.PENDING)
+
     def test_webhook_checkout_session_completed(self):
         payment = Payment.objects.create(
             booking=self.booking,
@@ -145,12 +188,7 @@ class StripePaymentTests(APITestCase):
             }
         }
 
-        url = reverse('stripe-webhook')
-        response = self.client.post(
-            url,
-            data=json.dumps(webhook_payload),
-            content_type='application/json'
-        )
+        response = self._post_signed_webhook(webhook_payload)
         self.assertEqual(response.status_code, 200)
 
         payment.refresh_from_db()
@@ -184,12 +222,7 @@ class StripePaymentTests(APITestCase):
             }
         }
 
-        url = reverse('stripe-webhook')
-        response = self.client.post(
-            url,
-            data=json.dumps(webhook_payload),
-            content_type='application/json'
-        )
+        response = self._post_signed_webhook(webhook_payload)
         self.assertEqual(response.status_code, 200)
 
         payment.refresh_from_db()
@@ -407,3 +440,42 @@ class PaymentElementTests(APITestCase):
         self.client.force_login(other)
         response = self.client.get(reverse('payment-page', args=[self.booking.id]))
         self.assertEqual(response.status_code, 404)
+
+
+class PaymentPagesOwnershipTests(TestCase):
+    """Les pages de retour de paiement n'exposent une réservation qu'à son titulaire."""
+
+    def setUp(self):
+        service = Service.objects.create(
+            name="Spectacle", description="Spectacle", base_price=Decimal("120.00"), duration_minutes=60
+        )
+        self.owner = User.objects.create_user(email="proprietaire@funkidz.fr", password="password123")
+        self.intruder = User.objects.create_user(email="intrus@funkidz.fr", password="password123")
+        self.booking = Booking.objects.create(
+            user=self.owner, service=service, booking_date="2030-03-01", booking_time="14:00",
+            nb_children=8, location_address="2 rue Test", location_city="Lyon", location_zip="69001",
+            estimated_price=Decimal("120.00"), final_price=Decimal("120.00"), status=Booking.Status.PENDING
+        )
+        self.url = reverse('payment-cancelled') + f'?booking_id={self.booking.id}'
+
+    def test_cancelled_page_hides_booking_from_other_user(self):
+        self.client.force_login(self.intruder)
+        self.assertIsNone(self.client.get(self.url).context['booking'])
+
+    def test_cancelled_page_hides_booking_from_anonymous(self):
+        self.assertIsNone(self.client.get(self.url).context['booking'])
+
+    def test_cancelled_page_shows_booking_to_owner(self):
+        self.client.force_login(self.owner)
+        self.assertEqual(self.client.get(self.url).context['booking'], self.booking)
+
+    @patch('stripe.PaymentIntent.retrieve')
+    def test_success_page_hides_booking_from_other_user(self, mock_retrieve):
+        mock_retrieve.return_value = {'status': 'succeeded', 'metadata': {'booking_id': str(self.booking.id)}}
+        self.client.force_login(self.intruder)
+        with patch('django.conf.settings.STRIPE_API_KEY', 'sk_test_mock_key_123'):
+            response = self.client.get(reverse('payment-success') + '?payment_intent=pi_test_owner')
+        # context_data : contexte de la page elle-même, hors gabarits d'e-mails rendus pendant la requête
+        self.assertIsNone(response.context_data['booking'])
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, Booking.Status.CONFIRMED)

@@ -282,6 +282,16 @@ class CreateStripeSessionView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+def _webhook_secret_is_usable(secret):
+    """Un secret de webhook exploitable commence par whsec_ et n'est pas un exemple."""
+    return (
+        bool(secret)
+        and secret.startswith('whsec_')
+        and not secret.endswith('...')
+        and 'REMPLACER' not in secret
+    )
+
+
 @csrf_exempt
 def stripe_webhook(request):
     """
@@ -290,33 +300,22 @@ def stripe_webhook(request):
     """
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
-    endpoint_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
+    endpoint_secret = getattr(settings, 'STRIPE_WEBHOOK_SECRET', '')
 
-    # Mode test direct : secret absent, placeholder ou non-production
-    _is_test_mode = (
-        not endpoint_secret
-        or 'REMPLACER' in endpoint_secret
-        or endpoint_secret.startswith('whsec_sample')
-        or endpoint_secret.startswith('whsec_test')
-    )
+    # Sans secret valide, la provenance de l'événement ne peut pas être
+    # prouvée : il est refusé plutôt que traité sans vérification.
+    if not _webhook_secret_is_usable(endpoint_secret):
+        logger.error("Webhook Stripe refusé : STRIPE_WEBHOOK_SECRET absent ou invalide.")
+        return HttpResponse(status=400)
 
-    if _is_test_mode:
-        logger.warning("STRIPE_WEBHOOK_SECRET non configuré — mode test direct.")
-        try:
-            import json
-            event = json.loads(payload.decode('utf-8'))
-        except Exception as e:
-            logger.error(f"Erreur parsing payload sans signature: {e}")
-            return HttpResponse(status=400)
-    else:
-        try:
-            event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        except ValueError:
-            logger.error("Webhook Stripe : payload invalide.")
-            return HttpResponse(status=400)
-        except stripe.error.SignatureVerificationError:
-            logger.error("Webhook Stripe : signature invalide.")
-            return HttpResponse(status=400)
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+    except ValueError:
+        logger.error("Webhook Stripe : payload invalide.")
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError:
+        logger.error("Webhook Stripe : signature invalide.")
+        return HttpResponse(status=400)
 
     event_type = event.get('type')
 

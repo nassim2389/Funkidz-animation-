@@ -492,3 +492,52 @@ class PerAnimatorAvailabilityTests(APITestCase):
         })
         slot_14_a = next(s for s in resp_a.data['slots'] if s['time'] == '14:00')
         self.assertFalse(slot_14_a['available'])       # mais pas pour l'animateur A
+
+
+class AvailabilityApiPermissionTests(APITestCase):
+    """Les indisponibilités sont consultables par tous mais modifiables par l'administration seule."""
+
+    def setUp(self):
+        animator_user = User.objects.create_user(
+            email="anim.securite@funkidz.fr", password="password123", role=User.Role.ANIMATEUR
+        )
+        self.animator_profile, _ = AnimateurProfile.objects.get_or_create(user=animator_user)
+        self.blocked = Availability.objects.create(
+            animateur=self.animator_profile, date='2030-01-10',
+            start_time='09:00', end_time='12:00', is_blocked=True
+        )
+        self.client_user = User.objects.create_user(
+            email="client.securite@funkidz.fr", password="password123", role=User.Role.CLIENT
+        )
+        self.admin_user = User.objects.create_user(
+            email="admin.securite@funkidz.fr", password="password123", role=User.Role.ADMIN, is_staff=True
+        )
+        self.payload = {
+            'animateur': self.animator_profile.id, 'date': '2030-01-11',
+            'start_time': '10:00', 'end_time': '11:00', 'is_blocked': True
+        }
+
+    def test_anonymous_cannot_create_update_or_delete(self):
+        list_url = reverse('availability-list')
+        detail_url = reverse('availability-detail', args=[self.blocked.id])
+        self.assertIn(self.client.post(list_url, self.payload).status_code, (401, 403))
+        self.assertIn(self.client.patch(detail_url, {'is_blocked': False}).status_code, (401, 403))
+        self.assertIn(self.client.delete(detail_url).status_code, (401, 403))
+        self.assertTrue(Availability.objects.filter(id=self.blocked.id, is_blocked=True).exists())
+        self.assertEqual(Availability.objects.count(), 1)
+
+    def test_client_cannot_modify(self):
+        self.client.force_authenticate(user=self.client_user)
+        detail_url = reverse('availability-detail', args=[self.blocked.id])
+        self.assertEqual(self.client.delete(detail_url).status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Availability.objects.filter(id=self.blocked.id).exists())
+
+    def test_admin_can_create(self):
+        self.client.force_authenticate(user=self.admin_user)
+        response = self.client.post(reverse('availability-list'), self.payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_public_read_endpoints_stay_open(self):
+        self.assertEqual(self.client.get(reverse('availability-list')).status_code, status.HTTP_200_OK)
+        response = self.client.get(reverse('availability-get-daily-slots'), {'date': '2030-01-10'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
