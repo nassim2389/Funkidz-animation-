@@ -1,0 +1,16 @@
+{% autoescape off %}Bonjour,
+
+{{ animateur_name }} ({{ animateur_email }}) a {% if accepted %}ACCEPTÉ{% else %}REFUSÉ{% endif %} la mission de la réservation #{{ booking.id }}.
+
+DÉTAILS :
+- Client : {{ client_name }} ({{ client_email }})
+- Formule : {{ service_name }}
+- Date & heure : {{ booking_datetime }}
+- Lieu : {{ location_address }}, {{ location_zip }} {{ location_city }}
+{% if not accepted %}
+La mission n'a plus d'animateur : pensez à la réattribuer depuis l'administration.
+{% endif %}
+Ouvrir dans l'administration : {{ admin_booking_url }}
+
+Funkidz Admin System
+{% endautoescape %}

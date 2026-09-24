@@ -1,0 +1,54 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  {% if accepted %}
+  <span class="badge badge-success">✅ Mission acceptée</span>
+  {% else %}
+  <span class="badge badge-danger">❌ Mission refusée</span>
+  {% endif %}
+  <h2 style="margin: 14px 0 6px; font-size: 20px; color: #0f172a;">Réponse de l'animateur — Réservation #{{ booking.id }}</h2>
+  <p style="margin: 0; color: #64748b; font-size: 14.5px;">
+    <strong>{{ animateur_name }}</strong> a {% if accepted %}accepté{% else %}refusé{% endif %} la mission qui lui a été attribuée.
+  </p>
+</div>
+
+<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px;">
+  <table class="info-table" style="margin: 0;">
+    <tr>
+      <td class="label">🧑‍🎤 Animateur :</td>
+      <td class="value">{{ animateur_name }} ({{ animateur_email }})</td>
+    </tr>
+    <tr>
+      <td class="label">📋 Réponse :</td>
+      <td class="value"><strong>{{ response_label }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">👤 Client :</td>
+      <td class="value">{{ client_name }} ({{ client_email }})</td>
+    </tr>
+    <tr>
+      <td class="label">🎈 Formule :</td>
+      <td class="value">{{ service_name }}</td>
+    </tr>
+    <tr>
+      <td class="label">📅 Date & Heure :</td>
+      <td class="value"><strong>{{ booking_datetime }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">📍 Lieu :</td>
+      <td class="value">{{ location_address }}, {{ location_zip }} {{ location_city }}</td>
+    </tr>
+  </table>
+</div>
+
+{% if not accepted %}
+<div class="alert-box" style="border-left-color: #ef4444;">
+  La mission n'a plus d'animateur : pensez à la réattribuer depuis l'administration.
+</div>
+{% endif %}
+
+<div style="text-align: center; margin-top: 25px;">
+  <a href="{{ admin_booking_url }}" class="btn" style="background-color: #334155;">Ouvrir la réservation dans l'administration</a>
+</div>
+{% endblock %}

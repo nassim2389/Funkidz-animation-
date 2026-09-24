@@ -4,6 +4,7 @@ from django.utils import timezone
 from .models import Booking, BookingAssignment
 from core.emails import (
     send_booking_confirmation_client,
+    send_booking_received_client,
     send_booking_admin_notification,
     send_booking_cancellation_emails,
     send_animateur_mission_notification,
@@ -21,7 +22,7 @@ def send_booking_email(sender, instance, created, **kwargs):
     """
     now = timezone.now()
 
-    # 1. Alerte Administrateur à la création d'une réservation (En attente de paiement)
+    # 1. Création d'une réservation (en attente de paiement) : alerte admin et accusé de réception client
     if created and instance.status == Booking.Status.PENDING:
         if getattr(instance, 'admin_notification_sent_at', None):
             return
@@ -35,6 +36,8 @@ def send_booking_email(sender, instance, created, **kwargs):
             instance.admin_notification_sent_at = now
             logger.info(f"[Signal] Envoi notification admin pour nouvelle réservation #{instance.id}")
             send_booking_admin_notification(instance, event_type='new_booking')
+            # Accusé de réception au client, protégé par le même verrou anti-doublon
+            send_booking_received_client(instance)
 
     # 2. Confirmation Client & Notification Admin dès que le paiement est validé (Statut CONFIRMED)
     elif instance.status == Booking.Status.CONFIRMED:

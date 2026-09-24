@@ -4,6 +4,7 @@ from django.contrib import messages
 from bookings.models import BookingAssignment, Booking
 from availability.models import Availability, WeeklySchedule, AnimateurLeave
 from users.models import AnimateurProfile
+from core.emails import send_animateur_response_admin
 from datetime import datetime, timedelta
 
 @login_required
@@ -52,16 +53,22 @@ def accept_assignment(request, assignment_id):
             messages.error(request, f"Impossible d'accepter cette mission : vous avez préalablement bloqué cette plage horaire ({bs.start_time} - {bs.end_time}). Débloquez-la d'abord si vous souhaitez accepter.")
             return redirect('dashboard')
 
+    previous_status = assignment.status
     assignment.status = 'ACCEPTED'
     assignment.save()
+    if previous_status != assignment.status:
+        send_animateur_response_admin(assignment)
     messages.success(request, "Vous avez accepté la mission ! 🎉 Rendez-vous sur votre planning.")
     return redirect('dashboard')
 
 @login_required
 def refuse_assignment(request, assignment_id):
     assignment = get_object_or_404(BookingAssignment, id=assignment_id, animateur__user=request.user)
+    previous_status = assignment.status
     assignment.status = 'REFUSED'
     assignment.save()
+    if previous_status != assignment.status:
+        send_animateur_response_admin(assignment)
     messages.warning(request, "Vous avez refusé la mission.")
     return redirect('dashboard')
 

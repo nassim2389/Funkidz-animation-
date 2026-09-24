@@ -1,0 +1,49 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  <span class="badge badge-warning">⏳ En attente de règlement</span>
+  <h2 style="margin: 14px 0 6px; font-size: 20px; color: #0f172a;">Votre réservation #{{ booking.id }} est bien enregistrée</h2>
+  <p style="margin: 0; color: #64748b; font-size: 14.5px;">
+    Bonjour {{ client_name }}, merci pour votre demande ! Elle sera confirmée dès réception de votre règlement.
+  </p>
+</div>
+
+<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px;">
+  <table class="info-table" style="margin: 0;">
+    <tr>
+      <td class="label">🔖 Réservation :</td>
+      <td class="value"><strong>#{{ booking.id }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">🎈 Formule :</td>
+      <td class="value">{{ service_name }} ({{ service_duration }} min)</td>
+    </tr>
+    <tr>
+      <td class="label">📅 Date & Heure :</td>
+      <td class="value"><strong>{{ booking_datetime }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">📍 Lieu :</td>
+      <td class="value">{{ location_address }}, {{ location_zip }} {{ location_city }}</td>
+    </tr>
+    <tr>
+      <td class="label">💰 Montant :</td>
+      <td class="value"><strong>{{ final_price|floatformat:2 }} € TTC</strong></td>
+    </tr>
+    <tr>
+      <td class="label">💳 Paiement :</td>
+      <td class="value">{{ payment_status_label }}</td>
+    </tr>
+  </table>
+</div>
+
+<div style="text-align: center; margin-top: 25px;">
+  <a href="{{ payment_url }}" class="btn">Régler ma réservation</a>
+</div>
+
+<p style="text-align: center; color: #64748b; font-size: 13.5px; margin-top: 20px;">
+  Vous pouvez aussi retrouver et régler votre réservation depuis votre espace client :<br>
+  <a href="{{ dashboard_url }}">{{ dashboard_url }}</a>
+</p>
+{% endblock %}

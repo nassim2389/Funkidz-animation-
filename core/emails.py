@@ -103,6 +103,9 @@ def _build_booking_decomposed_context(booking):
     dashboard_url = f"{site_url}/dashboard/"
     admin_booking_url = f"{site_url}/admin/bookings/booking/{booking.id}/change/"
 
+    booking_date = booking.booking_date.strftime('%d/%m/%Y') if hasattr(booking.booking_date, 'strftime') else str(booking.booking_date)
+    booking_time = booking.booking_time.strftime('%H:%M') if hasattr(booking.booking_time, 'strftime') else str(booking.booking_time)
+
     return {
         'booking': booking,
         'client_name': client_name,
@@ -110,8 +113,10 @@ def _build_booking_decomposed_context(booking):
         'service_name': booking.service.name,
         'service_duration': booking.service.duration_minutes,
         'service_base_price': float(booking.service.base_price),
-        'booking_date': booking.booking_date,
-        'booking_time': booking.booking_time.strftime('%H:%M') if hasattr(booking.booking_time, 'strftime') else str(booking.booking_time),
+        # Format lisible commun à tous les e-mails : 26/09/2026 à 21:00
+        'booking_date': booking_date,
+        'booking_time': booking_time,
+        'booking_datetime': f"{booking_date} à {booking_time}",
         'nb_children': booking.nb_children,
         'child_name': booking.child_name or '',
         'child_age': booking.child_age or '',
@@ -122,11 +127,53 @@ def _build_booking_decomposed_context(booking):
         'special_instructions': booking.special_instructions or '',
         'final_price': float(booking.final_price),
         'status_label': booking.get_status_display(),
+        'payment_status_label': _payment_status_label(booking),
         'selected_options': selected_options,
         'has_options': len(selected_options) > 0,
         'dashboard_url': dashboard_url,
         'admin_booking_url': admin_booking_url,
+        'payment_url': f"{site_url}/paiement/{booking.id}/",
     }
+
+
+def _payment_status_label(booking):
+    """Statut du dernier paiement de la réservation, ou « Non réglé » s'il n'y en a pas."""
+    payment = booking.payments.order_by('-created_at').first()
+    return payment.get_status_display() if payment else "Non réglé"
+
+
+def send_booking_received_client(booking):
+    """Accusé de réception envoyé au client dès l'enregistrement de sa réservation."""
+    context = _build_booking_decomposed_context(booking)
+    subject = f"Votre réservation Funkidz #{booking.id} est enregistrée — en attente de règlement"
+    return send_templated_email(
+        subject=subject,
+        template_name="booking_received_client",
+        context=context,
+        recipient_list=[booking.user.email],
+        fail_silently=True
+    )
+
+
+def send_animateur_response_admin(assignment):
+    """Informe l'administration de l'acceptation ou du refus d'une mission par l'animateur."""
+    booking = assignment.booking
+    context = _build_booking_decomposed_context(booking)
+    animateur_user = assignment.animateur.user
+    context['animateur_name'] = animateur_user.get_full_name() or animateur_user.email
+    context['animateur_email'] = animateur_user.email
+    context['accepted'] = assignment.status == 'ACCEPTED'
+    context['response_label'] = assignment.get_status_display()
+
+    verb = "acceptée" if context['accepted'] else "refusée"
+    subject = f"Mission #{booking.id} {verb} par {context['animateur_name']}"
+    return send_templated_email(
+        subject=subject,
+        template_name="admin_animateur_response",
+        context=context,
+        recipient_list=get_admin_recipient_emails(),
+        fail_silently=True
+    )
 
 
 def send_booking_confirmation_client(booking):

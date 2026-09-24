@@ -385,3 +385,109 @@ class AdminRecipientRoutingTests(TestCase):
             self.assertNotIn(client_user.email, message.to)
             self.assertFalse(message.cc)
             self.assertFalse(message.bcc)
+
+
+@override_settings(
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+    ADMIN_NOTIFICATION_EMAILS=['nassim2389@hotmail.com'],
+    SITE_URL='http://192.168.1.100:8010',
+)
+class EndToEndEmailWorkflowTests(TestCase):
+    """
+    Parcours complet des e-mails demandé par le retour client (§11 à §13) :
+    création, affectation, réponse de l'animateur, paiement, échec et annulation.
+    """
+
+    def setUp(self):
+        from datetime import date, time
+        mail.outbox.clear()
+        self.client_user = User.objects.create_user(
+            email="client.parcours@exemple.fr", password="Mot-de-passe-2026",
+            first_name="Claire", last_name="Martin"
+        )
+        anim_user = User.objects.create_user(
+            email="anim.parcours@funkidz.fr", password="Mot-de-passe-2026",
+            first_name="Hugo", last_name="Anim", role=User.Role.ANIMATEUR
+        )
+        self.anim_profile, _ = AnimateurProfile.objects.get_or_create(user=anim_user)
+        self.anim_user = anim_user
+        service = Service.objects.create(
+            name="Chasse au trésor", description="Chasse", base_price=Decimal("180.00"), duration_minutes=90
+        )
+        self.booking = Booking.objects.create(
+            user=self.client_user, service=service, booking_date=date(2026, 9, 26), booking_time=time(21, 0),
+            nb_children=10, location_address="5 rue des Lilas", location_city="Paris", location_zip="75011",
+            estimated_price=Decimal("180.00"), final_price=Decimal("180.00"), status=Booking.Status.PENDING
+        )
+
+    def _mails_to(self, address):
+        return [m for m in mail.outbox if address in m.to]
+
+    def test_creation_sends_receipt_to_client_and_alert_to_admin(self):
+        client_mails = self._mails_to("client.parcours@exemple.fr")
+        admin_mails = self._mails_to("nassim2389@hotmail.com")
+        self.assertEqual(len(client_mails), 1)
+        self.assertIn("enregistrée", client_mails[0].subject)
+        self.assertEqual(len(admin_mails), 1)
+        self.assertIn("Nouvelle réservation", admin_mails[0].subject)
+
+    def test_receipt_contains_required_information(self):
+        body = self._mails_to("client.parcours@exemple.fr")[0].body
+        for expected in ("Claire Martin", "Chasse au trésor", "26/09/2026 à 21:00", "5 rue des Lilas",
+                         "180,00", "Non réglé", f"#{self.booking.id}",
+                         f"http://192.168.1.100:8010/paiement/{self.booking.id}/"):
+            self.assertIn(expected, body, expected)
+
+    def test_saving_again_does_not_resend_receipt(self):
+        self.booking.special_instructions = "Gâteau à 18h"
+        self.booking.save()
+        self.assertEqual(len(self._mails_to("client.parcours@exemple.fr")), 1)
+
+    def test_assignment_notifies_animateur(self):
+        BookingAssignment.objects.create(booking=self.booking, animateur=self.anim_profile)
+        anim_mails = self._mails_to("anim.parcours@funkidz.fr")
+        self.assertEqual(len(anim_mails), 1)
+        self.assertIn("26/09/2026", anim_mails[0].body)
+
+    def test_animateur_acceptance_notifies_admin_once(self):
+        assignment = BookingAssignment.objects.create(booking=self.booking, animateur=self.anim_profile)
+        mail.outbox.clear()
+        self.client.force_login(self.anim_user)
+        self.client.get(f"/assignment/{assignment.id}/accept/")
+        self.client.get(f"/assignment/{assignment.id}/accept/")
+        admin_mails = self._mails_to("nassim2389@hotmail.com")
+        self.assertEqual(len(admin_mails), 1)
+        self.assertIn("acceptée", admin_mails[0].subject)
+        self.assertIn("Hugo Anim", admin_mails[0].body)
+
+    def test_animateur_refusal_notifies_admin(self):
+        assignment = BookingAssignment.objects.create(booking=self.booking, animateur=self.anim_profile)
+        mail.outbox.clear()
+        self.client.force_login(self.anim_user)
+        self.client.get(f"/assignment/{assignment.id}/refuse/")
+        admin_mails = self._mails_to("nassim2389@hotmail.com")
+        self.assertEqual(len(admin_mails), 1)
+        self.assertIn("refusée", admin_mails[0].subject)
+        self.assertIn("réattribuer", admin_mails[0].body)
+
+    def test_payment_confirmation_emails_use_readable_date(self):
+        mail.outbox.clear()
+        self.booking.status = Booking.Status.CONFIRMED
+        self.booking.save()
+        client_mail = self._mails_to("client.parcours@exemple.fr")[0]
+        admin_mail = self._mails_to("nassim2389@hotmail.com")[0]
+        self.assertIn("26/09/2026", client_mail.body)
+        self.assertIn("21:00", client_mail.body)
+        self.assertIn("26/09/2026 à 21:00", admin_mail.body)
+
+    def test_cancellation_emails_use_readable_date(self):
+        mail.outbox.clear()
+        self.booking.status = Booking.Status.CANCELLED
+        self.booking.save()
+        self.assertIn("26/09/2026 à 21:00", self._mails_to("client.parcours@exemple.fr")[0].body)
+        self.assertIn("26/09/2026 à 21:00", self._mails_to("nassim2389@hotmail.com")[0].body)
+
+    def test_admin_notifications_only_go_to_configured_address(self):
+        recipients = {address for m in mail.outbox for address in m.to}
+        self.assertNotIn("admin@funkidz.fr", recipients)
+        self.assertNotIn("contact@funkidz.fr", recipients)

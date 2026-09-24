@@ -1,0 +1,20 @@
+{% autoescape off %}Bonjour {{ client_name }},
+
+Merci pour votre demande ! Votre réservation Funkidz #{{ booking.id }} est bien enregistrée.
+Elle sera confirmée dès réception de votre règlement.
+
+RÉCAPITULATIF :
+- Numéro de réservation : #{{ booking.id }}
+- Formule : {{ service_name }} ({{ service_duration }} minutes)
+- Date & heure : {{ booking_datetime }}
+- Lieu : {{ location_address }}, {{ location_zip }} {{ location_city }}
+- Montant : {{ final_price|floatformat:2 }} € TTC
+- Paiement : {{ payment_status_label }}
+
+Régler ma réservation : {{ payment_url }}
+Mon espace client : {{ dashboard_url }}
+
+À très bientôt,
+L'équipe Funkidz Animation
+{{ support_email }} | {{ support_phone }}
+{% endautoescape %}
