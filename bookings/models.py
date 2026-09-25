@@ -7,6 +7,12 @@ class Booking(models.Model):
     # début de la prestation. Au-delà, l'annulation passe par l'administration.
     CLIENT_CANCELLATION_DEADLINE_HOURS = 48
 
+    # Nombre max d'enfants pour une réservation directe en ligne. Un animateur
+    # gère jusqu'à 10 enfants ; au-delà, la réservation multi-animateurs
+    # n'étant pas prise en charge, le client est redirigé vers un devis
+    # manuel (cf. retours/Retour client - 17 septembre 2026.md).
+    MAX_CHILDREN_ONLINE_BOOKING = 10
+
     class Status(models.TextChoices):
         PENDING = 'PENDING', 'En attente'
         CONFIRMED = 'CONFIRMED', 'Confirmée'

@@ -97,6 +97,42 @@ class BookingDecomposedTests(APITestCase):
         self.assertEqual(child_bo.total_price, Decimal("40.00"))
         self.assertEqual(hour_bo.total_price, Decimal("100.00"))
 
+    def test_create_booking_rejects_more_than_ten_children(self):
+        """La réservation en ligne est limitée à 10 enfants (un animateur par prestation)."""
+        url = reverse('booking-list')
+        payload = {
+            'service': self.service.id,
+            'booking_date': '2026-07-20',
+            'booking_time': '14:00',
+            'nb_children': 15,
+            'contact_phone': '0612345678',
+            'location_address': '12 Rue des Enfants',
+            'location_city': 'Paris',
+            'location_zip': '75015',
+        }
+
+        response = self.client.post(url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('nb_children', response.data)
+        self.assertFalse(Booking.objects.filter(booking_date='2026-07-20').exists())
+
+    def test_create_booking_accepts_exactly_ten_children(self):
+        """La limite est inclusive : 10 enfants exactement doit passer."""
+        url = reverse('booking-list')
+        payload = {
+            'service': self.service.id,
+            'booking_date': '2026-07-21',
+            'booking_time': '14:00',
+            'nb_children': 10,
+            'contact_phone': '0612345678',
+            'location_address': '12 Rue des Enfants',
+            'location_city': 'Paris',
+            'location_zip': '75015',
+        }
+
+        response = self.client.post(url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_cancel_booking_action(self):
         booking = Booking.objects.create(
             user=self.user,

@@ -28,7 +28,18 @@ class BookingSerializer(serializers.ModelSerializer):
         booking_date = attrs.get('booking_date')
         booking_time = attrs.get('booking_time')
         service = attrs.get('service')
-        
+
+        nb_children = attrs.get('nb_children')
+        if nb_children and nb_children > Booking.MAX_CHILDREN_ONLINE_BOOKING:
+            raise serializers.ValidationError({
+                'nb_children': (
+                    f"La réservation en ligne est limitée à "
+                    f"{Booking.MAX_CHILDREN_ONLINE_BOOKING} enfants (un seul "
+                    f"animateur par prestation). Pour un groupe plus "
+                    f"important, contactez-nous pour un devis personnalisé."
+                )
+            })
+
         if booking_date and booking_time:
             from availability.views import is_slot_available_for_booking
             service_id = service.id if service else None
