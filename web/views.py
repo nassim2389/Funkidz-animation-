@@ -6,13 +6,6 @@ from services.models import Service
 from media.models import MediaGallery
 from contact.models import ContactMessage
 
-class ServiceListWebView(TemplateView):
-    template_name = 'services/list.html'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['services'] = Service.objects.all()
-        return context
-
 class HomeView(TemplateView):
     template_name = 'home.html'
     def get_context_data(self, **kwargs):

@@ -6,8 +6,6 @@ router = DefaultRouter()
 router.register(r'services', ServiceViewSet)
 router.register(r'options', OptionViewSet)
 
-from .views_web import ServiceListView
-
 urlpatterns = [
     path('', include(router.urls)),
 ]

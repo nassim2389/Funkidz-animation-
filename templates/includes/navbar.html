@@ -27,11 +27,7 @@
                    class="px-3.5 2xl:px-5 py-2 2xl:py-2.5 text-sm 2xl:text-base font-extrabold whitespace-nowrap rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white hover:shadow-md">
                     Accueil
                 </a>
-                <a href="{% url 'services-web' %}" 
-                   class="px-3.5 2xl:px-5 py-2 2xl:py-2.5 text-sm 2xl:text-base font-extrabold whitespace-nowrap rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white hover:shadow-md">
-                    Nos Formules
-                </a>
-                <a href="{% url 'pricing' %}" 
+                <a href="{% url 'pricing' %}"
                    class="px-3.5 2xl:px-5 py-2 2xl:py-2.5 text-sm 2xl:text-base font-extrabold whitespace-nowrap rounded-full transition-all duration-200 text-slate-700 hover:text-brand-600 hover:bg-white hover:shadow-md">
                     Tarifs & Options
                 </a>
@@ -87,7 +83,6 @@
         <!-- Responsive Navigation Menu Overlay -->
         <div class="xl:hidden mt-3 pt-4 pb-6 border-t border-slate-200/80 space-y-2 bg-white rounded-3xl p-6 shadow-2xl border border-slate-100" x-show="isOpen" x-cloak x-transition>
             <a href="{% url 'home' %}" class="block px-5 py-3.5 rounded-2xl font-extrabold text-lg text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">Accueil</a>
-            <a href="{% url 'services-web' %}" class="block px-5 py-3.5 rounded-2xl font-extrabold text-lg text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">Nos Formules</a>
             <a href="{% url 'pricing' %}" class="block px-5 py-3.5 rounded-2xl font-extrabold text-lg text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">Tarifs & Options</a>
             <a href="{% url 'gallery' %}" class="block px-5 py-3.5 rounded-2xl font-extrabold text-lg text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">Galerie</a>
             <a href="{% url 'about' %}" class="block px-5 py-3.5 rounded-2xl font-extrabold text-lg text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition">À propos</a>

@@ -1,7 +1,7 @@
 from django.urls import path
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from .views import (
-    HomeView, ServiceListWebView, BookingWizardView, GalleryView, PricingView, 
+    HomeView, BookingWizardView, GalleryView, PricingView,
     AboutView, ContactView, DashboardView, PaymentPageView, PaymentSuccessView, PaymentCancelledView,
     newsletter_signup
 )
@@ -9,7 +9,9 @@ from . import views_animateur, views_client
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
-    path('nos-surprises/', ServiceListWebView.as_view(), name='services-web'),
+    # Ancienne page "Nos Formules", fusionnee dans /pricing/ (doublon de contenu) ;
+    # redirection conservee pour ne pas casser un lien externe existant.
+    path('nos-surprises/', RedirectView.as_view(pattern_name='pricing', permanent=True), name='services-web'),
     path('booking/', BookingWizardView.as_view(), name='booking-wizard'),
     path('booking/wizard/', BookingWizardView.as_view(), name='booking-wizard-alias'),
     path('reservation/', BookingWizardView.as_view(), name='reservation'),
