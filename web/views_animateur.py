@@ -55,6 +55,9 @@ def accept_assignment(request, assignment_id):
 
     previous_status = assignment.status
     assignment.status = 'ACCEPTED'
+    if previous_status != assignment.status:
+        from django.utils import timezone
+        assignment.responded_at = timezone.now()
     assignment.save()
     if previous_status != assignment.status:
         send_animateur_response_admin(assignment)
@@ -66,6 +69,9 @@ def refuse_assignment(request, assignment_id):
     assignment = get_object_or_404(BookingAssignment, id=assignment_id, animateur__user=request.user)
     previous_status = assignment.status
     assignment.status = 'REFUSED'
+    if previous_status != assignment.status:
+        from django.utils import timezone
+        assignment.responded_at = timezone.now()
     assignment.save()
     if previous_status != assignment.status:
         send_animateur_response_admin(assignment)

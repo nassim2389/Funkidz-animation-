@@ -33,6 +33,7 @@ def cancel_booking(request, booking_id):
     else:
         booking.status = Booking.Status.CANCELLED
         booking.cancelled_by = Booking.CancelledBy.CLIENT
+        booking.cancellation_reason = request.POST.get('cancellation_reason', '').strip()
         booking.save()
         messages.success(
             request,

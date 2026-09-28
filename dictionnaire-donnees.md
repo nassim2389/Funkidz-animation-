@@ -75,6 +75,7 @@
 | `final_price` | DecimalField | obligatoire · defaut = 0.0 | Final price |
 | `status` | CharField | obligatoire · max 20 caracteres · defaut = Booking.Status.PENDING · choix : PENDING, CONFIRMED, CANCELLED, DONE | Status |
 | `cancelled_by` | CharField | obligatoire · max 10 caracteres · defaut = '' · choix : ADMIN, CLIENT | Annulée par |
+| `cancellation_reason` | TextField | obligatoire · defaut = '' | Motif de l'annulation |
 | `address` | CharField | obligatoire · max 255 caracteres | Location address |
 | `city` | CharField | obligatoire · max 100 caracteres | Location city |
 | `location_zip` | CharField | obligatoire · max 20 caracteres | Location zip |
@@ -97,7 +98,8 @@
 | `animateur_id` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
 | `status` | CharField | obligatoire · max 20 caracteres · defaut = BookingAssignment.Status.PENDING · choix : PENDING, ACCEPTED, REFUSED | Status |
 | `notification_sent_at` | DateTimeField | optionnel | Notification animateur envoyée le |
-| `created_at` | DateTimeField | obligatoire | Created at |
+| `assigned_at` | DateTimeField | obligatoire | Created at |
+| `responded_at` | DateTimeField | optionnel | Réponse de l'animateur le |
 
 ## Options de réservation (`bookings_bookingoption`)
 

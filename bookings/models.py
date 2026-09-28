@@ -51,6 +51,10 @@ class Booking(models.Model):
         default='',
         verbose_name="Annulée par"
     )
+    # Motif libre saisi par le client ou l'admin au moment de l'annulation.
+    # En plus de cancelled_by (qui, structure), pas a sa place : le diagramme
+    # de classe prevoit ce champ texte, absent avant.
+    cancellation_reason = models.TextField(blank=True, default='', verbose_name="Motif de l'annulation")
 
     location_address = models.CharField(max_length=255, db_column='address')
     location_city = models.CharField(max_length=100, db_column='city')
@@ -191,7 +195,12 @@ class BookingAssignment(models.Model):
         default=Status.PENDING
     )
     notification_sent_at = models.DateTimeField(null=True, blank=True, verbose_name="Notification animateur envoyée le")
-    created_at = models.DateTimeField(auto_now_add=True)
+    # Date de creation de la ligne = date d'assignation de l'animateur (meme
+    # evenement) ; nom de colonne aligne sur le diagramme de classe.
+    created_at = models.DateTimeField(auto_now_add=True, db_column='assigned_at')
+    # Quand l'animateur accepte ou refuse la mission (distinct de la creation
+    # et de l'envoi de la notification). Absent avant, ajoute pour le DC.
+    responded_at = models.DateTimeField(null=True, blank=True, verbose_name="Réponse de l'animateur le")
 
     def clean(self):
         super().clean()
