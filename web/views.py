@@ -208,7 +208,6 @@ class PaymentSuccessView(TemplateView):
                 booking=booking,
                 stripe_session_id=session_id or reference,
                 stripe_payment_intent=reference,
-                amount=booking.final_price,
                 status=Payment.Status.SUCCEEDED,
             )
         else:

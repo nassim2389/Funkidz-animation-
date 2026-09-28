@@ -115,7 +115,6 @@ class CreatePaymentIntentView(APIView):
                 defaults={
                     'stripe_session_id': intent['id'],
                     'stripe_payment_intent': intent['id'],
-                    'amount': booking.final_price,
                     'status': Payment.Status.PENDING,
                 }
             )
@@ -298,7 +297,6 @@ class CreateStripeSessionView(APIView):
                 booking=booking,
                 defaults={
                     'stripe_session_id': checkout_session.id,
-                    'amount': booking.final_price,
                     'status': Payment.Status.PENDING
                 }
             )
@@ -394,7 +392,6 @@ def stripe_webhook(request):
                     booking=booking,
                     defaults={
                         'stripe_session_id': session_id or f'stripe_{booking.id}',
-                        'amount': booking.final_price,
                         'status': Payment.Status.SUCCEEDED,
                         'stripe_payment_intent': session_or_intent.get('payment_intent', '')
                     }

@@ -171,7 +171,6 @@ class StripePaymentTests(APITestCase):
         payment = Payment.objects.create(
             booking=self.booking,
             stripe_session_id="cs_test_webhook_success",
-            amount=self.booking.final_price,
             status=Payment.Status.PENDING
         )
 
@@ -203,7 +202,6 @@ class StripePaymentTests(APITestCase):
             booking=self.booking,
             stripe_session_id="cs_test_webhook_failed",
             stripe_payment_intent="pi_test_failed_888",
-            amount=self.booking.final_price,
             status=Payment.Status.PENDING
         )
 
@@ -250,7 +248,6 @@ class StripePaymentTests(APITestCase):
             booking=self.booking,
             stripe_session_id='pi_test_ok_1',
             stripe_payment_intent='pi_test_ok_1',
-            amount=self.booking.final_price,
             status=Payment.Status.PENDING,
         )
         mock_retrieve.return_value = {
@@ -279,7 +276,6 @@ class StripePaymentTests(APITestCase):
             booking=self.booking,
             stripe_session_id='pi_test_ko_1',
             stripe_payment_intent='pi_test_ko_1',
-            amount=self.booking.final_price,
             status=Payment.Status.PENDING,
         )
         mock_retrieve.return_value = {
@@ -309,7 +305,6 @@ class StripePaymentTests(APITestCase):
         Payment.objects.create(
             booking=self.booking,
             stripe_session_id='cs_test_unpaid',
-            amount=self.booking.final_price,
             status=Payment.Status.PENDING,
         )
         mock_retrieve.return_value = {
@@ -501,7 +496,7 @@ class PaymentOutcomeTests(TestCase):
         )
         self.payment = Payment.objects.create(
             booking=self.booking, stripe_session_id="pi_issue", stripe_payment_intent="pi_issue",
-            amount=Decimal("150.00"), status=Payment.Status.PENDING
+            status=Payment.Status.PENDING
         )
 
     def _intent(self, status, error=None):
@@ -613,7 +608,7 @@ class StripeSdkObjectTests(TestCase):
         )
         Payment.objects.create(
             booking=self.booking, stripe_session_id="pi_sdk", stripe_payment_intent="pi_sdk",
-            amount=Decimal("150.00"), status=Payment.Status.PENDING
+            status=Payment.Status.PENDING
         )
 
     def _sdk_intent(self, status, **extra):

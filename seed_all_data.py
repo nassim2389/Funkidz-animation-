@@ -367,7 +367,6 @@ def seed_all():
         # Création du paiement associé
         Payment.objects.create(
             booking=booking,
-            amount=booking.final_price,
             stripe_session_id=f"demo_session_{booking.id}",
             status=pay_status
         )
@@ -415,7 +414,6 @@ def seed_all():
         )
         Payment.objects.create(
             booking=b,
-            amount=b.final_price,
             stripe_session_id=f"demo_session_{b.id}",
             status=Payment.Status.SUCCEEDED
         )

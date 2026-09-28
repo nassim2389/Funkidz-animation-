@@ -36,18 +36,15 @@ l'approuve ou le refuse depuis le panel admin. Sans ce champ, un
 congé déclaré serait automatiquement effectif, sans validation
 possible — on a choisi de le garder.
 
-### 3. `Payment.amount` — stocké séparément de `Booking.final_price`
+### 3. `Payment.amount` — aligné sur le diagramme (résolu)
 
-Le diagramme suppose que le montant payé se lit toujours sur la
-réservation (`Booking.final_price`). Le code garde son propre
-montant sur `Payment`, indépendant.
-
-**Pourquoi** : le prix d'une réservation peut changer après coup
-(option ajoutée ou retirée, correction admin). Si le paiement ne
-stockait pas son propre montant, on perdrait la trace de ce qui a
-réellement été encaissé au moment du paiement — on verrait juste le
-prix actuel de la réservation, potentiellement différent. Utile pour
-les remboursements et la comptabilité.
+Le diagramme prévoyait le montant lu directement sur la réservation
+(`Booking.final_price`), sans champ séparé sur `Payment`. C'est
+maintenant le cas : `Payment.amount` est devenu une simple propriété
+Python qui renvoie `self.booking.final_price`, plus une colonne en
+base. Vérifié : dans le code, un paiement était de toute façon
+toujours créé avec le prix de la réservation au même instant, jamais
+une valeur différente — aucune fonctionnalité perdue.
 
 ### 4. `BookingAssignment` — deux ajustements
 

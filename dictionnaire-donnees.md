@@ -152,7 +152,6 @@
 | `booking_id` | ForeignKey → bookings.Booking | obligatoire | Booking |
 | `stripe_session_id` | CharField | unique · obligatoire · max 255 caracteres | Stripe session id |
 | `stripe_payment_intent` | CharField | obligatoire · max 255 caracteres | Stripe payment intent |
-| `amount` | DecimalField | obligatoire | Amount |
 | `status` | CharField | obligatoire · max 20 caracteres · defaut = Payment.Status.PENDING · choix : PENDING, SUCCEEDED, FAILED, REFUNDED | Status |
 | `failure_email_sent_at` | DateTimeField | optionnel | E-mail d'échec envoyé le |
 | `created_at` | DateTimeField | obligatoire | Created at |
