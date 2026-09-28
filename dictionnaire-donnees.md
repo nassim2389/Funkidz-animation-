@@ -16,7 +16,6 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `password` | CharField | obligatoire · max 128 caracteres | Mot de passe |
 | `last_login` | DateTimeField | optionnel | Dernière connexion |
 | `is_superuser` | BooleanField | obligatoire · defaut = False | Précise que l’utilisateur possède toutes les permissions sans les assigner explicitement. |
 | `first_name` | CharField | obligatoire · max 150 caracteres | Prénom |
@@ -24,6 +23,7 @@
 | `is_staff` | BooleanField | obligatoire · defaut = False | Précise si l’utilisateur peut se connecter à ce site d'administration. |
 | `is_active` | BooleanField | obligatoire · defaut = True | Précise si l’utilisateur doit être considéré comme actif. Décochez ceci plutôt que de supprimer le compte. |
 | `date_joined` | DateTimeField | obligatoire | Date d’inscription |
+| `password_hash` | CharField | obligatoire · max 128 caracteres | Mot de passe |
 | `email` | CharField | unique · obligatoire · max 254 caracteres | Adresse électronique |
 | `role` | CharField | obligatoire · max 10 caracteres · defaut = User.Role.CLIENT · choix : CLIENT, ADMIN, ANIMATEUR | Role |
 | `is_verified` | BooleanField | obligatoire · defaut = False | Is verified |

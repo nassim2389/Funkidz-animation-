@@ -43,6 +43,9 @@ class User(AbstractUser):
         ANIMATEUR = 'ANIMATEUR', _('Animateur')
 
     username = None
+    # Redeclare pour poser db_column='password_hash' (diagramme de classe) ;
+    # meme definition que AbstractUser.password sinon.
+    password = models.CharField(_('password'), max_length=128, db_column='password_hash')
     email = models.EmailField(_('email address'), unique=True)
     role = models.CharField(
         max_length=10,
