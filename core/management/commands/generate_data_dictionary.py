@@ -96,15 +96,18 @@ class Command(BaseCommand):
                         continue
 
                     is_pk = getattr(field, 'primary_key', False)
+                    # field.column (nom de colonne SQL reel, respecte db_column)
+                    # plutot que field.name (attribut Python) : le dictionnaire
+                    # documente la base de donnees, pas l'ORM.
                     lines.append(
-                        f'| `{field.name}` | {_field_type(field)} | '
+                        f'| `{field.column}` | {_field_type(field)} | '
                         f'{_constraints(field, is_pk)} | {_description(field)} |'
                     )
 
                     if field.is_relation and field.related_model:
                         relations.append(
-                            f'`{meta.app_label}.{model.__name__}.{field.name}` → '
-                            f'`{field.related_model._meta.app_label}.{field.related_model.__name__}`'
+                            f'`{meta.db_table}.{field.column}` → '
+                            f'`{field.related_model._meta.db_table}`'
                         )
 
                 lines.append('')

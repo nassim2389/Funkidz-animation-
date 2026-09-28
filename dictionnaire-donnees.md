@@ -5,7 +5,7 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `user` | OneToOneField → users.User | unique · obligatoire | User |
+| `user_id` | OneToOneField → users.User | unique · obligatoire | User |
 | `bio` | TextField | obligatoire | Bio |
 | `phone` | CharField | obligatoire · max 20 caracteres | Phone |
 | `avatar_url` | CharField | obligatoire · max 200 caracteres | Avatar url |
@@ -35,7 +35,7 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `service` | ForeignKey → services.Service | obligatoire | Service |
+| `service_id` | ForeignKey → services.Service | obligatoire | Service |
 | `name` | CharField | obligatoire · max 200 caracteres | Name |
 | `description` | TextField | obligatoire | Description |
 | `price` | DecimalField | obligatoire | Price |
@@ -48,7 +48,7 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `name` | CharField | obligatoire · max 200 caracteres | Name |
+| `title` | CharField | obligatoire · max 200 caracteres | Name |
 | `description` | TextField | obligatoire | Description |
 | `base_price` | DecimalField | obligatoire | Base price |
 | `duration_minutes` | PositiveIntegerField | obligatoire · defaut = 60 | Duration minutes |
@@ -66,22 +66,22 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `user` | ForeignKey → users.User | obligatoire | User |
-| `service` | ForeignKey → services.Service | obligatoire | Service |
-| `booking_date` | DateField | obligatoire | Booking date |
-| `booking_time` | TimeField | obligatoire | Booking time |
-| `nb_children` | PositiveIntegerField | obligatoire | Nb children |
+| `user_id` | ForeignKey → users.User | obligatoire | User |
+| `service_id` | ForeignKey → services.Service | obligatoire | Service |
+| `event_date` | DateField | obligatoire | Booking date |
+| `start_time` | TimeField | obligatoire | Booking time |
+| `children_count` | PositiveIntegerField | obligatoire | Nb children |
 | `estimated_price` | DecimalField | obligatoire · defaut = 0.0 | Estimated price |
 | `final_price` | DecimalField | obligatoire · defaut = 0.0 | Final price |
 | `status` | CharField | obligatoire · max 20 caracteres · defaut = Booking.Status.PENDING · choix : PENDING, CONFIRMED, CANCELLED, DONE | Status |
 | `cancelled_by` | CharField | obligatoire · max 10 caracteres · defaut = '' · choix : ADMIN, CLIENT | Annulée par |
-| `location_address` | CharField | obligatoire · max 255 caracteres | Location address |
-| `location_city` | CharField | obligatoire · max 100 caracteres | Location city |
+| `address` | CharField | obligatoire · max 255 caracteres | Location address |
+| `city` | CharField | obligatoire · max 100 caracteres | Location city |
 | `location_zip` | CharField | obligatoire · max 20 caracteres | Location zip |
 | `child_name` | CharField | obligatoire · max 100 caracteres · defaut = '' | Prénom de l'enfant |
 | `child_age` | PositiveIntegerField | optionnel | Âge fêté |
 | `contact_phone` | CharField | obligatoire · max 20 caracteres · defaut = '' | Téléphone de contact |
-| `special_instructions` | TextField | obligatoire | Special instructions |
+| `notes` | TextField | obligatoire | Special instructions |
 | `confirmation_email_sent_at` | DateTimeField | optionnel | E-mail de confirmation client envoyé le |
 | `admin_notification_sent_at` | DateTimeField | optionnel | Notification admin envoyée le |
 | `cancellation_email_sent_at` | DateTimeField | optionnel | E-mail d'annulation envoyé le |
@@ -93,8 +93,8 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `booking` | ForeignKey → bookings.Booking | obligatoire | Booking |
-| `animateur` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
+| `booking_id` | ForeignKey → bookings.Booking | obligatoire | Booking |
+| `animateur_id` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
 | `status` | CharField | obligatoire · max 20 caracteres · defaut = BookingAssignment.Status.PENDING · choix : PENDING, ACCEPTED, REFUSED | Status |
 | `notification_sent_at` | DateTimeField | optionnel | Notification animateur envoyée le |
 | `created_at` | DateTimeField | obligatoire | Created at |
@@ -104,17 +104,17 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `booking` | ForeignKey → bookings.Booking | obligatoire | Booking |
-| `option` | ForeignKey → services.Option | obligatoire | Option |
+| `booking_id` | ForeignKey → bookings.Booking | obligatoire | Booking |
+| `option_id` | ForeignKey → services.Option | obligatoire | Option |
 | `quantity` | PositiveIntegerField | obligatoire · defaut = 1 | Quantity |
-| `price_at_time` | DecimalField | obligatoire | Price at time |
+| `unit_price` | DecimalField | obligatoire | Price at time |
 
 ## Congés Animateurs (`availability_animateurleave`)
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `animateur` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
+| `animateur_id` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
 | `start_date` | DateField | obligatoire | Start date |
 | `end_date` | DateField | obligatoire | End date |
 | `reason` | TextField | obligatoire | Reason |
@@ -125,7 +125,7 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `animateur` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
+| `animateur_id` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
 | `date` | DateField | obligatoire | Date |
 | `start_time` | TimeField | obligatoire | Start time |
 | `end_time` | TimeField | obligatoire | End time |
@@ -136,8 +136,8 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `animateur` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
-| `weekday` | IntegerField | obligatoire · choix : 0, 1, 2, 3, 4, 5, 6 | Weekday |
+| `animateur_id` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
+| `day_of_week` | IntegerField | obligatoire · choix : 0, 1, 2, 3, 4, 5, 6 | Weekday |
 | `start_time` | TimeField | obligatoire | Start time |
 | `end_time` | TimeField | obligatoire | End time |
 | `is_active` | BooleanField | obligatoire · defaut = True | Is active |
@@ -147,7 +147,7 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `booking` | ForeignKey → bookings.Booking | obligatoire | Booking |
+| `booking_id` | ForeignKey → bookings.Booking | obligatoire | Booking |
 | `stripe_session_id` | CharField | unique · obligatoire · max 255 caracteres | Stripe session id |
 | `stripe_payment_intent` | CharField | obligatoire · max 255 caracteres | Stripe payment intent |
 | `amount` | DecimalField | obligatoire | Amount |
@@ -161,7 +161,7 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `booking` | OneToOneField → bookings.Booking | unique · obligatoire | Booking |
+| `booking_id` | OneToOneField → bookings.Booking | unique · obligatoire | Booking |
 | `rating` | PositiveSmallIntegerField | obligatoire | Rating |
 | `comment` | TextField | obligatoire | Comment |
 | `created_at` | DateTimeField | obligatoire | Created at |
@@ -171,10 +171,10 @@
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
 | `id` | BigAutoField | cle primaire · optionnel | Id |
-| `service` | ForeignKey → services.Service | optionnel | Service |
+| `service_id` | ForeignKey → services.Service | optionnel | Service |
 | `media_url` | CharField | obligatoire · max 200 caracteres | Lien externe (ex: YouTube) |
 | `file` | FileField | optionnel · max 100 caracteres | Importer depuis votre ordinateur |
-| `media_type` | CharField | obligatoire · max 10 caracteres · defaut = MediaGallery.MediaType.IMAGE · choix : IMAGE, VIDEO | Media type |
+| `type` | CharField | obligatoire · max 10 caracteres · defaut = MediaGallery.MediaType.IMAGE · choix : IMAGE, VIDEO | Media type |
 | `title` | CharField | obligatoire · max 200 caracteres | Title |
 | `order` | PositiveIntegerField | obligatoire · defaut = 0 | Order |
 
@@ -192,17 +192,17 @@
 
 ## Relations entre tables
 
-- `users.AnimateurProfile.user` → `users.User`
-- `services.Option.service` → `services.Service`
-- `bookings.Booking.user` → `users.User`
-- `bookings.Booking.service` → `services.Service`
-- `bookings.BookingAssignment.booking` → `bookings.Booking`
-- `bookings.BookingAssignment.animateur` → `users.AnimateurProfile`
-- `bookings.BookingOption.booking` → `bookings.Booking`
-- `bookings.BookingOption.option` → `services.Option`
-- `availability.AnimateurLeave.animateur` → `users.AnimateurProfile`
-- `availability.Availability.animateur` → `users.AnimateurProfile`
-- `availability.WeeklySchedule.animateur` → `users.AnimateurProfile`
-- `payments.Payment.booking` → `bookings.Booking`
-- `reviews.Review.booking` → `bookings.Booking`
-- `media.MediaGallery.service` → `services.Service`
+- `users_animateurprofile.user_id` → `users_user`
+- `services_option.service_id` → `services_service`
+- `bookings_booking.user_id` → `users_user`
+- `bookings_booking.service_id` → `services_service`
+- `bookings_bookingassignment.booking_id` → `bookings_booking`
+- `bookings_bookingassignment.animateur_id` → `users_animateurprofile`
+- `bookings_bookingoption.booking_id` → `bookings_booking`
+- `bookings_bookingoption.option_id` → `services_option`
+- `availability_animateurleave.animateur_id` → `users_animateurprofile`
+- `availability_availability.animateur_id` → `users_animateurprofile`
+- `availability_weeklyschedule.animateur_id` → `users_animateurprofile`
+- `payments_payment.booking_id` → `bookings_booking`
+- `reviews_review.booking_id` → `bookings_booking`
+- `media_mediagallery.service_id` → `services_service`

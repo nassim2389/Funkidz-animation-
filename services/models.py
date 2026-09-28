@@ -8,7 +8,7 @@ class Service(models.Model):
         ECOLE = 'ECOLE', 'École'
         AUTRE = 'AUTRE', 'Autre'
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, db_column='title')
     description = models.TextField()
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
     duration_minutes = models.PositiveIntegerField(default=60)

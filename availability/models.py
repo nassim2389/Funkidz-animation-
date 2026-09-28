@@ -25,7 +25,7 @@ class WeeklySchedule(models.Model):
         SUNDAY = 6, 'Dimanche'
 
     animateur = models.ForeignKey('users.AnimateurProfile', on_delete=models.CASCADE, related_name='weekly_schedules')
-    weekday = models.IntegerField(choices=Weekday.choices)
+    weekday = models.IntegerField(choices=Weekday.choices, db_column='day_of_week')
     start_time = models.TimeField()
     end_time = models.TimeField()
     is_active = models.BooleanField(default=True)

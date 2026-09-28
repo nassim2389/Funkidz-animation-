@@ -25,9 +25,9 @@ class Booking(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='bookings')
     service = models.ForeignKey(Service, on_delete=models.PROTECT)
-    booking_date = models.DateField()
-    booking_time = models.TimeField()
-    nb_children = models.PositiveIntegerField()
+    booking_date = models.DateField(db_column='event_date')
+    booking_time = models.TimeField(db_column='start_time')
+    nb_children = models.PositiveIntegerField(db_column='children_count')
     
     estimated_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     final_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
@@ -49,15 +49,15 @@ class Booking(models.Model):
         verbose_name="Annulée par"
     )
 
-    location_address = models.CharField(max_length=255)
-    location_city = models.CharField(max_length=100)
+    location_address = models.CharField(max_length=255, db_column='address')
+    location_city = models.CharField(max_length=100, db_column='city')
     location_zip = models.CharField(max_length=20)
     
     child_name = models.CharField(max_length=100, blank=True, default='', verbose_name="Prénom de l'enfant")
     child_age = models.PositiveIntegerField(null=True, blank=True, verbose_name="Âge fêté")
     contact_phone = models.CharField(max_length=20, blank=True, default='', verbose_name="Téléphone de contact")
     
-    special_instructions = models.TextField(blank=True)
+    special_instructions = models.TextField(blank=True, db_column='notes')
     
     # Horodatages d'envoi d'emails (idempotence & anti-doublon)
     confirmation_email_sent_at = models.DateTimeField(null=True, blank=True, verbose_name="E-mail de confirmation client envoyé le")
@@ -151,7 +151,7 @@ class BookingOption(models.Model):
     booking = models.ForeignKey(Booking, related_name='selected_options', on_delete=models.CASCADE)
     option = models.ForeignKey(Option, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=1)
-    price_at_time = models.DecimalField(max_digits=10, decimal_places=2)
+    price_at_time = models.DecimalField(max_digits=10, decimal_places=2, db_column='unit_price')
 
     @property
     def total_price(self):
