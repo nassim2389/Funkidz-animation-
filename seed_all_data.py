@@ -34,6 +34,13 @@ def seed_all():
     MediaGallery.objects.all().delete()
     ContactMessage.objects.all().delete()
 
+    # Anciennes adresses de test remplacées par les 3 adresses permanentes
+    # (admin/client/animateur) : on les supprime pour éviter des doublons,
+    # get_or_create() ci-dessous ne les retrouverait pas via le nouvel email.
+    User.objects.filter(email__in=[
+        "admin@funkidz.fr", "client1@funkidz.fr", "animateur@funkidz.fr",
+    ]).delete()
+
     print("✅ Nettoyage terminé.")
 
     # 2. CRÉATION DE 10 FORMULES & SERVICES
@@ -174,7 +181,7 @@ def seed_all():
 
     # 3. CRÉATION DE 6 ANIMATEURS COMPLETS
     animateurs_data = [
-        {"email": "animateur@funkidz.fr", "first_name": "Lucas", "last_name": "Dupont", "phone": "0612345678", "rating": 4.9, "bio": "Spécialiste de la magie et des chasses au trésor depuis 5 ans."},
+        {"email": "Oreocq@gmail.com", "first_name": "Lucas", "last_name": "Dupont", "phone": "0612345678", "rating": 4.9, "bio": "Spécialiste de la magie et des chasses au trésor depuis 5 ans."},
         {"email": "sophie.anim@funkidz.fr", "first_name": "Sophie", "last_name": "Martin", "phone": "0623456789", "rating": 4.8, "bio": "Comédienne passionnée par les ateliers créatifs et théâtraux."},
         {"email": "thomas.anim@funkidz.fr", "first_name": "Thomas", "last_name": "Bernard", "phone": "0634567890", "rating": 5.0, "bio": "DJ Junior et animateur sportif diplômé BAFA."},
         {"email": "emma.anim@funkidz.fr", "first_name": "Emma", "last_name": "Petit", "phone": "0645678901", "rating": 4.7, "bio": "Experte en maquillage artistique et aventures féeriques."},
@@ -201,7 +208,7 @@ def seed_all():
 
     # 4. CRÉATION DES CLIENTS ET DE L'ADMINISTRATEUR DE TEST
     admin_user, _ = User.objects.get_or_create(
-        email="admin@funkidz.fr",
+        email="nassimoouche@gmail.com",
         defaults={"first_name": "Administrateur", "last_name": "Funkidz", "role": User.Role.ADMIN, "is_staff": True, "is_superuser": True, "is_verified": True}
     )
     admin_user.set_password("admin123")
@@ -209,10 +216,10 @@ def seed_all():
     admin_user.is_staff = True
     admin_user.is_superuser = True
     admin_user.save()
-    print("✅ Compte Administrateur fonctionnel créé (admin@funkidz.fr / admin123).")
+    print("✅ Compte Administrateur fonctionnel créé (nassimoouche@gmail.com / admin123).")
 
     clients_data = [
-        {"email": "client1@funkidz.fr", "first_name": "Jean", "last_name": "Dupont", "password": "client123"},
+        {"email": "jrdfklhx@outlook.be", "first_name": "Jean", "last_name": "Dupont", "password": "client123"},
         {"email": "client2@funkidz.fr", "first_name": "Amélie", "last_name": "Legrand", "password": "client123"},
         {"email": "client3@funkidz.fr", "first_name": "Nicolas", "last_name": "Bernard", "password": "client123"},
         {"email": "sedraniainaeuphredat@gmail.com", "first_name": "Sedra", "last_name": "Nia", "password": "password123"},
