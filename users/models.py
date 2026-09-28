@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -42,6 +44,7 @@ class User(AbstractUser):
         ADMIN = 'ADMIN', _('Admin')
         ANIMATEUR = 'ANIMATEUR', _('Animateur')
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = None
     # Redeclare pour poser db_column='password_hash' (diagramme de classe) ;
     # meme definition que AbstractUser.password sinon.
@@ -76,6 +79,7 @@ class User(AbstractUser):
         verbose_name_plural = "Utilisateurs"
 
 class AnimateurProfile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='animateur_profile')
     bio = models.TextField(blank=True)
     phone = models.CharField(max_length=20, blank=True)

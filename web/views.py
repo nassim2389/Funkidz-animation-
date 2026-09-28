@@ -1,3 +1,5 @@
+import uuid
+
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
@@ -247,8 +249,13 @@ class PaymentCancelledView(TemplateView):
         context = super().get_context_data(**kwargs)
         booking_id = self.request.GET.get('booking_id')
         booking = None
-        if booking_id and str(booking_id).isdigit():
-            booking = Booking.objects.filter(id=booking_id).first()
+        if booking_id:
+            try:
+                uuid.UUID(str(booking_id))
+            except ValueError:
+                booking_id = None
+            else:
+                booking = Booking.objects.filter(id=booking_id).first()
         context['booking'] = booking if _user_can_view_booking(self.request.user, booking) else None
         return context
 

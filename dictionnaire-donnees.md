@@ -4,7 +4,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `user_id` | OneToOneField → users.User | unique · obligatoire | User |
 | `bio` | TextField | obligatoire | Bio |
 | `phone` | CharField | obligatoire · max 20 caracteres | Phone |
@@ -15,7 +15,6 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
 | `last_login` | DateTimeField | optionnel | Dernière connexion |
 | `is_superuser` | BooleanField | obligatoire · defaut = False | Précise que l’utilisateur possède toutes les permissions sans les assigner explicitement. |
 | `first_name` | CharField | obligatoire · max 150 caracteres | Prénom |
@@ -23,6 +22,7 @@
 | `is_staff` | BooleanField | obligatoire · defaut = False | Précise si l’utilisateur peut se connecter à ce site d'administration. |
 | `is_active` | BooleanField | obligatoire · defaut = True | Précise si l’utilisateur doit être considéré comme actif. Décochez ceci plutôt que de supprimer le compte. |
 | `date_joined` | DateTimeField | obligatoire | Date d’inscription |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `password_hash` | CharField | obligatoire · max 128 caracteres | Mot de passe |
 | `email` | CharField | unique · obligatoire · max 254 caracteres | Adresse électronique |
 | `role` | CharField | obligatoire · max 10 caracteres · defaut = User.Role.CLIENT · choix : CLIENT, ADMIN, ANIMATEUR | Role |
@@ -34,7 +34,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `service_id` | ForeignKey → services.Service | obligatoire | Service |
 | `name` | CharField | obligatoire · max 200 caracteres | Name |
 | `description` | TextField | obligatoire | Description |
@@ -47,7 +47,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `title` | CharField | obligatoire · max 200 caracteres | Name |
 | `description` | TextField | obligatoire | Description |
 | `base_price` | DecimalField | obligatoire | Base price |
@@ -65,7 +65,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `user_id` | ForeignKey → users.User | obligatoire | User |
 | `service_id` | ForeignKey → services.Service | obligatoire | Service |
 | `event_date` | DateField | obligatoire | Booking date |
@@ -92,7 +92,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `booking_id` | ForeignKey → bookings.Booking | obligatoire | Booking |
 | `animateur_id` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
 | `status` | CharField | obligatoire · max 20 caracteres · defaut = BookingAssignment.Status.PENDING · choix : PENDING, ACCEPTED, REFUSED | Status |
@@ -103,7 +103,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `booking_id` | ForeignKey → bookings.Booking | obligatoire | Booking |
 | `option_id` | ForeignKey → services.Option | obligatoire | Option |
 | `quantity` | PositiveIntegerField | obligatoire · defaut = 1 | Quantity |
@@ -113,7 +113,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `animateur_id` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
 | `start_date` | DateField | obligatoire | Start date |
 | `end_date` | DateField | obligatoire | End date |
@@ -124,7 +124,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `animateur_id` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
 | `date` | DateField | obligatoire | Date |
 | `start_time` | TimeField | obligatoire | Start time |
@@ -135,7 +135,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `animateur_id` | ForeignKey → users.AnimateurProfile | obligatoire | Animateur |
 | `day_of_week` | IntegerField | obligatoire · choix : 0, 1, 2, 3, 4, 5, 6 | Weekday |
 | `start_time` | TimeField | obligatoire | Start time |
@@ -146,7 +146,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `booking_id` | ForeignKey → bookings.Booking | obligatoire | Booking |
 | `stripe_session_id` | CharField | unique · obligatoire · max 255 caracteres | Stripe session id |
 | `stripe_payment_intent` | CharField | obligatoire · max 255 caracteres | Stripe payment intent |
@@ -160,7 +160,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `booking_id` | OneToOneField → bookings.Booking | unique · obligatoire | Booking |
 | `rating` | PositiveSmallIntegerField | obligatoire | Rating |
 | `comment` | TextField | obligatoire | Comment |
@@ -170,7 +170,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `service_id` | ForeignKey → services.Service | optionnel | Service |
 | `media_url` | CharField | obligatoire · max 200 caracteres | Lien externe (ex: YouTube) |
 | `file` | FileField | optionnel · max 100 caracteres | Importer depuis votre ordinateur |
@@ -182,7 +182,7 @@
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
-| `id` | BigAutoField | cle primaire · optionnel | Id |
+| `id` | UUIDField | cle primaire · optionnel · max 32 caracteres | Id |
 | `name` | CharField | obligatoire · max 200 caracteres | Name |
 | `email` | CharField | obligatoire · max 254 caracteres | Email |
 | `phone` | CharField | obligatoire · max 20 caracteres | Phone |

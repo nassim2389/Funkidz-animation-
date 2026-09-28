@@ -285,7 +285,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
         return Response({
             'available': available,
             'message': message,
-            'animateur_id': int(animateur_id) if animateur_id else None,
+            'animateur_id': animateur_id or None,
             'animators_total': len(animators),
             'animators_available': animators_available,
             'animators': animators,
@@ -393,7 +393,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
         return Response({
             'date': date_str,
             'service_id': service_id,
-            'animateur_id': int(animateur_id) if animateur_id else None,
+            'animateur_id': animateur_id or None,
             'service_name': service_name,
             'duration_minutes': duration,
             'slots': slots_data,

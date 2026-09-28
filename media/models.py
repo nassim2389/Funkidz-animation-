@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 class MediaGallery(models.Model):
@@ -5,6 +7,7 @@ class MediaGallery(models.Model):
         IMAGE = 'IMAGE', 'Image'
         VIDEO = 'VIDEO', 'Vidéo'
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     service = models.ForeignKey('services.Service', on_delete=models.SET_NULL, null=True, blank=True, related_name='gallery')
     media_url = models.URLField(blank=True, help_text="Lien externe (ex: YouTube)")
     file = models.FileField(upload_to='gallery/', blank=True, null=True, help_text="Importer depuis votre ordinateur")

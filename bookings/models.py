@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.conf import settings
 from services.models import Service, Option
@@ -23,6 +25,7 @@ class Booking(models.Model):
         ADMIN = 'ADMIN', "Administrateur"
         CLIENT = 'CLIENT', "Client"
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='bookings')
     service = models.ForeignKey(Service, on_delete=models.PROTECT)
     booking_date = models.DateField(db_column='event_date')
@@ -148,6 +151,7 @@ class Booking(models.Model):
         ordering = ['-booking_date', '-booking_time']
 
 class BookingOption(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     booking = models.ForeignKey(Booking, related_name='selected_options', on_delete=models.CASCADE)
     option = models.ForeignKey(Option, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=1)
@@ -178,6 +182,7 @@ class BookingAssignment(models.Model):
         ACCEPTED = 'ACCEPTED', 'Acceptée'
         REFUSED = 'REFUSED', 'Refusée'
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     booking = models.ForeignKey(Booking, related_name='assignments', on_delete=models.CASCADE)
     animateur = models.ForeignKey('users.AnimateurProfile', on_delete=models.CASCADE)
     status = models.CharField(

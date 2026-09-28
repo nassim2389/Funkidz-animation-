@@ -1,6 +1,9 @@
+import uuid
+
 from django.db import models
 
 class Availability(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     animateur = models.ForeignKey('users.AnimateurProfile', on_delete=models.CASCADE, related_name='availabilities')
     date = models.DateField()
     start_time = models.TimeField()
@@ -24,6 +27,7 @@ class WeeklySchedule(models.Model):
         SATURDAY = 5, 'Samedi'
         SUNDAY = 6, 'Dimanche'
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     animateur = models.ForeignKey('users.AnimateurProfile', on_delete=models.CASCADE, related_name='weekly_schedules')
     weekday = models.IntegerField(choices=Weekday.choices, db_column='day_of_week')
     start_time = models.TimeField()
@@ -44,6 +48,7 @@ class AnimateurLeave(models.Model):
         APPROVED = 'APPROVED', 'Approuvé'
         REJECTED = 'REJECTED', 'Refusé'
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     animateur = models.ForeignKey('users.AnimateurProfile', on_delete=models.CASCADE, related_name='leaves')
     start_date = models.DateField()
     end_date = models.DateField()

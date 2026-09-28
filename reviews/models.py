@@ -1,6 +1,9 @@
+import uuid
+
 from django.db import models
 
 class Review(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     booking = models.OneToOneField('bookings.Booking', on_delete=models.CASCADE, related_name='review')
     rating = models.PositiveSmallIntegerField()
     comment = models.TextField(blank=True)

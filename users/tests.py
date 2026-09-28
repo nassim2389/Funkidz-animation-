@@ -88,7 +88,7 @@ class GoogleLoginSecurityTests(TestCase):
     def test_verified_google_identity_logs_in(self, _mock_identity):
         self.client.get(self.callback_url, {'code': 'code-valide', 'email': self.admin.email})
         self.assertTrue(self._is_logged_in())
-        self.assertEqual(int(self.client.session['_auth_user_id']), self.client_user.id)
+        self.assertEqual(self.client.session['_auth_user_id'], str(self.client_user.id))
 
 
 
@@ -116,7 +116,7 @@ class EmailCaseInsensitiveLoginTests(TestCase):
             'username': 'CLIENT.Casse@exemple.fr', 'password': 'Mot-de-passe-2026'
         })
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(int(self.client.session['_auth_user_id']), self.user.id)
+        self.assertEqual(self.client.session['_auth_user_id'], str(self.user.id))
 
     def test_api_token_login_ignores_case(self):
         response = APIClient().post(reverse('token_obtain_pair'), {
@@ -160,7 +160,7 @@ class SignupValidationTests(TestCase):
         self.assertRedirects(response, '/', fetch_redirect_response=False)
         user = User.objects.get(email='nouveau.client@exemple.fr')
         self.assertEqual(user.role, User.Role.CLIENT)
-        self.assertEqual(int(self.client.session['_auth_user_id']), user.id)
+        self.assertEqual(self.client.session['_auth_user_id'], str(user.id))
 
     def test_api_register_refuses_duplicate_and_weak_password(self):
         api = APIClient()
@@ -224,14 +224,14 @@ class MultiClientIsolationTests(TestCase):
         api = APIClient()
         api.force_authenticate(user=self.client_a)
         ids = [b['id'] for b in api.get('/api/bookings/').data]
-        self.assertEqual(ids, [self.booking_a.id])
+        self.assertEqual(ids, [str(self.booking_a.id)])
         self.assertEqual(api.get(f'/api/bookings/{self.booking_b.id}/').status_code, 404)
 
     def test_staff_account_sees_all_bookings_even_with_client_role(self):
         api = APIClient()
         api.force_authenticate(user=self.staff)
         ids = sorted(b['id'] for b in api.get('/api/bookings/').data)
-        self.assertEqual(ids, sorted([self.booking_a.id, self.booking_b.id]))
+        self.assertEqual(ids, sorted([str(self.booking_a.id), str(self.booking_b.id)]))
 
 
 class PrepareTestAccountsCommandTests(TestCase):

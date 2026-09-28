@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 class Service(models.Model):
@@ -8,6 +10,7 @@ class Service(models.Model):
         ECOLE = 'ECOLE', 'École'
         AUTRE = 'AUTRE', 'Autre'
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200, db_column='title')
     description = models.TextField()
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -64,6 +67,7 @@ class Option(models.Model):
         PER_CHILD = 'PER_CHILD', 'Par Enfant'
         PER_HOUR = 'PER_HOUR', 'Par Heure'
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     service = models.ForeignKey(Service, related_name='options', on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)

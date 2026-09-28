@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from bookings.models import Booking
 
@@ -8,6 +10,7 @@ class Payment(models.Model):
         FAILED = 'FAILED', 'Échoué'
         REFUNDED = 'REFUNDED', 'Remboursé'
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payments')
     stripe_session_id = models.CharField(max_length=255, unique=True)
     stripe_payment_intent = models.CharField(max_length=255, blank=True)
