@@ -19,6 +19,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from bookings.models import Booking, BookingAssignment
+from core import emails as core_emails
 from core.utils import get_admin_recipient_emails
 from services.models import Service
 from users.models import AnimateurProfile
@@ -100,14 +101,21 @@ class Command(BaseCommand):
         self.stdout.write(self.style.MIGRATE_HEADING(f" {title}"))
         self.stdout.write(self.style.MIGRATE_HEADING("=" * 78))
 
-    def _report(self, step, expected_role, expected_emails, messages):
+    def _report(self, step, expected_role, expected_emails, messages, send_outcomes=None):
         """Affiche les e-mails produits par une étape et contrôle les destinataires."""
         if not self.capture:
-            # Envoi réel : le backend configuré a expédié les messages, le contenu
-            # de la boîte d'envoi n'est pas inspectable ici.
-            self.stdout.write(
-                f"  --  {expected_role:<9} expédié vers {', '.join(expected_emails)}"
-            )
+            # Envoi reel : send_templated_email() renvoie True/False selon que le
+            # SMTP a reellement abouti (interception via _send_results, cf. handle()) ;
+            # avant ce correctif, cette branche affichait "OK" sans jamais verifier.
+            if send_outcomes and not all(send_outcomes):
+                self.stdout.write(self.style.ERROR(
+                    f"  KO  {expected_role:<9} ECHEC d'envoi vers {', '.join(expected_emails)} "
+                    f"(voir le log ci-dessus pour l'erreur SMTP exacte)"
+                ))
+                return False
+            self.stdout.write(self.style.SUCCESS(
+                f"  OK  {expected_role:<9} expédié vers {', '.join(expected_emails)}"
+            ))
             return True
 
         if not messages:
@@ -173,11 +181,26 @@ class Command(BaseCommand):
                 "Mode vérification : aucun e-mail n'est expédié, seuls les destinataires sont contrôlés."
             )
 
+        # En mode --send, aucune fonction n'exposait avant si l'envoi SMTP avait
+        # reellement reussi : send_templated_email() renvoie True/False mais son
+        # appelant (les signaux post_save de Booking/BookingAssignment) ignore ce
+        # retour. On intercepte l'appel le temps de cette commande pour recuperer
+        # le vrai resultat, sans toucher au comportement de l'appli.
+        self.send_outcomes = []
+        original_send = core_emails.send_templated_email
+        if send_for_real:
+            def _tracked_send(*args, **kwargs):
+                result = original_send(*args, **kwargs)
+                self.send_outcomes.append(result)
+                return result
+            core_emails.send_templated_email = _tracked_send
+
         booking = None
         results = []
         try:
             booking = self._run_scenario(client_user, animateur, service, results)
         finally:
+            core_emails.send_templated_email = original_send
             if booking is not None and not options['keep']:
                 with transaction.atomic():
                     BookingAssignment.objects.filter(booking=booking).delete()
@@ -209,6 +232,10 @@ class Command(BaseCommand):
         """Messages capturés depuis un index donné (vide si envoi réel)."""
         return mail.outbox[index:] if hasattr(mail, 'outbox') else []
 
+    def _send_outcomes_since(self, index):
+        """Résultats reels (True/False) de send_templated_email() depuis un index donné."""
+        return self.send_outcomes[index:]
+
     def _run_scenario(self, client_user, animateur, service, results):
         admin_emails = get_admin_recipient_emails()
         mail.outbox = []
@@ -216,6 +243,7 @@ class Command(BaseCommand):
         # 1. Création de la réservation : notification ADMIN
         self._header("1. Création de la réservation (statut En attente)")
         start = len(mail.outbox)
+        send_start = len(self.send_outcomes)
         booking = Booking.objects.create(
             user=client_user,
             service=service,
@@ -233,12 +261,14 @@ class Command(BaseCommand):
         )
         results.append((
             "Création de réservation : notification ADMIN",
-            self._report("création", "ADMIN", admin_emails, self._outbox_since(start)),
+            self._report("création", "ADMIN", admin_emails, self._outbox_since(start),
+                          self._send_outcomes_since(send_start)),
         ))
 
         # 2. Attribution de la mission : notification ANIMATEUR
         self._header("2. Attribution de la mission à l'animateur")
         start = len(mail.outbox)
+        send_start = len(self.send_outcomes)
         BookingAssignment.objects.create(
             booking=booking,
             animateur=animateur,
@@ -246,41 +276,46 @@ class Command(BaseCommand):
         )
         results.append((
             "Attribution de mission : notification ANIMATEUR",
-            self._report("attribution", "ANIMATEUR", [animateur.user.email], self._outbox_since(start)),
+            self._report("attribution", "ANIMATEUR", [animateur.user.email], self._outbox_since(start),
+                          self._send_outcomes_since(send_start)),
         ))
 
         # 3. Confirmation : notification CLIENT + ADMIN
         self._header("3. Confirmation de la réservation (paiement validé)")
         start = len(mail.outbox)
+        send_start = len(self.send_outcomes)
         booking.status = Booking.Status.CONFIRMED
         booking.save()
         produced = self._outbox_since(start)
+        send_outcomes = self._send_outcomes_since(send_start)
         client_msgs = [m for m in produced if client_user.email in m.to]
         admin_msgs = [m for m in produced if any(a in m.to for a in admin_emails)]
         results.append((
             "Confirmation : notification CLIENT",
-            self._report("confirmation", "CLIENT", [client_user.email], client_msgs),
+            self._report("confirmation", "CLIENT", [client_user.email], client_msgs, send_outcomes),
         ))
         results.append((
             "Confirmation : notification ADMIN",
-            self._report("confirmation", "ADMIN", admin_emails, admin_msgs),
+            self._report("confirmation", "ADMIN", admin_emails, admin_msgs, send_outcomes),
         ))
 
         # 4. Annulation : notification CLIENT + ADMIN
         self._header("4. Annulation de la réservation")
         start = len(mail.outbox)
+        send_start = len(self.send_outcomes)
         booking.status = Booking.Status.CANCELLED
         booking.save()
         produced = self._outbox_since(start)
+        send_outcomes = self._send_outcomes_since(send_start)
         client_msgs = [m for m in produced if client_user.email in m.to]
         admin_msgs = [m for m in produced if any(a in m.to for a in admin_emails)]
         results.append((
             "Annulation : notification CLIENT",
-            self._report("annulation", "CLIENT", [client_user.email], client_msgs),
+            self._report("annulation", "CLIENT", [client_user.email], client_msgs, send_outcomes),
         ))
         results.append((
             "Annulation : notification ADMIN",
-            self._report("annulation", "ADMIN", admin_emails, admin_msgs),
+            self._report("annulation", "ADMIN", admin_emails, admin_msgs, send_outcomes),
         ))
 
         return booking

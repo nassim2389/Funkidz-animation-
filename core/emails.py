@@ -73,8 +73,16 @@ def send_templated_email(subject, template_name, context, recipient_list, from_e
         if html_content:
             msg.attach_alternative(html_content, "text/html")
 
-        # Envoi effectif
-        msg.send(fail_silently=fail_silently)
+        # Envoi effectif. Avec fail_silently=True (le cas de tous les appelants),
+        # Django avale l'exception SMTP et renvoie 0 au lieu de lever : il faut
+        # verifier ce retour explicitement, sinon un echec silencieux (ex: erreur
+        # d'authentification SMTP) est log comme un succes et jamais retente.
+        sent_count = msg.send(fail_silently=fail_silently)
+        if sent_count < 1:
+            logger.error(f"❌ E-mail non délivré (échec silencieux SMTP) à {valid_recipients} — Sujet: '{subject}' [Template: {template_name}]")
+            if not fail_silently and settings.DEBUG and getattr(settings, 'RAISE_EMAIL_EXCEPTIONS', False):
+                raise RuntimeError(f"Échec d'envoi silencieux vers {valid_recipients}")
+            return False
         logger.info(f"✅ E-mail envoyé avec succès à {valid_recipients} — Sujet: '{subject}' [Template: {template_name}]")
         return True
     except Exception as e:
