@@ -132,7 +132,7 @@
 {{ user.get_full_name|json_script:"customer-name" }}
 <script>
 (function () {
-    const bookingId = {{ booking.id }};
+    const bookingId = "{{ booking.id }}";
     const publishableKey = "{{ stripe_publishable_key }}";
     const form = document.getElementById('payment-form');
     const submitButton = document.getElementById('submit-payment');
