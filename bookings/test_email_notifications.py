@@ -13,7 +13,7 @@ from payments.models import Payment
 User = get_user_model()
 
 
-@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', ADMIN_NOTIFICATION_EMAILS=[])
 class EmailNotificationsTests(TestCase):
     """
     Tests exhaustifs du système de notifications par e-mail Funkidz (Étape 5) :
@@ -314,7 +314,7 @@ class EmailNotificationsTests(TestCase):
         self.assertEqual(env_pwd, settings_pwd)
 
 
-@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', ADMIN_NOTIFICATION_EMAILS=[])
 class AdminRecipientRoutingTests(TestCase):
     """
     Routage des notifications administratives (Étape 3).
