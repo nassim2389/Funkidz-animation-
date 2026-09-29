@@ -63,7 +63,7 @@ serveur redémarre.
 | :--- | :--- | :--- |
 | **Administrateur** | `nassimoouche@gmail.com` | `admin123` |
 | **Client** | `jrdfklhx@outlook.be` | `client123` |
-| **Animateur** | `Oreocq@gmail.com` | `animateur123` |
+| **Animateur** | `oreocq@gmail.com` | `animateur123` |
 
 Ces adresses sont réelles : en effectuant des actions avec ces comptes
 précis (réservation côté client, attribution de mission côté

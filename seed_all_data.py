@@ -181,7 +181,7 @@ def seed_all():
 
     # 3. CRÉATION DE 6 ANIMATEURS COMPLETS
     animateurs_data = [
-        {"email": "Oreocq@gmail.com", "first_name": "Lucas", "last_name": "Dupont", "phone": "0612345678", "rating": 4.9, "bio": "Spécialiste de la magie et des chasses au trésor depuis 5 ans."},
+        {"email": "oreocq@gmail.com", "first_name": "Lucas", "last_name": "Dupont", "phone": "0612345678", "rating": 4.9, "bio": "Spécialiste de la magie et des chasses au trésor depuis 5 ans."},
         {"email": "sophie.anim@funkidz.fr", "first_name": "Sophie", "last_name": "Martin", "phone": "0623456789", "rating": 4.8, "bio": "Comédienne passionnée par les ateliers créatifs et théâtraux."},
         {"email": "thomas.anim@funkidz.fr", "first_name": "Thomas", "last_name": "Bernard", "phone": "0634567890", "rating": 5.0, "bio": "DJ Junior et animateur sportif diplômé BAFA."},
         {"email": "emma.anim@funkidz.fr", "first_name": "Emma", "last_name": "Petit", "phone": "0645678901", "rating": 4.7, "bio": "Experte en maquillage artistique et aventures féeriques."},
