@@ -115,6 +115,25 @@
 
     {% include 'includes/footer.html' %}
 
+    <!-- Toast global : message de progression pendant une action longue -->
+    <div id="funkidz-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] hidden">
+        <div class="flex items-center gap-3 bg-slate-900 text-white text-xs font-semibold px-5 py-3 rounded-full shadow-2xl">
+            <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0"></span>
+            <span id="funkidz-toast-text"></span>
+        </div>
+    </div>
+    <script>
+        window.FunkidzToast = {
+            show(message) {
+                document.getElementById('funkidz-toast-text').textContent = message;
+                document.getElementById('funkidz-toast').classList.remove('hidden');
+            },
+            hide() {
+                document.getElementById('funkidz-toast').classList.add('hidden');
+            }
+        };
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

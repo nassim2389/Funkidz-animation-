@@ -935,7 +935,13 @@
                 this.isSubmitting = true;
                 this.formData.service = this.formData.service_id;
                 this.formData.selected_options = this.selectedOptionIds.map(id => ({ option: id, quantity: 1 }));
-                
+
+                // L'enregistrement envoie des e-mails de notification pendant la
+                // requête : ça peut prendre jusqu'à ~20 secondes si le serveur
+                // d'e-mails répond lentement. Message honnête plutôt qu'une fausse
+                // barre de progression étape par étape.
+                FunkidzToast.show('Enregistrement de la réservation, cela peut prendre jusqu\'à 20 secondes…');
+
                 try {
                     const res = await fetch('/api/bookings/', {
                         method: 'POST',
@@ -948,7 +954,8 @@
 
                     if (res.ok) {
                         const booking = await res.json();
-                        
+                        FunkidzToast.hide();
+
                         // Paiement différé : la réservation reste en attente de règlement.
                         if (this.paymentMode === 'later') {
                             window.location.href = '/dashboard/';
@@ -959,6 +966,7 @@
                         window.location.href = '/paiement/' + booking.id + '/';
                     } else {
                         this.isSubmitting = false;
+                        FunkidzToast.hide();
                         const error = await res.json();
                         if (error.booking_time) {
                             const msg = Array.isArray(error.booking_time) ? error.booking_time[0] : error.booking_time;
@@ -973,6 +981,7 @@
                     }
                 } catch(e) {
                     this.isSubmitting = false;
+                    FunkidzToast.hide();
                     alert('Erreur réseau lors de la réservation.');
                 }
             }

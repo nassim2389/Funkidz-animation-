@@ -156,6 +156,7 @@
 
     async function init() {
         setBusy(true);
+        FunkidzToast.show('Préparation du paiement…');
         try {
             const res = await fetch('/api/payments/create-intent/', {
                 method: 'POST',
@@ -170,9 +171,11 @@
             if (!res.ok || !data.client_secret) {
                 showMessage(data.error || "Impossible de préparer le paiement.");
                 setBusy(false);
+                FunkidzToast.hide();
                 return;
             }
 
+            FunkidzToast.show('Chargement du formulaire sécurisé…');
             stripe = Stripe(data.publishable_key || publishableKey, { locale: 'fr' });
             elements = stripe.elements({
                 clientSecret: data.client_secret,
@@ -189,9 +192,11 @@
                 defaultValues: { billingDetails: { email: customerEmail, name: customerName || undefined } }
             }).mount('#payment-element');
             setBusy(false);
+            FunkidzToast.hide();
         } catch (err) {
             showMessage("Erreur lors de l'initialisation du paiement.");
             setBusy(false);
+            FunkidzToast.hide();
         }
     }
 
